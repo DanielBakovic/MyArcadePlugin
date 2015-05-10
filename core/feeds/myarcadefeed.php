@@ -1,0 +1,262 @@
+<?php
+/**
+ * MyArcadeFeed
+ *
+ * @author Daniel Bakovic <contact@myarcadeplugin.com>
+ * @copyright (c) 2015, Daniel Bakovic
+ * @license http://myarcadeplugin.com
+ * @package MyArcadePlugin/Core/Fetch
+ */
+
+/**
+ * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
+ * Do not modify! Do not sell! Do not distribute! -
+ * Check our license Terms!
+ */
+
+// No direct Access
+if ( ! defined( 'ABSPATH' ) ) {
+  exit;
+}
+
+/**
+ * Display distributor settings on admin page
+ *
+ * @version 5.0.0
+ * @access  public
+ * @return  void
+ */
+function myarcade_settings_myarcadefeed() {
+  $myarcadefeed = get_option( 'myarcade_myarcadefeed' );
+  ?>
+  <h2 class="trigger"><?php _e("MyArcadeFeed", 'myarcadeplugin'); ?></h2>
+  <div class="toggle_container">
+    <div class="block">
+      <table class="optiontable" width="100%" cellpadding="5" cellspacing="5">
+        <tr>
+          <td colspan="2">
+            <i>
+              <?php _e("Add up to five Feeds generated with MyArcadeFeed Plugin.", 'myarcadeplugin'); ?> Click <a href="http://exells.com/shop/products/myarcadefeed">here</a> to learn more about MyArcadeFeed.
+            </i>
+            <br /><br />
+          </td>
+        </tr>
+
+        <tr><td colspan="2"><h3><?php _e("MyArcadeFeed URL 1", 'myarcadeplugin'); ?></h3></td></tr>
+        <tr>
+          <td>
+            <input type="text" size="40"  name="myarcadefeed1" value="<?php echo $myarcadefeed['feed1']; ?>" />
+          </td>
+          <td><i><?php _e("Paste your MyArcadeFeed URL No. 1 here.", 'myarcadeplugin'); ?></i></td>
+        </tr>
+        <tr><td colspan="2"><h3><?php _e("MyArcadeFeed URL 2", 'myarcadeplugin'); ?></h3></td></tr>
+        <tr>
+          <td>
+            <input type="text" size="40"  name="myarcadefeed2" value="<?php echo $myarcadefeed['feed2']; ?>" />
+          </td>
+          <td><i><?php _e("Paste your MyArcadeFeed URL No. 2 here.", 'myarcadeplugin'); ?></i></td>
+        </tr>
+        <tr><td colspan="2"><h3><?php _e("MyArcadeFeed URL 3", 'myarcadeplugin'); ?></h3></td></tr>
+        <tr>
+          <td>
+            <input type="text" size="40"  name="myarcadefeed3" value="<?php echo $myarcadefeed['feed3']; ?>" />
+          </td>
+          <td><i><?php _e("Paste your MyArcadeFeed URL No. 3 here.", 'myarcadeplugin'); ?></i></td>
+        </tr>
+        <tr><td colspan="2"><h3><?php _e("MyArcadeFeed URL 4", 'myarcadeplugin'); ?></h3></td></tr>
+        <tr>
+          <td>
+            <input type="text" size="40"  name="myarcadefeed4" value="<?php echo $myarcadefeed['feed4']; ?>" />
+          </td>
+          <td><i><?php _e("Paste your MyArcadeFeed URL No. 4 here.", 'myarcadeplugin'); ?></i></td>
+        </tr>
+        <tr><td colspan="2"><h3><?php _e("MyArcadeFeed URL 5", 'myarcadeplugin'); ?></h3></td></tr>
+        <tr>
+          <td>
+            <input type="text" size="40"  name="myarcadefeed5" value="<?php echo $myarcadefeed['feed5']; ?>" />
+          </td>
+          <td><i><?php _e("Paste your MyArcadeFeed URL No. 5 here.", 'myarcadeplugin'); ?></i></td>
+        </tr>
+        <tr><td colspan="2"><h3><?php _e("Fetch All Categories", 'myarcadeplugin'); ?></h3></td></tr>
+        <tr>
+          <td>
+            <input type="checkbox" name="myarcadefeed_all_categories" value="true" <?php myarcade_checked($myarcadefeed['all_categories'], true); ?> /><label class="opt">&nbsp;<?php _e("Yes", 'myarcadeplugin'); ?></label>
+          </td>
+          <td><i><?php _e("Activate this if you want to fetch all games independent of your activated categories.", 'myarcadeplugin'); ?></i></td>
+        </tr>
+      </table>
+      <input class="button button-primary" id="submit" type="submit" name="submit" value="<?php _e("Save Settings", 'myarcadeplugin'); ?>" />
+    </div>
+  </div>
+  <?php
+}
+
+/**
+ * Handle distributor settings update
+ *
+ * @version 5.0.0
+ * @access  public
+ * @return  void
+ */
+function myarcade_save_settings_myarcadefeed() {
+
+  // Do a secuirty check before updating the settings
+  $myarcade_nonce = filter_input( INPUT_POST, 'myarcade_save_settings_nonce');
+  if ( ! $myarcade_nonce || ! wp_verify_nonce( $myarcade_nonce, 'myarcade_save_settings' ) ) {
+    // Security check failed .. don't update settings
+    return;
+  }
+
+  // MyArcadeFeed
+  $myarcadefeed = array();
+  $myarcadefeed['feed1'] = (isset($_POST['myarcadefeed1'])) ? esc_url_raw($_POST['myarcadefeed1']) : '';
+  $myarcadefeed['feed2'] = (isset($_POST['myarcadefeed2'])) ? esc_url_raw($_POST['myarcadefeed2']) : '';
+  $myarcadefeed['feed3'] = (isset($_POST['myarcadefeed3'])) ? esc_url_raw($_POST['myarcadefeed3']) : '';
+  $myarcadefeed['feed4'] = (isset($_POST['myarcadefeed4'])) ? esc_url_raw($_POST['myarcadefeed4']) : '';
+  $myarcadefeed['feed5'] = (isset($_POST['myarcadefeed5'])) ? esc_url_raw($_POST['myarcadefeed5']) : '';
+  $myarcadefeed['all_categories'] = (isset($_POST['myarcadefeed_all_categories'])) ? true : false;
+
+  // Update Settings
+  update_option('myarcade_myarcadefeed', $myarcadefeed);
+}
+
+/**
+ * Diesplay feed options on the fetch games page
+ *
+ * @version 5.0.0
+ * @access  public
+ * @return  void
+ */
+function myarcade_fetch_options_myarcadefeed() {
+
+}
+
+/**
+ * Fetch MyArcadeFeed games
+ *
+ * @version 5.0.0
+ * @access  public
+ * @param   array  $args Fetching parameters
+ * @return  void
+ */
+function myarcade_feed_myarcadefeed($args) {
+ global $wpdb;
+
+  $defaults = array(
+    'echo'     => false,
+    'settings' => array()
+  );
+
+  $r = wp_parse_args( $args, $defaults );
+  extract($r);
+
+  $new_games = 0;
+  $add_game = false;
+
+  $myarcadefeed  = get_option('myarcade_myarcadefeed');
+  $feedcategories = get_option('myarcade_categories');
+  $feed           = $settings['feed'];
+
+  if ( empty($settings) ) {
+    $settings = $myarcadefeed;
+  }
+
+  // Include required fetch functions
+  require_once( MYARCADE_CORE_DIR . '/fetch.php' );
+
+  $games = myarcade_fetch_games( array(
+      'url'     => $settings[$feed],
+      'service' => 'xml',
+      'echo'    => true
+    )
+  );
+
+  if ( !empty($games) && isset($games->gameset) ) {
+    foreach ($games->gameset->game as $game) {
+
+      $game->uuid     = $game->id;
+      // Generate a game tag for this game
+      $game->game_tag = md5($game->id.$game->name.'myarcadefeed');
+
+      // Check, if this game is present in the games table
+      $duplicate_game = $wpdb->get_var("SELECT id FROM ".$wpdb->prefix . 'myarcadegames'." WHERE uuid = '".$game->uuid."' OR game_tag = '".$game->game_tag."' OR name = '".esc_sql($game->name)."'");
+
+      if ( !$duplicate_game ) {
+        // Check game categories and add game if it's category has been selected
+
+        $categories = explode( ',', $game->category );
+
+        if ( ! $settings['all_categories'] ) {
+          $add_game = false;
+          // Category-Check
+          foreach ($feedcategories as $feedcat) {
+            foreach ( $categories as $category ) {
+              if ( ($feedcat['Name'] == $category) && ($feedcat['Status'] == 'checked') ) {
+                $add_game = true;
+                break;
+              }
+            }
+            if ( $add_game ) {
+              break;
+            }
+          }
+
+          // Should we add this game?
+          if ($add_game == false) { continue; }
+        }
+
+        // Decode URL
+        $game->gamecode = urldecode($game->gamecode);
+
+        // Check for file extension or embed code
+        if ( strpos( $game->gamecode, 'src=') !== FALSE ) {
+          // This is an embed code game
+          $game->type = 'embed';
+        }
+        else {
+          $extension = pathinfo( $game->gamecode , PATHINFO_EXTENSION );
+
+          switch ( $extension ) {
+            case 'dcr' : {
+              $game->type = 'dcr';
+            } break;
+
+            case 'unity3d' : {
+              $game->type = 'unity';
+            }
+
+            case 'html' : {
+              $game->type = 'iframe';
+            } break;
+
+            default : {
+              $game->type = 'myarcadefeed';
+            } break;
+          }
+        }
+
+        $game->name           = esc_sql( $game->name );
+        $game->slug           = myarcade_make_slug($game->name);
+        $game->description    = esc_sql($game->description);
+        $game->instructions    = esc_sql($game->instructions);
+        $game->categs         = esc_sql($game->category);
+        $game->thumbnail_url  = esc_sql($game->thumbnail);
+        $game->swf_url        = esc_sql($game->gamecode);
+        $game->screen1_url    = !empty($game->screenshot_1) ? $game->screenshot_1 : '';
+        $game->screen2_url    = !empty($game->screenshot_2) ? $game->screenshot_2 : '';
+        $game->screen3_url    = !empty($game->screenshot_3) ? $game->screenshot_3 : '';
+        $game->screen4_url    = !empty($game->screenshot_4) ? $game->screenshot_4 : '';
+        $game->tags           = ( !empty($game->tags) ) ? esc_sql($game->tags) : '';
+
+        $new_games++;
+
+        // Add game to the database
+        myarcade_add_fetched_game( $game, $echo );
+      }
+    }
+  }
+
+  // Show, how many games have been fetched
+  myarcade_fetched_message( $new_games, $echo );
+}
+?>

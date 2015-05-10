@@ -1,0 +1,168 @@
+- MyArcadePlugin Lite -
+
+v5.0.0 - 2015-04-28 - Based on MyArcadePlugin Pro v5.16.2
+  - New: 2PG feed integration (http://2pg.com)
+  - New: Famobi feed integration (http://famobi.com)
+  - New: Gamepix feed integration (http://gamepix.com)
+  - New: Moved MyArcadePlugin upload folders to WordPress upload folder (uploads/games, uploads/thumbs).
+  - New: Display MyArcade Game Details post meta only if the current post is a game
+  - New: Video URL field on import games form
+  - New: Display custom taxonomies on game import form if custom post type is activated
+  - New: Display MyArcade Game Details meta box on custom post types
+  - New: Option to select Iframe games on "Publish Games" page
+  - New: Action when a game post has been created to allow users to add additional data to the post
+    - do_action( 'myarcade_post_created', $post_id );
+  - New: Create required directories on settings update and not only on plugin activation/update
+  - Fix: Don't try to download Iframe games
+  - Fix: Import embed games where the embed code contains line breaks
+  - Fix: Sanitize description and instruction fields correctly
+  - Fix: Clean "new line" characters
+
+v4.1.0 - 2014-06-10
+  - New: Updated to Spilgames Feed API v3
+  - New: Spilgames - Game Player API integration. Can be enabled on MyArcade -> Spilgames Settings
+  - New: Spilgames - Offset fetching
+  - New: MyArcadeFeed - Unity and Iframe game types added
+  - New: Iframe codes are not stored directly anymore while fetching. Only the URL is stored and the code will be generated automatically
+  - New: Custom game type: Iframe URL. Just enter a URL of a game or page which should be embedded. The Iframe code will be generated automatically
+  - New: Filter to manipulate game images before they get added
+    - apply_filters( 'myarcade_filter_game_code', $game_code, $game_type );
+    - apply_filters( 'myarcade_filter_thumbnail', $thumbnail_url )
+    - apply_filters( 'myarcade_filter_screenshot', $screenshot_url, $screenshot_number );
+  - New: Video URL field on MyArcade Game Details meta box
+  - Fix: Game dimensions are not stored correctly for Iframe/Embed games (Import games page)
+  - Fix: UnityFeeds URL on settings page
+
+v4.0.0 - 2014-04-18
+  - New: Unityfeeds integration
+  - New: Unity3D game support
+  - New: Draft button on Manage Games / Edit Form pages
+  - New: Option to enable all categories on MyArcadeFeed
+  - New: Removed MySQL functions which are not compatible with MySQLi
+  - Fix: Spilgames - use bigger image as thumbnail if small image is not available
+  - Fix: Publishing HTML5 Games from Spilgames feed
+  - Fix: MyArcadeFeed game type recognition
+  - Removed Mochi Media support: Service has been discontinued
+
+v3.0.0 - 2013-11-07
+  - New: MyArcadeFeed integration
+  - New: Spilgames integration
+  - New: Import Embed Games
+  - New: Import Iframe Games
+  - New: Detect game dimensions automatically (SWF)
+  - New: Publish games page like on MyArcadePlugin Pro
+  - New: Fetch games page like on MyArcadePlugin Pro
+  - New: Manage games page like on MyArcadePlugin Pro
+  - New: Offset game fetching for Mochi Media feed
+  - New: Updated Mochi Media feed integration
+  - New: Download games, thumbnails and screen shots
+  - New: Option to use SWFObject to display games (MyArcade -> General Settings -> Use SWFObject)
+  - New: Compatibility with WordPress 3.7.x
+  - New: Compatibility with PHP 5.5.x
+
+v2.6.0 - 2013-04-21
+  - New: Compatibility with WordPress 3.6
+  - Fix: Fetch games link in the admin bar
+
+v2.5.0 - 2012-09-21
+  - New: Improved feed download
+  - New: Placeholder %THUMB_URL% for game post template
+  - New: Placeholder %SWF_URL% for game post template
+  - New: Placeholders %WIDTH% and %HEIGHT% for game post template (Game dimensions)
+  - New: Image alt tag in default post template
+  - New: Improved duplicate games check
+  - New: Fetch Mochi's special categories (Premium Games, Leaderboard Games ...)
+  - New: Filter Mochi games by tag
+  - New: Option to create game categories as subcategories of a parent category
+  - New: Option to use only the fist category on game publishing
+  - New: Option to publish all games in a single category
+  - New: Compatibility with WP 3.4.x
+  - New: Compatibility with PHP 5.4
+  - New: Updated settings handling like on MyArcadePlugin Pro
+  - New: is_game function to check if the displayed post is a game post
+
+v2.4.0 - 2011-12-21
+  - Fix: Admin bar fix for WP 3.3
+  - Fix: News url
+
+v2.3.0 - 2011-11-13
+  - New: Dashboard
+  - New: Admin Bar Menu
+  - Removed HeyZap menu because HeyZap closed down his game distribution API
+
+v2.2.0 - 2011-11-01
+  - New: Menu structure updated
+  - Fix: Compatibility with Arcade Themes from MyArcadeBlogThemes.com
+  - Checked: WP 3.3 compatibility
+
+v2.1.1 - 2011-07-12
+  - Fixed: PHP Notices when WP is in debug mode
+  - Checked: WP 3.2 compatibility
+
+v2.1.0 - 2011-06-23
+  - Fixed: Can't create categories
+  - Fixed: PHP Notices in WP Debug mode
+  - Fixed: Reset Feeded Games button
+  - Fixed: Can't add game screenshots
+
+v2.0.0 - 2011-05-28
+  - New: Plugin renamed to MyArcadePlugin Lite
+  - New: Mochi Publisher ID will be added to the game code to get credits
+  - New: New look & feel of the settings page. Now, the setup will be more comfortable.
+  - New: Ajaxed game import module
+  - New: Pagination on manage games. Ability to browse the entire game catalog
+  - New: Option to embed flash code automatically (Makes the plugin compatible with all standard WordPress themes)
+  - New: Template to style the game posts and to generate unique content
+  - New: Alternative file_put_contents function
+  - New: Memory limit check before trying to change the value
+  - New: Gettext support to make translations easy
+  - New: Delete downloaded game files when deleting a game post
+  - New: Game management system (delete, publish, destroy)
+  - Fixed: Renamed post metas to avoid conflicts with other plugins (All In One Seo)
+
+v1.8.2 - 2010-04-11
+  - Added Safe Mod check before changing settings
+
+v1.8.1 - 2009-12-08
+  - Added second check for allow_url_open setting
+  - Fixed Mochimedia Feed URL (mochiads -> mochimedia)
+
+v1.8 - 2009-09-22
+  - Added new categories: Education, Rhythm, Strategy
+  - Removed category: Highscore
+  - Added new check for duplicate games
+  - Added new custom field for content rating ("rating")
+
+v1.7.1 - 2009-08-09
+  - Fixed Board Games and Dress-Up problem
+
+v1.7  - 2009-07-26
+  - Added option to reset feeded games
+  - Added an import function for custom/individual games
+
+v1.6  - 2009-07-15
+  - Bug fixing
+  - Added max. allowed game width
+
+v1.5  - 2009-07-01
+  - Game thumbnails will be shown when adding games to blog
+  - Check, if Feed has been downloaded successfully
+  - SWF file names will be decoded before storing (%20-problem)
+  - White spaces will be automatically removed from MochiadsURL and MochiadsID
+
+v1.4  - 2009-06-20
+  - Added routines to check PHP Version and PHP Settings (JSON Support)
+
+v1.3  - 2009-06-17
+  - Fixes
+
+v1.2  - 2009-06-16
+  - Fixed some error messages.
+
+v1.1  - 2009-06-15
+
+  - Added new download method for feed, games and thumbs. if allow_url_fopen is
+    set to 0 the plugin will use cURL for downloading files.
+
+v1.0  - 2009-06-14
+  Initial Version
