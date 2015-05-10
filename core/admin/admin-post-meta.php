@@ -295,7 +295,7 @@ function myarcade_game_data_box() {
 /**
  * Update MyArcade Meta Box values
  *
- * @version 5.0.0
+ * @version 5.1.0
  * @access  public
  * @param   int $post_id    Post ID
  * @param   mixed $post     Post Object
@@ -312,7 +312,9 @@ function myarcade_meta_box_save($post_id, $post) {
     return $post_id;
   }
 
-  if ( !isset($_POST['myarcade_meta_nonce']) || (isset($_POST['myarcade_meta_nonce']) && !wp_verify_nonce( $_POST['myarcade_meta_nonce'], 'myarcade_save_data' ))) {
+  $nonce = filter_input( INPUT_POST, 'myarcade_meta_nonce' );
+
+  if ( !$nonce || ($nonce && !wp_verify_nonce( $nonce, 'myarcade_save_data' ))) {
     return $post_id;
   }
 
@@ -320,40 +322,31 @@ function myarcade_meta_box_save($post_id, $post) {
     return $post_id;
   }
 
-  $game_height = (isset($_POST['mabp_height'])) ? $_POST['mabp_height'] : '';
-  $game_width = (isset($_POST['mabp_width'])) ? $_POST['mabp_width'] : '';
-  $game_description = (isset($_POST['mabp_description'])) ? $_POST['mabp_description'] : '';
-  $game_instruction = (isset($_POST['mabp_instructions'])) ? $_POST['mabp_instructions'] : '';
-  $game_scores = (isset($_POST['mabp_leaderboard'])) ? $_POST['mabp_leaderboard'] : '';
-  $score_technologie = (isset($_POST['mabp_score_bridge'] ) ) ? $_POST['mabp_score_bridge'] : '';
+  $game_height = filter_input( INPUT_POST, 'mabp_height' );
+  $game_width = filter_input( INPUT_POST, 'mabp_width' );
+  $game_description = filter_input( INPUT_POST, 'mabp_description' );
+  $game_instruction = filter_input( INPUT_POST, 'mabp_instructions' );
+  $game_scores = filter_input( INPUT_POST, 'mabp_leaderboard' );
+  $score_technologie = filter_input( INPUT_POST, 'mabp_score_bridge' );
 
-  update_post_meta($post_id, 'mabp_game_type',$_POST['mabp_game_type']);
+  update_post_meta($post_id, 'mabp_game_type', filter_input( INPUT_POST, 'mabp_game_type' ));
   update_post_meta($post_id, 'mabp_height', $game_height);
   update_post_meta($post_id, 'mabp_width', $game_width);
   update_post_meta($post_id, 'mabp_description',  $game_description);
   update_post_meta($post_id, 'mabp_instructions', $game_instruction);
   update_post_meta($post_id, 'mabp_leaderboard', $game_scores);
-  update_post_meta($post_id, 'mabp_score_order', $_POST['mabp_score_order'] );
+  update_post_meta($post_id, 'mabp_score_order', filter_input( INPUT_POST, 'mabp_score_order' ));
   update_post_meta($post_id, 'mabp_score_bridge', $score_technologie );
 
-  $thumb = (isset($_POST['mabp_thumbnail_url'])) ? $_POST['mabp_thumbnail_url'] : '';
-  $game = (isset($_POST['mabp_swf_url'])) ? $_POST['mabp_swf_url'] : '';
-  $screen1 = (isset($_POST['mabp_screen1_url'])) ? $_POST['mabp_screen1_url'] : '';
-  $screen2 = (isset($_POST['mabp_screen2_url'])) ? $_POST['mabp_screen2_url'] : '';
-  $screen3 = (isset($_POST['mabp_screen3_url'])) ? $_POST['mabp_screen3_url'] : '';
-  $screen4 = (isset($_POST['mabp_screen4_url'])) ? $_POST['mabp_screen4_url'] : '';
-  $video_url = (isset($_POST['mabp_video_url'])) ? $_POST['mabp_video_url'] : '';
-
-  update_post_meta($post_id, 'mabp_thumbnail_url', $thumb);
-  update_post_meta($post_id, 'mabp_swf_url', $game);
-  update_post_meta($post_id, 'mabp_screen1_url', $screen1);
-  update_post_meta($post_id, 'mabp_screen2_url', $screen2);
-  update_post_meta($post_id, 'mabp_screen3_url', $screen3);
-  update_post_meta($post_id, 'mabp_screen4_url', $screen4);
-  update_post_meta($post_id, 'mabp_video_url', $video_url);
+  update_post_meta($post_id, 'mabp_thumbnail_url', filter_input( INPUT_POST, 'mabp_thumbnail_url' ));
+  update_post_meta($post_id, 'mabp_swf_url', filter_input( INPUT_POST, 'mabp_swf_url' ));
+  update_post_meta($post_id, 'mabp_screen1_url', filter_input( INPUT_POST, 'mabp_screen1_url' ));
+  update_post_meta($post_id, 'mabp_screen2_url', filter_input( INPUT_POST, 'mabp_screen2_url' ));
+  update_post_meta($post_id, 'mabp_screen3_url', filter_input( INPUT_POST, 'mabp_screen3_url' ));
+  update_post_meta($post_id, 'mabp_screen4_url', filter_input( INPUT_POST, 'mabp_screen4_url' ));
+  update_post_meta($post_id, 'mabp_video_url', filter_input( INPUT_POST, 'mabp_video_url' ));
 
 }
-//add_action('save_post', 'myarcade_meta_box_save', 1, 2);
 
 /**
  * Generate a text input field
