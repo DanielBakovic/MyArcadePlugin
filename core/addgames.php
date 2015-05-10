@@ -128,7 +128,7 @@ function myarcade_add_game_post($game) {
     $post['post_type'] = 'post';
     $post['post_category'] = apply_filters( 'myarcade_filter_category', $game->categories, $game ); // Category IDs - ARRAY
 
-    if ( !isset($general['disable_game_tags']) || $general['disable_game_tags'] == false ) {
+    if ( !isset($general['disable_game_tags']) || ! $general['disable_game_tags'] ) {
       $post['tags_input'] = apply_filters( 'myarcade_filter_tags', $game->tags, $game );
     }
   }
@@ -196,7 +196,7 @@ function myarcade_add_game_post($game) {
       $categories = apply_filters( 'myarcade_filter_category', $game->categories, $game );
       wp_set_object_terms($post_id, $categories, $general['custom_category']);
     }
-    if ( !isset($general['disable_game_tags']) || $general['disable_game_tags'] == false ) {
+    if ( !isset($general['disable_game_tags']) || ! $general['disable_game_tags'] ) {
       if ( !empty($general['custom_tags']) && taxonomy_exists($general['custom_tags']) ) {
         $tags = apply_filters( 'myarcade_filter_tags', $game->tags, $game );
         wp_set_post_terms($post_id, $tags, $general['custom_tags']);
@@ -238,8 +238,8 @@ function myarcade_add_games_to_blog( $args = array() ) {
     'echo'             => true
   );
 
-  $r = wp_parse_args( $args, $defaults );
-  extract($r);
+  $function_args = wp_parse_args( $args, $defaults );
+  extract( $function_args );
 
   if ( $echo ) {
     $echo_feedback = "echo";
@@ -311,7 +311,7 @@ function myarcade_add_games_to_blog( $args = array() ) {
   // Check game categories..
   $categs = explode(",", $game->categories);
 
-  if ( $general['firstcat'] == true ) {
+  if ( $general['firstcat'] ) {
     $tempcateg = $categs[0];
     unset($categs);
     $categs = array();
@@ -348,7 +348,7 @@ function myarcade_add_games_to_blog( $args = array() ) {
       }
     }
 
-    if ($cat_found == false) {
+    if ( ! $cat_found ) {
       if ( $use_custom_tax ) {
         $term = get_term_by( 'name', $game_cat, $general['custom_category'] );
         if ( ! empty( $term->term_id ) ) {
@@ -380,7 +380,7 @@ function myarcade_add_games_to_blog( $args = array() ) {
   // ----------------------------------------------
   // Download Thumbs?
   // ----------------------------------------------
-  if ($download_thumbs == true) {
+  if ( $download_thumbs ) {
 
     $file = myarcade_get_file($game->thumbnail_url, true);
 
@@ -399,7 +399,7 @@ function myarcade_add_games_to_blog( $args = array() ) {
       }
 
       // Error-Check
-      if ($result == false) {
+      if ( ! $result) {
         $myarcade_feedback->add_message( $download_message['thumbnail'] . ': ' . $download_message['failed'] . ' - ' . $download_message['url'] );
       }
       else {
@@ -418,7 +418,7 @@ function myarcade_add_games_to_blog( $args = array() ) {
   for ($screenNr = 1; $screenNr <= 4; $screenNr++) {
     $screenshot_url = 'screen' . $screenNr . "_url";
 
-    if (($download_screens == true) && ($game->$screenshot_url)) {
+    if ( $download_screens && ($game->$screenshot_url) ) {
       // Download screenshot
       $file = myarcade_get_file($game->$screenshot_url, true);
 
@@ -460,7 +460,7 @@ function myarcade_add_games_to_blog( $args = array() ) {
   // ----------------------------------------------
   // Download Games?
   // ----------------------------------------------
-  if ($download_games == true) {
+  if ( $download_games ) {
 
     // Clean up the swf url before try to downloaad
     $game->swf_url = strtok($game->swf_url, '?');
@@ -483,7 +483,7 @@ function myarcade_add_games_to_blog( $args = array() ) {
       }
 
       // Error-Check
-      if ($result == false) {
+      if ( ! $result ) {
         $myarcade_feedback->add_message( $download_message['game'] . ': ' . $download_message['failed'] . ' - ' . $download_message['url']);
       }
       else {
@@ -587,7 +587,7 @@ function myaracade_set_featured_image ($post_id, $filename) {
 
   // If error storing temporarily, unlink
   if ( is_wp_error( $tmp ) ) {
-    @unlink($file_array['tmp_name']);
+    unlink($file_array['tmp_name']);
     $file_array['tmp_name'] = '';
     return false;
   }
@@ -597,7 +597,7 @@ function myaracade_set_featured_image ($post_id, $filename) {
 
   // If error storing permanently, unlink
   if ( is_wp_error($thumbid) ) {
-    @unlink($file_array['tmp_name']);
+    unlink($file_array['tmp_name']);
     return $thumbid;
   }
 
@@ -693,15 +693,15 @@ function myarcade_prepare_environment($echo = true) {
   // Check for safe mode
   if( !ini_get('safe_mode') ) {
     // Check max_execution_time
-    @ini_set("max_execution_time", $max_execution_time_l);
+    ini_set("max_execution_time", $max_execution_time_l);
     // Check memory limit
     $limit = ini_get("memory_limit");
     $limit = substr( $limit, 0, 1 );
     if ( $limit < $memory_limit_l ) {
-      @ini_set("memory_limit", $memory_limit_l."M");
+      ini_set("memory_limit", $memory_limit_l."M");
     }
 
-    @set_time_limit($set_time_limit_l);
+    set_time_limit($set_time_limit_l);
   }
   else {
     // save mode is set
@@ -714,24 +714,21 @@ function myarcade_prepare_environment($echo = true) {
 /**
  * Ajax publish handler. Publishes a given game by ID
  *
- * @version 5.0.0
+ * @version 5.1.0
  * @return  void
  */
 function myarcade_ajax_publish() {
   global $myarcade_feedback;
 
-  // Don't break the JSON result
-  @error_reporting( 0 );
-
   header( 'Content-type: application/json' );
 
-  $id       = (int) $_REQUEST['id'];
-  $status   = $_REQUEST['status'];
-  $schedule = (int) $_REQUEST['schedule'];
-  $count    = (int) $_REQUEST['count'];
-  $download_thumbs = ($_REQUEST['download_thumbs'] == '1') ? true : false;
-  $download_screens = ($_REQUEST['download_screens'] == '1') ? true : false;
-  $download_games = ($_REQUEST['download_games'] == '1') ? true : false;
+  $game_id       = filter_input( INPUT_POST, 'id', FILTER_VALIDATE_INT );
+  $status   = filter_input( INPUT_POST, 'status' );
+  $schedule = filter_input( INPUT_POST, 'schedule', FILTER_VALIDATE_INT );
+  $count    = filter_input( INPUT_POST, 'count', FILTER_VALIDATE_INT );
+  $download_thumbs =  filter_input( INPUT_POST, 'download_thumbs', FILTER_VALIDATE_BOOLEAN );
+  $download_screens = filter_input( INPUT_POST, 'download_screens', FILTER_VALIDATE_BOOLEAN );
+  $download_games = filter_input( INPUT_POST, 'download_games', FILTER_VALIDATE_BOOLEAN );
 
   if ( $status == 'future') {
     $post_interval = ($count - 1) * $schedule;
@@ -741,7 +738,7 @@ function myarcade_ajax_publish() {
   }
 
   $args = array(
-    'game_id'          => $id,
+    'game_id'          => $game_id,
     'post_status'      => $status,
     'post_date'        => gmdate('Y-m-d H:i:s', ( time() + ($post_interval * 60) + (get_option('gmt_offset') * 3600 ))),
     'download_games'   => $download_games,
@@ -813,8 +810,7 @@ function myarcade_ajax_publish() {
   }
   else {
     // Error while creating game post
-    die(json_encode(array('error' => __("Error: Post can not be created!", 'myarcadeplugin') .' - ' . $messages )));
+    wp_die(json_encode(array('error' => __("Error: Post can not be created!", 'myarcadeplugin') .' - ' . $messages )));
   }
 }
 add_action('wp_ajax_myarcade_ajax_publish', 'myarcade_ajax_publish');
-?>
