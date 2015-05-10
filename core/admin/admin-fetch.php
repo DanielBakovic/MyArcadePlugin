@@ -54,19 +54,21 @@ function myarcade_fetch() {
 
   $bigfish['echo'] = true;
 
-  if ( isset($_POST['fetch']) && $_POST['fetch'] == 'start' ) {
-    $distributor = $_POST['distr'];
+  $fetch_games = filter_input( INPUT_POST, 'fetch');
+
+  if ( 'start' == $fetch_games ) {
+    $distributor = filter_input( INPUT_POST, 'distr' );
     // Famobi
-    $famobi['method'] = $_POST['fetchmethodfamobi'];
-    $famobi['offset'] = isset($_POST['offsetfamobi']) ? intval($_POST['offsetfamobi'] ) : 0;
-    $famobi['limit'] = isset($_POST['famobi_limit']) ? $_POST['famobi_limit'] : '';
+    $famobi['method'] = filter_input( INPUT_POST, 'fetchmethodfamobi' );
+    $famobi['offset'] = filter_input( INPUT_POST, 'offsetfamobi', FILTER_VALIDATE_INT );
+    $famobi['limit'] = filter_input( INPUT_POST, 'famobi_limit', FILTER_VALIDATE_INT );
     //Spilgames
-    $spilgames['search']  = $_POST['searchspilgames'];
-    $spilgames['limit']   = $_POST['limitspilgames'];
-    $spilgames['method']  = (!empty($_POST['fetchmethodspilgames'])) ? $_POST['fetchmethodspilgames'] : 'latest';
-    $spilgames['offset']  = (!empty($_POST['offsetspilgames'])) ? $_POST['offsetspilgames'] : 1;
+    $spilgames['search']  = filter_input( INPUT_POST, 'searchspilgames' );
+    $spilgames['limit']   = filter_input( INPUT_POST, 'limitspilgames' );
+    $spilgames['method']  = filter_input( INPUT_POST, 'fetchmethodspilgames', FILTER_DEFAULT,  array( 'options' => array( 'default' => 'latest' ) ) );
+    $spilgames['offset']  = filter_input( INPUT_POST, 'offsetspilgames', FILTER_VALIDATE_IP, array( 'options' => array( 'default' => 1 ) ) );
     //MyArcadeFeed
-    $myarcadefeed['feed'] = isset($_POST['myarcadefeedselect']) ? $_POST['myarcadefeedselect'] : false;
+    $myarcadefeed['feed'] = filter_input( INPUT_POST, 'myarcadefeedselect' );
   }
   ?>
 
@@ -106,7 +108,8 @@ function myarcade_fetch() {
 
     jQuery(document).ready(function() {
 
-      <?php if ( isset($_POST['fetch']) && $_POST['fetch'] == 'start' ) : ?>
+      <?php
+      if ( 'start' == $fetch_games ) : ?>
       jQuery(document).ready(function() {
         js_myarcade_offset();
       });
@@ -338,7 +341,7 @@ function myarcade_fetch() {
   </form>
   <br />
   <?php
-  if ( isset($_POST['fetch']) && $_POST['fetch'] == 'start' ) {
+  if ( 'start' == $fetch_games ) {
     // Start fetching here...
     if ( $distributor ) {
 
@@ -391,4 +394,3 @@ function myarcade_fetch() {
 
   myarcade_footer();
 }
-?>
