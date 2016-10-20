@@ -1,5 +1,7 @@
 - MyArcadePlugin Lite -
 
+  * Tweak - Removed unsued jquery.form.js file
+
 v5.3.1 - 2016-10-17
   * Tweak - Removed game download function to fit WordPress.org rules
   * Tweak - Removed deactivated Pro version features

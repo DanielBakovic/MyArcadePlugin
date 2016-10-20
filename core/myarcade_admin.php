@@ -141,11 +141,6 @@ function myarcade_manage_games_page() {
  */
 function myarcade_import_scripts() {
   wp_enqueue_script('jquery-form');
-  /*wp_enqueue_script('myarcade_ajax_forms',
-      MYARCADE_JS_URL.'/jquery.form.js',
-      '',
-      '',
-      false);*/
 }
 
 /**
