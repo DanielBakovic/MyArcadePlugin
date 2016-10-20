@@ -3,14 +3,6 @@
  * Displays the publish games page on backend
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright 2009-2015 Daniel Bakovic
- * @license http://myarcadeplugin.com
- */
-
-/**
- * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
- * Do not modify! Do not sell! Do not distribute! -
- * Check our license Terms!
  */
 
 // No direct Access
@@ -47,7 +39,6 @@ function myarcade_publish_games() {
     $posts            = ( isset( $_POST['games'] ) ) ? intval( $_POST['games'] ) : false;
     $download_thumbs  = ( isset( $_POST['downloadthumbs'] ) ) ? true : false;
     $download_screens = ( isset( $_POST['downloadscreens'] ) ) ? true : false;
-    $download_games   = (isset($_POST['downloadgames'])) ? true : false;
 
     // Generate the query
     $query_array = array();
@@ -123,7 +114,6 @@ function myarcade_publish_games() {
     $posts            = $general['posts'];
     $download_thumbs  = $general['down_thumbs'];
     $download_screens = $general['down_screens'];
-    $download_games   = $general['down_games'];
 
     $start_publishing = 'init';
   }
@@ -145,9 +135,6 @@ function myarcade_publish_games() {
           <?php foreach ($myarcade_distributors as $slug => $name) : ?>
           <option value="<?php echo $slug; ?>" <?php myarcade_selected($game_type, $slug); ?>><?php echo $name; ?></option>
           <?php endforeach; ?>
-          <option value="ibparcade" <?php myarcade_selected($game_type, 'ibparcade'); ?>>- PRO - <?php _e("IBPArcade", 'myarcadeplugin'); ?></option>
-          <option value="phpbb" <?php myarcade_selected($game_type, 'phpbb'); ?>>- PRO - <?php _e("PHPBB / ZIP", 'myarcadeplugin'); ?></option>
-          <option value="dcr" <?php myarcade_selected($game_type, 'dcr'); ?>>- PRO - <?php _e("DCR", 'myarcadeplugin'); ?></option>
         </select>
       </div>
 
@@ -204,7 +191,6 @@ function myarcade_publish_games() {
       <div class="myarcade_border white" style="width:300px;height:50px;float:left;">
         <input type="checkbox" value="1" id="downloadthumbs" name="downloadthumbs" <?php myarcade_checked($download_thumbs, true); ?> /> Download Thumbnails<br />
         <input type="checkbox" value="1" id="downloadscreens" name="downloadscreens" <?php myarcade_checked($download_screens, true); ?>/> Download Screenshots<br />
-        <input type="checkbox" value="1" id="downloadgames" name="downloadgames" <?php myarcade_checked($download_games, true); ?>/> Download Games
       </div>
 
       <div class="clear"> </div>
@@ -222,13 +208,6 @@ function myarcade_publish_games() {
     }
 
     jQuery(document).ready(function($){
-      $("#downloadgames").change(function() {
-        if ( $('#downloadgames').attr('checked') ) {
-          myarcade_check_dir('games');
-        } else {
-          $('#down_games').html("");
-        }
-      });
       $("#downloadthumbs").change(function() {
         if ( $('#downloadthumbs').attr('checked') || $('#downloadscreens').attr('checked') ) {
           myarcade_check_dir('thumbs');
@@ -253,12 +232,6 @@ function myarcade_publish_games() {
   <div id="down_thumbs">
     <?php if ( ($download_thumbs || $download_screens) && ( ! is_writable( $upload_dir['thumbsdir'] ) ) ) {
       echo '<p class="mabp_error mabp_680">'.sprintf(__("The thumbs directory '%s' must be writeable (chmod 777) in order to download thumbnails or screenshots.", 'myarcadeplugin'),  $upload_dir['thumbsdir'] ).'</p>';
-    }
-    ?>
-  </div>
-  <div id="down_games">
-    <?php if ($download_games && ( ! is_writable( $upload_dir['gamesdir'] ) ) ) {
-      echo '<p class="mabp_error mabp_680">'.sprintf(__("The games directory '%s' must be writeable (chmod 777) in order to download games.", 'myarcadeplugin'), $upload_dir['gamesdir'] ).'</p>';
     }
     ?>
   </div>
@@ -371,8 +344,7 @@ function myarcade_publish_games() {
             schedule: '<?php echo $schedule; ?>',
             count: myarcade_count,
             download_thumbs: '<?php echo $download_thumbs; ?>',
-            download_screens: '<?php echo $download_screens; ?>',
-            download_games: '<?php echo $download_games; ?>'
+            download_screens: '<?php echo $download_screens; ?>'
           },
           success: function( response ) {
             if ( response !== Object( response ) || ( typeof response.success === "undefined" && typeof response.error === "undefined" ) ) {

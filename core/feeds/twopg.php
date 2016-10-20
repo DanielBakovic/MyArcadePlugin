@@ -3,14 +3,6 @@
  * 2 Player Games
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright 2009-2015 Daniel Bakovic
- * @license http://myarcadeplugin.com
- */
-
-/**
- * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
- * Do not modify! Do not sell! Do not distribute! -
- * Check our license Terms!
  */
 
 // No direct Access
@@ -92,7 +84,7 @@ function myarcade_settings_twopg() {
  */
 function myarcade_default_settings_twopg() {
   return array(
-    'feed'          => 'http://www.2pg.com/myarcadeplugin_feed.xml',
+    'feed'          => 'http://old.2pg.com/myarcadeplugin_feed.xml',
     'all_categories' => false,
     'cron_publish'  => false,
     'cron_publish_limit' => '1',
@@ -110,8 +102,10 @@ function myarcade_save_settings_twopg() {
 
   myarcade_check_settings_nonce();
 
+  $defaults = myarcade_default_settings_twopg();
+
   $twopg = array();
-  $twopg['feed'] = (isset($_POST['twopg_url'])) ? esc_sql($_POST['twopg_url']) : '';
+  $twopg['feed'] = (!empty($_POST['twopg_url'])) ? esc_sql($_POST['twopg_url']) : $defaults['feed'];
   $twopg['all_categories'] = (isset($_POST['twopg_all_categories'])) ? true : false;
   $twopg['cron_publish'] = (isset($_POST['twopg_cron_publish']) ) ? true : false;
   $twopg['cron_publish_limit'] = (isset($_POST['twopg_cron_publish_limit']) ) ? intval($_POST['twopg_cron_publish_limit']) : 1;

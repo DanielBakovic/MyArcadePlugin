@@ -53,32 +53,6 @@
 </form>
 </div>
 
-<?php
-/**
- * TAR IMPORT
- */
- ?>
-<div id="importibparcade">
-  <?php // UPLOAD TAR Game  ?>
-  <h2><?php _e("Add IBPArcade Game", 'myarcadeplugin'); ?></h2>
-  <h2 class="box"><?php _e("Game Files", 'myarcadeplugin'); ?></h2>
-  <?php myarcade_premium_message('mabp_680'); ?>
-  <br /><br />
-</div>
-
-<?php
-/**
- * PHPBB IMPORT
- */
- ?>
-<div id="importphpbb">
-  <?php // UPLOAD TAR Game  ?>
-  <h2><?php _e("Add ZIP Game (PHPBB, Mochi) ", 'myarcadeplugin'); ?></h2>
-  <h2 class="box"><?php _e("Game Files", 'myarcadeplugin'); ?></h2>
-  <?php myarcade_premium_message('mabp_680'); ?>
-  <br /><br />
-</div>
-
 
 <?php // IMPORT EMBED / IFRAME GAME ?>
 <div id="importembedif">
@@ -114,19 +88,6 @@
     </div>
   </div>
 </form>
-</div>
-
-<?php
-/**
- * UNITY IMPORT
- */
- ?>
-<div id="importunity">
-  <?php // UPLOAD Unity Game  ?>
-  <h2><?php _e("Add Unity3D Game", 'myarcadeplugin'); ?></h2>
-  <h2 class="box"><?php _e("Game Files", 'myarcadeplugin'); ?></h2>
-  <?php myarcade_premium_message('mabp_680'); ?>
-  <br /><br />
 </div>
 
 <?php // UPLOAD THUMB ?>

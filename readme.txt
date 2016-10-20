@@ -1,10 +1,9 @@
 === MyArcadePlugin Lite ===
 Contributors: NetReview.de
-Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GD2C5P5RPPRYN
-Tags: WordPress Arcade, WP Arcade, WP Arcade Plugin, WPArcade, WPArcade Plugin, Flash Games, BigFish Games, Big Fish, Kongregate, Unity3D, Unity, HTML5, FlashGameDistribution, FreeGamesForYourWebsite, Plinga, Scirra, Softgames, Spilgames, Autoblog, Auto post, Games, Arcade Script, Arcade Plugin, Game Script, Arcade
+Tags: WP Arcade, WPArcade, Flash Games, Unity3D, Unity, HTML5, Autoblog, Auto post, Arcade Script, Arcade Plugin, Game Script
 Requires at least: 4.0
 Tested up to: 4.6
-Stable tag: 5.3.0
+Stable tag: 5.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 

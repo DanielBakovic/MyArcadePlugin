@@ -3,19 +3,31 @@
  * Plugin Name:  MyArcadePlugin Lite
  * Plugin URI:   http://myarcadeplugin.com
  * Description:  WordPress Arcade Plugin
- * Version:      5.3.0
+ * Version:      5.3.1
  * Author:       Daniel Bakovic
  * Author URI:   http://myarcadeplugin.com
+ * License:      GPLv2 or later (license.txt)
+ * License URI:  https://www.gnu.org/licenses/gpl-2.0.html.
+ * Text Domain:  myarcadeplugin
+ * Domain Path:  /lang
  * Requires at least: 4.0
  * Tested up to: 4.6
  */
 
-/**
- * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
- *
- * Do not sell! Do not distribute! Check our license Terms!
- * http://myarcadeplugin.com/tos-agb/
- */
+/*
+MyArcadePlugin Lite is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+any later version.
+
+MyArcadePlugin Lite is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with MyArcadePlugin Lite. If not, see https://www.gnu.org/licenses/gpl-2.0.html.
+*/
 
 /**
  * Init MyArcadePlugin when WordPress initializes
@@ -54,7 +66,7 @@ add_action( 'init', 'myarcade_init' );
 function myarcade_initial_constants() {
 
   // Define MyArcadePlugin version
-  define('MYARCADE_VERSION', '5.3.0');
+  define('MYARCADE_VERSION', '5.3.1');
 
   // You need at least PHP Version 5.3.0+ to run this plugin
   define('MYARCADE_PHP_VERSION', '5.3.0');
@@ -136,16 +148,6 @@ function myarcade_set_distributors() {
       'softgames'     => 'Softgames',
       'spilgames'     => 'Spil Games',
       'unityfeeds'    => 'UnityFeeds',
-      'agf'           => '- PRO - Arcade Game Feed',
-      'bigfish'       => '- PRO - Big Fish Games',
-      'fgd'           => '- PRO - FlashGameDistribution',
-      'fog'           => '- PRO - FreeOnlineGames',
-      'gamefeed'      => '- PRO - GameFeed',
-      'htmlgames'     => '- PRO - HTML Games',
-      'kongregate'    => '- PRO - Kongregate',
-      'playtomax'     => '- PRO - PlayToMax',
-      'plinga'        => '- PRO - Plinga',
-      'scirra'        => '- PRO - Scirra',
     )
   );
 }
@@ -164,10 +166,6 @@ function myarcade_set_game_type_custom() {
     'embed'     => __( "Embed Code", 'myarcadeplugin' ),
     'custom'    => __( "Flash (SWF)", 'myarcadeplugin' ),
     'iframe'    => __( "Iframe URL", 'myarcadeplugin' ),
-    'ibparcade' => __( "- PRO - IBPArcade Game", 'myarcadeplugin' ),
-    'phpbb'     => __( "- PRO - PHPBB Game", 'myarcadeplugin' ),
-    'dcr'       => __( "- PRO - Shochwave (DCR)", 'myarcadeplugin' ),
-    'unity'     => __( "- PRO - Unity", 'myarcadeplugin' ),
   );
 }
 
@@ -336,31 +334,6 @@ function myarcade_upload_dir() {
   );
 
   return apply_filters( 'myarcade_upload_dir', $upload_dir );
-}
-
-/**
- * MyArcadePlugin Premium Hint
- *
- * @version 5.0.0
- * @access  public
- * @return  void
- */
-function myarcade_premium_img() {
-  echo '<img src="'.MYARCADE_URL.'/images/locked.png" alt="Pro Version Only!" title="Pro Version Only!" />';
-}
-/**
- * MyArcadePlugin Upgrade Hint
- *
- * @version 5.0.0
- * @access  public
- * @return  void
- */
-function myarcade_premium_message( $class = 'mabp_800') {
-  ?>
-  <div class="mabp_info <?php echo $class; ?>">
-    <?php myarcade_premium_img() ?> Please consider upgrading to <a href="http://myarcadeplugin.com" title="Upgrade">MyArcadePlugin Pro</a> if you want to use this feature.
-  </div>
-  <?php
 }
 
 /**

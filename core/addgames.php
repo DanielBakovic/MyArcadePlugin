@@ -3,14 +3,6 @@
  * Publish Games, Create Game Posts
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright 2009-2015 Daniel Bakovic
- * @license http://myarcadeplugin.com
- */
-
-/**
- * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
- * Do not modify! Do not sell! Do not distribute! -
- * Check our license Terms!
  */
 
 // No direct Access
@@ -233,7 +225,6 @@ function myarcade_add_games_to_blog( $args = array() ) {
     'game_id'          => false,
     'post_status'      => 'publish',
     'post_date'        => gmdate('Y-m-d H:i:s', ( time() + (get_option('gmt_offset') * 3600 ))),
-    'download_games'   => $general['down_games'],
     'download_thumbs'  => $general['down_thumbs'],
     'download_screens' => $general['down_screens'],
     'echo'             => true
@@ -289,33 +280,8 @@ function myarcade_add_games_to_blog( $args = array() ) {
   // Check if this is an imported game..
   // If so, then don't download the files again...
   if ( md5($game->name . 'import') == $game->uuid ) {
-    $download_games   = false;
     $download_thumbs  = false;
     $download_screens = false;
-  }
-  elseif ( $download_games == true ) {
-    // Get distributor integration
-    myarcade_distributor_integration( $game->game_type );
-
-    // Generate download check function name
-    $download_check_function = 'myarcade_can_download_' . $game->game_type;
-
-    if ( function_exists( $download_check_function ) ) {
-      $download_games = $download_check_function();
-    }
-    else {
-      switch ( $game->game_type ) {
-        case 'iframe':
-        case 'embed':
-          $download_games = false;
-        break;
-
-        default:
-          // try to download game
-          $download_games = true;
-        break;
-      }
-    }
   }
 
   // Initialise category array
@@ -467,47 +433,6 @@ function myarcade_add_games_to_blog( $args = array() ) {
     // Put the screen urls into the post array
     $game_to_add->$screenshot_url = apply_filters( 'myarcade_filter_screenshot', $game->$screenshot_url, $screenshot_url );
   } // END for - screens
-
-
-  // ----------------------------------------------
-  // Download Games?
-  // ----------------------------------------------
-  if ($download_games == true) {
-
-    // Clean up the swf url before try to download
-    $game->swf_url = strtok($game->swf_url, '?');
-
-    $file = myarcade_get_file($game->swf_url, true);
-
-    // We got a file
-    if ( empty($file['error']) ) {
-      $path_parts = pathinfo($game->swf_url);
-      $extension = $path_parts['extension'];
-      $file_name = $game->slug . '.' . $extension;
-
-      // Check, if we got a Error-Page
-      if (!strncmp($file['response'], "<!DOCTYPE", 9)) {
-        $result = false;
-      }
-      else {
-        // Save the game to the games directory
-        $result = file_put_contents( $upload_dir['gamesdir'] . $file_name, $file['response']);
-      }
-
-      // Error-Check
-      if ($result == false) {
-        $myarcade_feedback->add_message( $download_message['game'] . ': ' . $download_message['failed'] . ' - ' . $download_message['url']);
-      }
-      else {
-        $myarcade_feedback->add_message( $download_message['game'] . ': ' . $download_message['ok'] );
-        // Overwrite the game url
-        $game->swf_url = $upload_dir['gamesurl'] . $file_name;
-      }
-    }
-    else {
-      $myarcade_feedback->add_message( $download_message['game'] . ': '  . $download_message['failed'] . ' - ' . $file['error'] . ' - ' . $download_message['url'] );
-    }
-  } // END - if download games
 
   // Display messages
   if ($echo) {
@@ -743,7 +668,6 @@ function myarcade_ajax_publish() {
   $count    = (int) $_REQUEST['count'];
   $download_thumbs = ($_REQUEST['download_thumbs'] == '1') ? true : false;
   $download_screens = ($_REQUEST['download_screens'] == '1') ? true : false;
-  $download_games = ($_REQUEST['download_games'] == '1') ? true : false;
 
   if ( $status == 'future') {
     $post_interval = ($count - 1) * $schedule;
@@ -756,7 +680,6 @@ function myarcade_ajax_publish() {
     'game_id'          => $id,
     'post_status'      => $status,
     'post_date'        => gmdate('Y-m-d H:i:s', ( time() + ($post_interval * 60) + (get_option('gmt_offset') * 3600 ))),
-    'download_games'   => $download_games,
     'download_thumbs'  => $download_thumbs,
     'download_screens' => $download_screens,
     'echo'             => false

@@ -3,14 +3,6 @@
  * Admin functions
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright 2009-2015 Daniel Bakovic
- * @license http://myarcadeplugin.com
- */
-
-/**
- * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
- * Do not modify! Do not sell! Do not distribute! -
- * Check our license Terms!
  */
 
 // No direct access
@@ -63,11 +55,6 @@ function myarcade_admin_menu() {
                       __("Manage Games", 'myarcadeplugin'),
                       __("Manage Games", 'myarcadeplugin'),
                       'manage_options', 'myarcade-manage-games', 'myarcade_manage_games_page');
-
-    add_submenu_page( basename(__FILE__),
-                      __("Manage Scores", 'myarcadeplugin'),
-                      __("Manage Scores", 'myarcadeplugin'),
-                      'manage_options', 'myarcade-manage-scores', 'myarcade_manage_scores_page');
 
   add_submenu_page( basename(__FILE__),
                     __("Settings"),
@@ -143,18 +130,6 @@ function myarcade_settings_page() {
 function myarcade_manage_games_page() {
   include_once( MYARCADE_CORE_DIR . '/admin/admin-manage.php' );
   myarcade_manage_games();
-}
-
-/**
- * [myarcade_manage_scores_page description]
- *
- * @version 5.13.0
- * @access  public
- * @return  [type] [description]
- */
-function myarcade_manage_scores_page() {
-  include_once( MYARCADE_CORE_DIR . '/admin/admin-manage-scores.php' );
-  myarcade_manage_scores();
 }
 
 /**

@@ -3,14 +3,6 @@
  * Displays the manage games page on backend
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright 2009-2015 Daniel Bakovic
- * @license http://myarcadeplugin.com
- */
-
-/**
- * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
- * Do not modify! Do not sell! Do not distribute! -
- * Check our license Terms!
  */
 
 // No direct access
@@ -160,10 +152,6 @@ function myarcade_manage_games() {
           <?php foreach ($myarcade_distributors as $slug => $name) : ?>
           <option value="<?php echo $slug; ?>" <?php myarcade_selected($game_type, $slug); ?>><?php echo $name; ?></option>
           <?php endforeach; ?>
-          <option value="ibparcade" <?php myarcade_selected($game_type, 'ibparcade'); ?>>- PRO - IBPArcade</option>
-          <option value="phpbb" <?php myarcade_selected($game_type, 'phpbb'); ?>>- PRO - PHPBB / ZIP</option>
-          <option value="dcr" <?php myarcade_selected($game_type, 'dcr'); ?>>- PRO - DCR</option>
-          <option value="unity" <?php myarcade_selected($game_type, 'unity'); ?>>- PRO - Unity</option>
         </select>
       </div>
 

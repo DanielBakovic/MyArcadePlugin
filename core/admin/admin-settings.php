@@ -3,14 +3,6 @@
  * Displays the settings page on backend
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright 2009-2015 Daniel Bakovic
- * @license http://myarcadeplugin.com
- */
-
-/**
- * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
- * Do not modify! Do not sell! Do not distribute! -
- * Check our license Terms!
  */
 
 // No direct access
@@ -33,9 +25,6 @@ function myarcade_settings() {
   ?>
   <div id="icon-tools" class="icon32"><br /></div>
   <h2><?php _e("Settings"); ?></h2>
-  <div class="mabp_info mabp_800" style="padding:10px;margin-bottom: 10px;">
-    <?php myarcade_premium_img(); ?> <strong>MyArcadePlugin Lite</strong> is a fully functional but limited version of <a href='http://myarcadeplugin.com' title='MyArcadePlugin Pro' target="_blank">MyArcadePlugin Pro</a>. Consider upgrading to get access to all premium features, premium support and premium bonuses.
-  </div>
   <?php
 
   $action = isset($_POST['feedaction']) ? $_POST['feedaction'] : '';
@@ -61,12 +50,12 @@ function myarcade_settings() {
     if ( isset($_POST['deletefiles'])) $general['delete'] = true; else $general['delete'] = false;
 
     $general['folder_structure'] = (isset($_POST['folder_structure'])) ? $_POST['folder_structure'] : false;
-    $general['automated_fetching']  = (isset($_POST['automated_fetching'])) ? true : false;
-    $general['interval_fetching']   = $_POST['interval_fetching'];
-    $general['automated_publishing']  = (isset($_POST['automated_publishing'])) ? true : false;
-    $general['interval_publishing']   = $_POST['interval_publishing'];
+    $general['automated_fetching']  = false;
+    $general['interval_fetching']   = 'hourly';
+    $general['automated_publishing']  = false;
+    $general['interval_publishing']   = 'daily';
     $general['swfobject'] = isset( $_POST['swfobject'] ) ? true : false;
-    $general['cron_publish_limit'] = !empty($_POST['general_cron_publish_limit']) ? $_POST['general_cron_publish_limit'] : 1;
+    $general['cron_publish_limit'] = 1;
 
     if ( isset($_POST['createcats'])) $general['create_cats'] = true; else $general['create_cats'] = false;
     if ( isset($_POST['parentcatid'])) $general['parent'] = $_POST['parentcatid']; else $general['parent'] = '';
@@ -83,23 +72,22 @@ function myarcade_settings() {
     if ( isset($_POST['posttype'])) $general['post_type'] = $_POST['posttype']; else $general['post_type'] = 'post';
     if ( isset($_POST['featured_image'])) $general['featured_image'] = true; else $general['featured_image'] = false;
 
-    $general['play_delay'] = isset($_POST['play_delay']) ? $_POST['play_delay'] : '30';
-    $general['translation'] = $_POST['translation'];
-    $general['bingid'] = isset($_POST['bingid']) ? sanitize_text_field($_POST['bingid']) : '';
-    $general['bingsecret'] = isset($_POST['bingsecret']) ? sanitize_text_field($_POST['bingsecret']) : '';
-    $general['translate_to'] = isset($_POST['translate_to']) ? $_POST['translate_to'] : 'en';
-    $general['translate_fields'] = isset($_POST['translate_fields']) ? $_POST['translate_fields'] : array();
-    $general['translate_games'] = isset($_POST['translate_games']) ? $_POST['translate_games'] : array();
-    $general['google_id'] = isset($_POST['google_id']) ? sanitize_text_field($_POST['google_id']) : '';
-    $general['google_translate_to'] = $_POST['google_translate_to'];
-    $general['yandex_key'] = isset($_POST['yandex_key']) ? $_POST['yandex_key'] : '';
-    $general['yandex_translate_to'] = $_POST['yandex_translate_to'];
+    $general['play_delay'] = '30';
+    $general['translation'] = 'none';
+    $general['bingid'] = '';
+    $general['bingsecret'] = '';
+    $general['translate_to'] = 'en';
+    $general['translate_fields'] = array();
+    $general['translate_games'] = array();
+    $general['google_id'] = '';
+    $general['google_translate_to'] = 'en';
+    $general['yandex_key'] = '';
+    $general['yandex_translate_to'] = 'de';
 
     // Custom taxonomies
     $general['custom_category'] =  isset($_POST['customtaxcat']) ? $_POST['customtaxcat'] : '';
     $general['custom_tags'] = isset($_POST['customtaxtag']) ? $_POST['customtaxtag'] : '';
     // Default CSS / JS Styles
-    //$general['styles'] = isset($_POST['styles']) ? true : false;
     $general['disable_game_tags'] = isset( $_POST['disable_game_tags'] ) ? true : false;
 
     // Update Settings
@@ -183,12 +171,6 @@ function myarcade_settings() {
 
   $upload_dir = myarcade_upload_dir();
 
-  if ( $general['down_games'] ) {
-    if ( !is_writable( $upload_dir['gamesdir'] ) ) {
-      echo '<p class="mabp_error mabp_800">'.sprintf(__("The games directory '%s' must be writable (chmod 777) in order to download games.", 'myarcadeplugin'), $upload_dir['gamesdir'] ).'</p>';
-    }
-  }
-
   if ( $general['down_thumbs'] ) {
     if ( !is_writable( $upload_dir['thumbsdir'] ) ) {
       echo '<p class="mabp_error mabp_800">'.sprintf(__("The thumbails directory '%s' must be writable (chmod 777) in order to download thumbnails.", 'myarcadeplugin'), $upload_dir['thumbsdir'] ).'</p>';
@@ -258,23 +240,6 @@ function myarcade_settings() {
           <div class="block">
             <table class="optiontable" width="100%">
 
-              <tr><td colspan="2"><h3><?php myarcade_premium_img(); ?> <?php _e("Save User Scores", 'myarcadeplugin'); ?></h3></td></tr>
-              <tr>
-                <td>
-                  <input type="checkbox" name="leaderboardenable" value="true" <?php myarcade_checked($general['scores'], true); ?> /><label class="opt">&nbsp;<?php _e("Yes", 'myarcadeplugin'); ?></label>
-                </td>
-                <td><i><?php _e("Check this if you want to collect user scores. Only scores submitted by IBPArcade and GamerSafe games will be collected.", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <tr><td colspan="2"><h3><?php myarcade_premium_img(); ?> <?php _e("Save Only Highscores", 'myarcadeplugin'); ?></h3></td></tr>
-
-              <tr>
-                <td>
-                  <input type="checkbox" name="onlyhighscores" value="true" <?php myarcade_checked($general['highscores'], true); ?> /><label class="opt">&nbsp;<?php _e("Yes", 'myarcadeplugin'); ?></label>
-                </td>
-                <td><i><?php _e("Check this if you want to only save a user's highest score. Otherwise all submitted scores are saved.", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
               <tr><td colspan="2"><h3><?php _e("Publish Games", 'myarcadeplugin'); ?></h3></td></tr>
               <tr>
                 <td>
@@ -305,15 +270,6 @@ function myarcade_settings() {
                 <td><i><?php _e("Should the game thumbnails be imported and saved on your web server? For this to work properly, the thumb directory (wp-content/thumbs/) must be writable.", 'myarcadeplugin'); ?></i></td>
               </tr>
 
-              <tr><td colspan="2"><h3><?php _e("Download Games", 'myarcadeplugin'); ?></h3></td></tr>
-
-              <tr>
-                <td>
-                  <input type="checkbox" name="downloadgames" value="true"  <?php myarcade_checked($general['down_games'], true); ?> /><label class="opt">&nbsp;<?php _e("Yes", 'myarcadeplugin'); ?></label>
-                </td>
-                <td><i><?php _e("Should the game be imported and saved on your web server? For this to work properly, the game directory (wp-content/games/) must be writable.", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
               <tr><td colspan="2"><h3><?php _e("Download Screenshots", 'myarcadeplugin'); ?></h3></td></tr>
 
               <tr>
@@ -342,72 +298,6 @@ function myarcade_settings() {
                     <?php _e('That means, for each game type a new folder will be created and files will be organized in sub folders. Example: "/games/fog/A/awesome_game.swf.', 'myarcadeplugin'); ?><br />
                     <?php _e('Leave blank if you want to save all files in a single folder."', 'myarcadeplugin'); ?></i></td>
               </tr>
-
-
-              <tr><td colspan="2"><h3><?php myarcade_premium_img(); ?> <?php _e("Automation / Cron Settings", 'myarcadeplugin'); ?></h3></td></tr>
-              <tr><td colspan="2"><p><?php _e("Global automation settings allows you to enable and setup automated fetching and publishing globally. You can enable/disable automated fetching and publishing for each game distributor separately when you click on distributors settings.", 'myarcadeplugin'); ?></p></td></tr>
-
-              <tr><td colspan="2"><h4><?php _e("Automated Game Fetching", 'myarcadeplugin'); ?></h4></td></tr>
-
-              <tr>
-                <td>
-                  <input type="checkbox" name="automated_fetching" value="true" <?php myarcade_checked($general['automated_fetching'], true); ?> /><label class="opt">&nbsp;<?php _e("Yes", 'myarcadeplugin'); ?></label>
-                </td>
-                <td><i><?php _e("This option will activate automated game fetching globally. If activated the cron job will be triggered by WordPress.", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <tr><td colspan="2"><h4><?php _e("Game Fetching Interval", 'myarcadeplugin'); ?></h4></td></tr>
-
-              <tr>
-                <td>
-                  <select size="1" name="interval_fetching" id="interval_fetching">
-                    <?php
-                    foreach($crons as $cron => $val) {
-                      ?>
-                      <option value="<?php echo $cron; ?>" <?php myarcade_selected($general['interval_fetching'], $cron); ?> ><?php echo $val['display']; ?></option>
-                      <?php
-                    }
-                    ?>
-                  </select>
-                </td>
-                <td><i><?php _e("Select a frequency for fetching new games. Games are fetched per the scheduled frequency, pending a user visiting your site (which triggers the function).", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <tr><td colspan="2"><h4><?php _e("Automated Game Publishing", 'myarcadeplugin'); ?></h4></td></tr>
-
-              <tr>
-                <td>
-                  <input type="checkbox" name="automated_publishing" value="true" <?php myarcade_checked($general['automated_publishing'], true); ?> /><label class="opt">&nbsp;<?php _e("Yes", 'myarcadeplugin'); ?></label>
-                </td>
-                <td><i><?php _e("This option will activate automated game publishing globally. If activated the cron job will be triggered by WordPress.", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <tr><td colspan="2"><h4><?php _e("Game Publishing Interval", 'myarcadeplugin'); ?></h4></td></tr>
-
-              <tr>
-                <td>
-                  <select size="1" name="interval_publishing" id="interval_publishing">
-                    <?php
-                    foreach($crons as $cron => $val) {
-                      ?>
-                      <option value="<?php echo $cron; ?>" <?php myarcade_selected($general['interval_publishing'], $cron); ?> ><?php echo $val['display']; ?></option>
-                      <?php
-                    }
-                    ?>
-                  </select>
-                </td>
-                <td><i><?php _e("Select a frequency for publishing new games. Games are published per the scheduled frequency, pending a user visiting your site (which triggers the function).", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <tr><td colspan="2"><h4><?php _e("Publish Games (Manually Imported Games)", 'myarcadeplugin'); ?></h4></td></tr>
-
-              <tr>
-                <td>
-                  <input type="text" size="40"  name="general_cron_publish_limit" value="<?php echo $general['cron_publish_limit']; ?>" />
-                </td>
-                <td><i><?php _e("How many games should be published on every cron trigger? This setting affects only manually imported games.", 'myarcadeplugin'); ?></i></td>
-
-
 
               <tr><td colspan="2"><h3><?php _e("Game Categories", 'myarcadeplugin'); ?></h3></td></tr>
 
@@ -548,58 +438,6 @@ function myarcade_settings() {
                 <td><i><?php _e("Check this if you want to prevent MyArcadePlugin from adding tags to WordPress posts (not recommended).", 'myarcadeplugin'); ?></i></td>
               </tr>
 
-              <?php // Allow users to post games?>
-              <tr>
-                <td colspan="2">
-                  <h3><?php myarcade_premium_img(); ?> <?php _e("Allow Users To Post Games", 'myarcadeplugin'); ?></h3>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <input type="checkbox" name="allow_user" value="true" <?php myarcade_checked($general['allow_user'], true); ?> />&nbsp;<?php _e("Yes", 'myarcadeplugin'); ?>
-                </td>
-                <td><i><?php _e("Activate this if you want to give your users access to import games. WordPress supports following user roles: Contributor, Author and Editor. Games added by Contributors will be saved as drafts! Authors and Editors will be able to publish games.", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <?php // Force guests to register after x plays ?>
-              <tr>
-                <td colspan="2">
-                  <h3><?php myarcade_premium_img(); ?> <?php _e("Guest Plays", 'myarcadeplugin'); ?></h3>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <input type="text" size="40" name="limitplays" value="<?php echo $general['limit_plays']; ?>" />
-                </td>
-                <td><i><?php _e("Set how many games a guest can play before he/she needs to register. Set to 0 to deactivate the game play check.", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <?php // Message ?>
-              <tr>
-                <td colspan="2">
-                  <h3><?php myarcade_premium_img(); ?> <?php _e("Guest Message", 'myarcadeplugin'); ?></h3>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <textarea rows="12" cols="40" id="limitmessage" name="limitmessage"><?php echo htmlspecialchars(stripslashes($general['limit_message'])); ?></textarea>
-                </td>
-                <td><i><?php _e("Enter the message here that you want a guest to see after 'X' number of plays (HTML allowed)", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <?php // Game play delay ?>
-              <tr>
-                <td colspan="2">
-                  <h3><?php myarcade_premium_img(); ?> <?php _e("Game Play Delay", 'myarcadeplugin'); ?></h3>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <input type="text" size="40" name="play_delay" value="<?php echo $general['play_delay']; ?>" />
-                </td>
-                <td><i><?php _e("Game play delay is responsible for play, CubePoints and contest counter of a user. MyArcadePlugin will only count game plays when the delay time between two game plays is expired. Default value: 30 [time in seconds].", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
               <?php // Post Type ?>
               <tr>
                 <td colspan="2">
@@ -693,315 +531,6 @@ function myarcade_settings() {
 
             </table>
             <input class="button button-primary" id="submit" type="submit" name="submit" value="<?php _e("Save Settings", 'myarcadeplugin'); ?>" />
-          </div>
-        </div>
-
-       <?php
-        //----------------------------------------------------------------------
-        // Translation Settings
-        //----------------------------------------------------------------------
-        ?>
-
-        <?php include_once(MYARCADE_CORE_DIR.'/languages.php'); ?>
-
-        <h2 class="trigger"><?php myarcade_premium_img(); ?> <?php _e("Translation Settings", 'myarcadeplugin'); ?></h2>
-        <div class="toggle_container">
-          <div class="block">
-            <table class="optiontable" width="100%" cellpadding="5" cellspacing="5">
-              <tr>
-                <td colspan="2">
-                  <?php myarcade_premium_message() ?>
-                  <br />
-                  <i>
-                    <?php _e("Translate games automatically to your language using the Microsoft Translator or Google Translate v2 (payed service). The translation is triggered when you click on 'Publish Games' or 'Publish'.", 'myarcadeplugin'); ?>
-                  </i>
-                </td>
-              </tr>
-
-              <?php // Enable Translator ?>
-              <tr>
-                <td colspan="2">
-                  <h3><?php _e("Select Translation Service", 'myarcadeplugin'); ?></h3>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <select name="translation">
-                    <option value="none" <?php myarcade_selected($general['translation'], 'none'); ?>><?php _e("Disable Translations", 'myarcadeplugin'); ?></option>
-                    <option value="microsoft" <?php myarcade_selected($general['translation'], 'microsoft'); ?>><?php _e("Microsoft Translator", 'myarcadeplugin'); ?></option>
-                    <option value="google" <?php myarcade_selected($general['translation'], 'google'); ?>><?php _e("Google Translator", 'myarcadeplugin'); ?></option>
-                    <option value="yandex" <?php myarcade_selected($general['translation'], 'yandex'); ?>><?php _e("Yandex Translator", 'myarcadeplugin'); ?></option>
-                  </select>
-                </td>
-                <td><i><?php _e("Check this if you want to enable the translator.", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <?php // Fields to translate ?>
-              <tr><td colspan="2"><h3><?php _e("Game Fields To Translate", 'myarcadeplugin'); ?></h3></td></tr>
-              <tr>
-                <td>
-                  <input type="checkbox" name="translate_fields[]" value="name" <?php myarcade_checked_array($general['translate_fields'], 'name'); ?> />&nbsp;<?php _e("Name", 'myarcadeplugin'); ?><br />
-                  <input type="checkbox" name="translate_fields[]" value="description" <?php myarcade_checked_array($general['translate_fields'], 'description'); ?> />&nbsp;<?php _e("Description", 'myarcadeplugin'); ?><br />
-                  <input type="checkbox" name="translate_fields[]" value="instructions" <?php myarcade_checked_array($general['translate_fields'], 'instructions'); ?> />&nbsp;<?php _e("Instructions", 'myarcadeplugin'); ?><br />
-                  <input type="checkbox" name="translate_fields[]" value="tags" <?php myarcade_checked_array($general['translate_fields'], 'tags'); ?> />&nbsp;<?php _e("Tags", 'myarcadeplugin'); ?>
-                </td>
-                <td><i><?php _e("Select game fields that you want to translate.", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <?php // Games to translate ?>
-              <tr><td colspan="2"><h3><?php _e("Game Types To Translate", 'myarcadeplugin'); ?></h3></td></tr>
-              <tr>
-                <td>
-                  <?php foreach ( $myarcade_distributors as $distr_slug => $distr_name) : ?>
-                  <input type="checkbox" name="translate_games[]" value="<?php echo $distr_slug;?>" <?php myarcade_checked_array($general['translate_games'], $distr_slug); ?> />&nbsp;<?php echo $distr_name; ?><br />
-                  <?php endforeach; ?>
-                </td>
-                <td><i><?php _e("Select game types you want to translate.", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <?php // Microsoft Translator API ?>
-              <tr>
-                <td colspan="2">
-                  <h3><?php _e("Microsoft Translator Settings", 'myarcadeplugin'); ?></h3>
-                </td>
-              </tr>
-              <tr><td colspan="2"><i><?php _e("To be able to use Microsoft Translator you will need to register on Windows Azure Marketplace and sign up on the <a href='https://datamarket.azure.com' target='_blank'>Microsoft Translator</a>.", 'myarcadeplugin'); ?></i></td></tr>
-
-              <tr><td colspan="2"><h4><?php _e("Client ID", 'myarcadeplugin'); ?></h4></td></tr>
-              <tr>
-                <td>
-                  <input type="text" size="40" name="bingid" value="<?php echo $general['bingid']; ?>" />
-                </td>
-                <td><i><?php _e("Enter your Windows Azure Marketplace Client ID.", 'myarcadeplugin');?></i></td>
-              </tr>
-
-              <tr><td colspan="2"><h4><?php _e("Client Secret Key", 'myarcadeplugin'); ?></h4></td></tr>
-              <tr>
-                <td>
-                  <input type="text" size="40" name="bingsecret" value="<?php echo $general['bingsecret']; ?>" />
-                </td>
-                <td><i><?php _e("Enter your Windows Azure Marketplace Client Secret Key.", 'myarcadeplugin');?></i></td>
-              </tr>
-
-              <?php // Target Language ?>
-              <tr><td colspan="2"><h4><?php _e("Target Language", 'myarcadeplugin'); ?></h4></td></tr>
-              <tr>
-                <td>
-                  <?php
-                  if (isset($languages_bing) ) {
-                    ?><select size="1" name="translate_to" id="translate_to"><?php
-                    foreach ($languages_bing as $code => $lang) {
-                      ?><option value="<?php echo $code; ?>" <?php myarcade_selected($general['translate_to'], $code); ?>><?php echo $lang; ?></option><?php
-                    }
-                    ?></select><?php
-                  }
-                  else {
-                    _e("ERROR: Can't find bing language file!", 'myarcadeplugin');
-                  }
-                  ?>
-                </td>
-                <td><i><?php _e("Select the target language.", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-
-              <?php // Google Translator API ?>
-              <tr>
-                <td colspan="2">
-                  <h3><?php _e("Google Translator Settings", 'myarcadeplugin'); ?></h3>
-                </td>
-              </tr>
-
-              <tr><td colspan="2"><h4><?php _e("API Key", 'myarcadeplugin'); ?></h4></td></tr>
-
-              <tr>
-                <td>
-                  <input type="text" size="40" name="google_id" value="<?php echo $general['google_id']; ?>" />
-                </td>
-                <td><i><?php _e('To be able to use Google Translation API v2 you will need to enter your API Key. Google Translator API is a payed service: <a href="https://cloud.google.com/translate/" target="_blank">Google Translate API</a>', 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <?php // Target Language ?>
-              <tr><td colspan="2"><h4><?php _e("Target Language", 'myarcadeplugin'); ?></h4></td></tr>
-              <tr>
-                <td>
-                  <?php
-                  if (isset($languages_google) ) {
-                    ?><select size="1" name="google_translate_to" id="google_translate_to"><?php
-                    foreach ($languages_google as $code => $lang) {
-                      ?><option value="<?php echo $code; ?>" <?php myarcade_selected($general['google_translate_to'], $code); ?>><?php echo $lang; ?></option><?php
-                    }
-                    ?></select><?php
-                  }
-                  else {
-                    _e("ERROR: Can't find google language file!", 'myarcadeplugin');
-                  }
-                  ?>
-                </td>
-                <td><i><?php _e("Select the target language.", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <?php // Yandex Translator API ?>
-              <tr>
-                <td colspan="2">
-                  <h3><?php _e("Yandex Translator Settings", 'myarcadeplugin'); ?></h3>
-                </td>
-              </tr>
-
-              <tr><td colspan="2"><h4><?php _e("API Key", 'myarcadeplugin'); ?></h4></td></tr>
-
-              <tr>
-                <td>
-                  <input type="text" size="40" name="yandex_key" value="<?php echo $general['yandex_key']; ?>" />
-                </td>
-                <td><i><?php _e('To be able to use Yandex Translator you will need to enter your API Key. Yandex Translator is a free service. Click here to get an API key: <a href="https://api.yandex.com/key/form.xml?service=trnsl" target="_blank">Yandex Translator</a>', 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <?php // Target Language ?>
-              <tr><td colspan="2"><h4><?php _e("Target Language", 'myarcadeplugin'); ?></h4></td></tr>
-              <tr>
-                <td>
-                  <?php
-                  if (isset($languages_yandex) ) {
-                    ?><select size="1" name="yandex_translate_to" id="yandex_translate_to"><?php
-                    foreach ($languages_yandex as $code => $lang) {
-                      ?><option value="<?php echo $code; ?>" <?php myarcade_selected($general['yandex_translate_to'], $code); ?>><?php echo $lang; ?></option><?php
-                    }
-                    ?></select><?php
-                  }
-                  else {
-                    _e("ERROR: Can't find google language file!", 'myarcadeplugin');
-                  }
-                  ?>
-                </td>
-                <td><i><?php _e("Select the target language.", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-            </table>
-            <input class="button button-primary" id="submit" type="submit" name="submit" value="<?php _e("Save Settings", 'myarcadeplugin'); ?>" />
-          </div>
-        </div>
-
-        <?php
-        //----------------------------------------------------------------------
-        // Category Mapping
-        //----------------------------------------------------------------------
-        ?>
-        <h2 class="trigger"><?php myarcade_premium_img(); ?> <?php _e("Category Mapping", 'myarcadeplugin'); ?></h2>
-        <div class="toggle_container">
-          <div class="block">
-            <table class="optiontable" width="100%">
-              <tr>
-                <td colspan="4">
-                  <?php myarcade_premium_message() ?>
-                  <br
-                  <i>
-                    <?php _e("Map default categories to your own category names. This feature allows you to publish games in translated or summarized categories instead of using the predefined category names. (optional)", 'myarcadeplugin'); ?>
-                  </i>
-                  <br /><br />
-                </td>
-              </tr>
-              <tr>
-                <td width="20%"><a name="mapcats"></a><strong><?php _e("Feed Category", 'myarcadeplugin'); ?></strong></td>
-                <td width="20%"><strong><?php _e("Category", 'myarcadeplugin'); ?></strong></td>
-                <td width="20%"><strong><?php _e("Add Mapping", 'myarcadeplugin'); ?></strong></td>
-                <td><strong><?php _e("Current Mappings", 'myarcadeplugin'); ?></strong></td>
-              </tr>
-              <?php foreach ($categories as $feedcat) : ?>
-              <tr>
-                <td><?php echo $feedcat['Name']; ?></td>
-                <td>
-                  <?php
-                  $output  = '<select id="general_cat_'.$feedcat['Slug'].'">';
-                  $output .=  '<option value="0">---Select---</option>';
-                  foreach ($categs_tmp as $cat_tmp_id => $cat_tmp_val) {
-                    $output .= '<option value="'.$cat_tmp_id.'" />'.$cat_tmp_val.'</option>';
-                  }
-                  $output .= '</select>';
-                  echo $output;
-                  ?>
-                </td>
-                <td>
-                  <div style="width:100px">
-                  <div class="button-secondary" style="float:left;width:60px;text-align:center;" onclick="alert('Pro feature!');">
-                    Add
-                  </div>
-                  <div style="float:right;" id="general_load_<?php echo $feedcat['Slug']; ?>"> </div>
-                  </div>
-                </td>
-                <td>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="4">
-                  <HR />
-                </td>
-              </tr>
-              <?php endforeach; ?>
-
-              <?php if ( ! empty( $bigfish ) ) : ?>
-              <tr>
-                <td colspan="4"><h3>Big Fish Games</h3></td>
-              </tr>
-              <tr>
-                <td width="20%"><a name="mapcats"></a><strong><?php _e("Native Category", 'myarcadeplugin'); ?></strong></td>
-                <td width="20%"><strong><?php _e("WP Categories", 'myarcadeplugin'); ?></strong></td>
-                <td width="20%"><strong><?php _e("Add Mapping", 'myarcadeplugin'); ?></strong></td>
-                <td><strong><?php _e("Current Mappings", 'myarcadeplugin'); ?></strong></td>
-              </tr>
-
-              <?php foreach ($bigfish['categories'] as $bigfish_category) : ?>
-              <tr>
-                <td><?php echo $bigfish_category['Name']; ?></td>
-                <td>
-                  <?php
-                  $output  = '<select id="bigfish_cat_'.$bigfish_category['ID'].'">';
-                  $output .=  '<option value="0">---Select---</option>';
-                  foreach ($categs_tmp as $cat_tmp_id => $cat_tmp_val) {
-                    $output .= '<option value="'.$cat_tmp_id.'" />'.$cat_tmp_val.'</option>';
-                  }
-                  $output .= '</select>';
-                  echo $output;
-                  ?>
-                </td>
-                <td>
-                  <div style="width:100px">
-                  <div class="button-secondary" style="float:left;width:60px;text-align:center;" onclick="myabp_add_map('<?php echo $bigfish_category['ID']; ?>', 'bigfish' );">
-                    Add
-                  </div>
-                  <div style="float:right;" id="bigfish_load_<?php echo $bigfish_category['ID']; ?>"> </div>
-                  </div>
-                </td>
-                <td>
-                  <?php if ( !empty($bigfish_category['Mapping']) ) { ?>
-                    <div class="tagchecklist" id="bigfish_map_<?php echo $bigfish_category['ID']; ?>">
-                    </div>
-                    <?php
-                  }
-                  else { ?>
-                    <div class="tagchecklist" id="bigfish_map_<?php echo $bigfish_category['ID']; ?>">
-                    </div>
-                    <?php
-                  }
-                  ?>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="4">
-                  <HR />
-                </td>
-              </tr>
-              <?php endforeach; ?>
-              <?php endif; ?>
-
-              <tr>
-              <td colspan="4">
-                <i>
-                  <?php _e("The changes in this section are saved automatically.", 'myarcadeplugin'); ?>
-                </i>
-                <br /><br />
-              </td>
-            </tr>
-            </table>
           </div>
         </div>
 

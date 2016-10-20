@@ -3,14 +3,6 @@
  * Displays the import games page on backend
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright 2009-2015 Daniel Bakovic
- * @license http://myarcadeplugin.com
- */
-
-/**
- * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
- * Do not modify! Do not sell! Do not distribute! -
- * Check our license Terms!
  */
 
 // No direct access
@@ -138,9 +130,6 @@ function myarcade_import_games() {
               <select size="1" name="importmethod" id="importmethod">
                 <option value="importswfdcr" <?php selected( "importswfdcr", $selected_method ); ?>><?php _e("Upload / Grab SWF game", 'myarcadeplugin'); ?>&nbsp;</option>
                 <option value="importembedif" <?php selected( "importembedif", $selected_method ); ?>><?php _e("Import Embed / Iframe game", 'myarcadeplugin'); ?></option>
-                <option value="importibparcade"><?php _e("- PRO - Upload IBPArcade game", 'myarcadeplugin'); ?></option>
-                <option value="importphpbb"><?php _e("- PRO - Upload ZIP File / PHPBB / Mochi", 'myarcadeplugin'); ?></option>
-                <option value="importunity"><?php _e("- PRO - Import Unity game", 'myarcadeplugin'); ?></option>
               </select>
               <br />
               <i><?php _e("Choose a desired import method.", 'myarcadeplugin'); ?></i>

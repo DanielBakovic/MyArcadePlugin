@@ -3,9 +3,6 @@
  * MyArcadePlugin Default Categories
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright 2009-2015 Daniel Bakovic
- * @license http://myarcadeplugin.com
- * @version v5.19.0
  */
 
 $feedcategories = array(
