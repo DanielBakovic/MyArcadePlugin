@@ -7,7 +7,7 @@ Stable tag: 5.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Transform a boring WordPress Blog into an amazing WP Arcade Site with over 70.000 free games: http://myarcadeplugin.com/showcase/
+Transform a boring WordPress Blog into an amazing WP Arcade Site with over 70.000 free games.
 
 == Description ==
 
@@ -167,6 +167,11 @@ Deactivate MyArcadePlugin Lite and delete the Plugin. Upload MyArcadePugin Pro a
 11. GalleryGames - Free WP Arcade Theme available on MyArcadePlugin blog
 
 == CHANGELOG ==
+
+= v5.3.1 - 2016-10-17 =
+  * Tweak - Removed game download function to fit WordPress.org rules
+  * Tweak - Removed deactivated Pro version features
+  * Tweak - Added license.txt (GPLv2 or later) and made the code GPL compliant
 
 = v5.3.0 - 2016-09-06 - Based on MyArcadePlugin Pro 5.24.0 =
   * New - CoolGames integration
