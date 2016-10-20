@@ -415,7 +415,13 @@ function myarcade_feed_famobi( $args = array() ) {
           continue;
         }
 
-        $thumbnail = $game_obj->$settings['thumbsize'];
+        $thumb_size = $settings['thumbsize'];
+        $thumbnail = $game_obj->$thumb_size;
+
+        // Fallback
+        if ( empty( $thumbnail ) ) {
+          $thumbnail = $game_obj->thumb;
+        }
 
         $game->type          = 'famobi';
         $game->name          = esc_sql($game_obj->name);

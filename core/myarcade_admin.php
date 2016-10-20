@@ -253,13 +253,14 @@ function myarcade_media_upload_game_files() {
 /**
  * Extend WordPress upload mimes
  *
- * @version 5.13.0
+ * @version 5.20.0
  * @access  public
  * @param   array  $existing_mimes
  * @return  array
  */
 function myarcade_upload_mimes( $existing_mimes=array() ) {
   // Allow DCR file upload
+  $existing_mimes['swf'] = 'application/x-shockwave-flash';
   $existing_mimes['dcr'] = 'mime/type';
 
   return $existing_mimes;
@@ -824,6 +825,8 @@ function myarcade_handler() {
 
     case "delscores": {
       $wpdb->query("TRUNCATE TABLE ".$wpdb->prefix.'myarcadescores');
+      $wpdb->query("TRUNCATE TABLE ".$wpdb->prefix.'myarcadehighscores');
+      $wpdb->query("TRUNCATE TABLE ".$wpdb->prefix.'myarcademedals');
       ?>
       <script type="text/javascript">
         alert('All scores deleted!');

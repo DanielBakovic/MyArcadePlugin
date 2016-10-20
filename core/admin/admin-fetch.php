@@ -163,7 +163,7 @@ function myarcade_no_fetching_options( $key ) {
 /**
  * Remove distributors we can't fetch games from
  *
- * @version 5.19.0
+ * @version 5.21.0
  * @since   5.19.0
  * @access  public
  * @param   array $distributors Available game distributors
@@ -173,6 +173,7 @@ function myarcade_distributors_can_fetch( $distributors = array() ) {
 
   unset( $distributors['mochi'] );
   unset( $distributors['gamefeed'] );
+  unset( $distributors['unityfeeds'] );
 
   return $distributors;
 }

@@ -222,17 +222,13 @@ function myarcade_feed_myarcadefeed($args) {
 
   $myarcadefeed   = myarcade_get_fetch_options_myarcadefeed();
   $feedcategories = get_option('myarcade_categories');
-  $feed           = $settings['feed'];
-
-  if ( empty($settings) ) {
-    $settings = $myarcadefeed;
-  }
+  $feed           = $myarcadefeed['feed'];
 
   // Include required fetch functions
   require_once( MYARCADE_CORE_DIR . '/fetch.php' );
 
   $games = myarcade_fetch_games( array(
-      'url'     => $settings[$feed],
+      'url'     => $myarcadefeed[$feed],
       'service' => 'xml',
       'echo'    => true
     )
@@ -261,7 +257,7 @@ function myarcade_feed_myarcadefeed($args) {
 
         $categories = explode( ',', $game->category );
 
-        if ( ! $settings['all_categories'] ) {
+        if ( ! $myarcadefeed['all_categories'] ) {
           $add_game = false;
           // Category-Check
           foreach ($feedcategories as $feedcat) {

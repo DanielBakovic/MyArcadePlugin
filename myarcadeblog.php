@@ -3,11 +3,11 @@
  * Plugin Name:  MyArcadePlugin Lite
  * Plugin URI:   http://myarcadeplugin.com
  * Description:  WordPress Arcade Plugin
- * Version:      5.1.0
+ * Version:      5.2.0
  * Author:       Daniel Bakovic
  * Author URI:   http://myarcadeplugin.com
  * Requires at least: 4.0
- * Tested up to: 4.3
+ * Tested up to: 4.5
  */
 
 /**
@@ -20,12 +20,11 @@
 /**
  * Init MyArcadePlugin when WordPress initializes
  *
- * @version 5.15.0
+ * @version 5.21.0
  * @access  public
  * @return  void
  */
 function myarcade_init() {
-  global $myarcade_distributors, $myarcade_game_type_custom;
 
   // Set required constants
   myarcade_initial_constants();
@@ -49,13 +48,13 @@ add_action( 'init', 'myarcade_init' );
 /**
  * Defines initial constants
  *
- * @version 5.19.0
+ * @version 5.2.0
  * @return  void
  */
 function myarcade_initial_constants() {
 
   // Define MyArcadePlugin version
-  define('MYARCADE_VERSION', '5.1.0');
+  define('MYARCADE_VERSION', '5.2.0');
 
   // You need at least PHP Version 5.3.0+ to run this plugin
   define('MYARCADE_PHP_VERSION', '5.3.0');
@@ -121,7 +120,7 @@ function myarcade_includes() {
 /**
  * Set default game distributors
  *
- * @version 5.19.0
+ * @version 5.21.0
  * @return  void
  */
 function myarcade_set_distributors() {
@@ -143,6 +142,7 @@ function myarcade_set_distributors() {
       'gamefeed'      => '- PRO - GameFeed',
       'htmlgames'     => '- PRO - HTML Games',
       'kongregate'    => '- PRO - Kongregate',
+      'playtomax'     => '- PRO - PlayToMax',
       'plinga'        => '- PRO - Plinga',
       'scirra'        => '- PRO - Scirra',
     )

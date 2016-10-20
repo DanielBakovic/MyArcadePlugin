@@ -1,5 +1,13 @@
 - MyArcadePlugin Lite -
 
+v5.2.0 - 2015-07-04 - Based on MyArcadePlugin Pro 5.22.0
+  * New - PHP 7 compatibility
+  * New - WordPress 4.5 compatibility
+  * New - Spilgames - Updated feed integration to fetch mobile games
+  * New - Add 'mobile' tag automatically to mobile games
+  * Fix - Can't fetch MyArcadeFeed URLs
+  * Removed UnityFeeds support: Service has been discontinued
+
 v5.1.0 - 2015-09-02 - Based on MyArcadePlugin Pro 5.19.0
   * New - Softgames feed integration
   * New - Option to add a keyword filter while fetching to allow users to fetch only specific games

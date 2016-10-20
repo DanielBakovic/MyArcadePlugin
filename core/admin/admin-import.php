@@ -120,9 +120,10 @@ function myarcade_import_games() {
   }
 
   $categories = get_terms( $taxonomy, array('hide_empty' => false) );
+  $selected_method = filter_input( INPUT_POST, 'importmethod', FILTER_SANITIZE_STRING, array( "options" => array( "default" => 'importswfdcr') ) );
   ?>
 
-  <?php @include_once( MYARCADE_JS_DIR . '/admin-import-js.php'); ?>
+  <?php require_once( MYARCADE_JS_DIR . '/admin-import-js.php'); ?>
   <div id="myabp_import">
     <h2><?php _e("Import Individual Games", 'myarcadeplugin'); ?></h2>
 
@@ -135,8 +136,8 @@ function myarcade_import_games() {
           <tr>
             <td>
               <select size="1" name="importmethod" id="importmethod">
-                <option value="importswfdcr"><?php _e("Upload / Grab SWF game", 'myarcadeplugin'); ?>&nbsp;</option>
-                <option value="importembedif"><?php _e("Import Embed / Iframe game", 'myarcadeplugin'); ?></option>
+                <option value="importswfdcr" <?php selected( "importswfdcr", $selected_method ); ?>><?php _e("Upload / Grab SWF game", 'myarcadeplugin'); ?>&nbsp;</option>
+                <option value="importembedif" <?php selected( "importembedif", $selected_method ); ?>><?php _e("Import Embed / Iframe game", 'myarcadeplugin'); ?></option>
                 <option value="importibparcade"><?php _e("- PRO - Upload IBPArcade game", 'myarcadeplugin'); ?></option>
                 <option value="importphpbb"><?php _e("- PRO - Upload ZIP File / PHPBB / Mochi", 'myarcadeplugin'); ?></option>
                 <option value="importunity"><?php _e("- PRO - Import Unity game", 'myarcadeplugin'); ?></option>

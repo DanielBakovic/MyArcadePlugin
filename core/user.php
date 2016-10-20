@@ -52,15 +52,14 @@ add_action('user_reguster','myarcade_register_user');
  * @return  string
  */
 function myarcade_get_avatar_url() {
-  global $user_ID;
 
-  get_currentuserinfo();
+  $current_user = wp_get_current_user();
 
-  if ( empty($user_ID) ) {
+  if ( ! $current_user->ID ) {
     return false;
   }
 
-  $avatar_image = get_avatar( $user_ID, '50');
+  $avatar_image = get_avatar( $current_user->ID, '50' );
 
   preg_match('/src=[\',"](.*?)[\',"]/i', $avatar_image, $matches);
 

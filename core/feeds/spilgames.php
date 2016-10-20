@@ -427,7 +427,8 @@ function myarcade_feed_spilgames( $args = array() ) {
         }
 
         // Check if this is a HTML5 game. If so, then change game type and generate an iframe code
-        if ( "iframe" == $game_obj->technology ) {
+        $extension = pathinfo( $game_obj->gameUrl , PATHINFO_EXTENSION );
+        if ( 'html' == $extension ) {
           $game->type          = 'iframe';
         }
         else {

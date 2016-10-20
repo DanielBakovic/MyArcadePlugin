@@ -64,7 +64,7 @@ function myarcade_insert_game($game) {
 /**
  * Creates a wordpress post with the given game and returns the post id
  *
- * @version 5.19.0
+ * @version 5.21.0
  * @param   object $game Game object
  * @return  int $post_id
  */
@@ -80,6 +80,15 @@ function myarcade_add_game_post($game) {
     $game->categories = array();
     $game->categories[0] = $general['singlecat'];
   }
+  // Check if mobile game
+  if ( strpos( $game->file, '.html' ) !== false ) {
+    if ( $game->tags ) {
+      $game->tags .= ',mobile';
+    }
+    else {
+      $game->tags .= 'mobile';
+    }
+  }
 
   // Generate the content
   if ($general['use_template'] ) {
@@ -93,20 +102,8 @@ function myarcade_add_game_post($game) {
     $post_content = str_replace("%WIDTH%", $game->width, $post_content);
     $post_content = str_replace("%HEIGHT%", $game->height, $post_content);
 
-    // Prepare tags for the content
-    $tags_array   = explode(',', $game->tags);
-    $tags_string  = '';
-
-    foreach ($tags_array as $tag) {
-     $tags_string .= trim($tag).', ';
-    }
-
-    // Remove last ', '
-    $tags_string = substr($tags_string, 0, strlen($tags_string) - 2);
-
     // Insert Tags to the post content
-    $post_content = str_replace("%TAGS%", $tags_string, $post_content);
-
+    $post_content = str_replace("%TAGS%", $game->tags, $post_content);
   }
   else {
     $post_content = $game->description;
@@ -223,12 +220,12 @@ function myarcade_add_game_post($game) {
  * - Category mapping
  * - File downloads
  *
- * @version 5.19.0
+ * @version 5.21.1
  * @param   array  $args
  * @return  int|bool Post ID on success or FALSE on error
  */
 function myarcade_add_games_to_blog( $args = array() ) {
-  global $wpdb, $user_ID, $myarcade_feedback;
+  global $wpdb, $myarcade_feedback;
 
   $general = get_option('myarcade_general');
 
@@ -397,7 +394,7 @@ function myarcade_add_games_to_blog( $args = array() ) {
   // ----------------------------------------------
   if ($download_thumbs == true) {
 
-    $file = myarcade_get_file($game->thumbnail_url, true);
+    $file = myarcade_get_file( strtok( $game->thumbnail_url, '?' ), true);
 
     if ( empty($file['error']) ) {
       $path_parts = pathinfo($game->thumbnail_url);
@@ -522,12 +519,12 @@ function myarcade_add_games_to_blog( $args = array() ) {
   // ----------------------------------------------
 
   // Get user info's
-  get_currentuserinfo();
+  $current_user = wp_get_current_user();
 
-  $game_to_add->user = ( !empty($user_ID) ) ? $user_ID : 1;
+  $game_to_add->user = ( !empty( $current_user->ID) ) ? $current_user->ID : 1;
 
   // Overwrite the post status if user has not sufficient rights
-  if ( $user_ID  && !current_user_can('publish_posts') ) {
+  if ( $current_user->ID  && ! current_user_can('publish_posts') ) {
     $post_status = 'draft';
   }
 

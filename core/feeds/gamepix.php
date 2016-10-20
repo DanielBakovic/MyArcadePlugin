@@ -261,8 +261,10 @@ function myarcade_feed_gamepix( $args = array() ) {
         $game->width         = esc_sql($game_obj->width);
         $game->height        = esc_sql($game_obj->height);
 
-        if ( ! empty( $game_obj->$settings['thumbnail'] ) ) {
-          $game->thumbnail_url = esc_sql( $game_obj->$settings['thumbnail'] );
+        $thumb_size = $settings['thumbnail'];
+
+        if ( ! empty( $game_obj->$thumb_size ) ) {
+          $game->thumbnail_url = esc_sql( $game_obj->$thumb_size);
         }
         else {
           $game->thumbnail_url = esc_sql($game_obj->thumbnailUrl100);

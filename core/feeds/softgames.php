@@ -328,8 +328,9 @@ function myarcade_feed_softgames( $args = array() ) {
 
         $game_url = $game_url_parts[0];
 
-        if ( isset( $game_obj->descriptions[0]->$settings['language'] ) ) {
-          $description = $game_obj->descriptions[0]->$settings['language'];
+        $language = $settings['language'];
+        if ( isset( $game_obj->descriptions[0]->$language ) ) {
+          $description = $game_obj->descriptions[0]->$language;
         }
         else {
           $description = '';
@@ -345,8 +346,9 @@ function myarcade_feed_softgames( $args = array() ) {
         $game->screen2_url = ! empty($game_obj->screenshots->screenshoturl_2) ? $game_obj->screenshots->screenshoturl_2 : '';
         $game->screen3_url = ! empty($game_obj->screenshots->screenshoturl_3) ? $game_obj->screenshots->screenshoturl_3 : '';
 
-        if ( ! empty( $game_obj->$settings['thumbnail'] ) ) {
-          $game->thumbnail_url = esc_sql( $game_obj->$settings['thumbnail'] );
+        $thumb_size = $settings['thumbnail'];
+        if ( ! empty( $game_obj->$thumb_size ) ) {
+          $game->thumbnail_url = esc_sql( $game_obj->$thumb_size );
         }
         else {
           $game->thumbnail_url = esc_sql( $game_obj->thumbBig );

@@ -134,7 +134,7 @@ function myarcade_game_data_box() {
         myarcade_wp_select( array(
             'id' => 'mabp_leaderboard',
             'label' => __('Score Support', 'myarcadeplugin'),
-            'description' => __('Select if this game supports score submitting (IBPArcade and GamerSafe games).'),
+            'description' => __('Select if this game supports score submitting (Only Gamersafe or IBPArcade games).'),
             'options' => array( '' => 'No', '1' => 'Yes')
         ));
 
@@ -283,6 +283,12 @@ function myarcade_game_data_box() {
       file_url = jQuery(html).attr('href');
       if (file_url) {
         jQuery(file_path_field).val(file_url);
+      }
+      else {
+        file_url = jQuery(html).attr('src');
+        if (file_url) {
+          jQuery(file_path_field).val(file_url);
+        }
       }
       tb_remove();
       window.send_to_editor = window.send_to_editor_default;
