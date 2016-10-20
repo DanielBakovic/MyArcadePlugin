@@ -3,11 +3,11 @@
  * Plugin Name:  MyArcadePlugin Lite
  * Plugin URI:   http://myarcadeplugin.com
  * Description:  WordPress Arcade Plugin
- * Version:      5.2.0
+ * Version:      5.3.0
  * Author:       Daniel Bakovic
  * Author URI:   http://myarcadeplugin.com
  * Requires at least: 4.0
- * Tested up to: 4.5
+ * Tested up to: 4.6
  */
 
 /**
@@ -54,7 +54,7 @@ add_action( 'init', 'myarcade_init' );
 function myarcade_initial_constants() {
 
   // Define MyArcadePlugin version
-  define('MYARCADE_VERSION', '5.2.0');
+  define('MYARCADE_VERSION', '5.3.0');
 
   // You need at least PHP Version 5.3.0+ to run this plugin
   define('MYARCADE_PHP_VERSION', '5.3.0');
@@ -120,7 +120,7 @@ function myarcade_includes() {
 /**
  * Set default game distributors
  *
- * @version 5.21.0
+ * @version 5.24.0
  * @return  void
  */
 function myarcade_set_distributors() {
@@ -129,6 +129,7 @@ function myarcade_set_distributors() {
   // Set default game distributors
   $myarcade_distributors = apply_filters( 'myarcade_game_distributors', array(
       'twopg'         => '2 Player Games',
+      'coolgames'     => 'CoolGames',
       'famobi'        => 'Famobi',
       'gamepix'       => 'GamePix',
       'myarcadefeed'  => 'MyArcadeFeed',

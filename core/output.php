@@ -154,7 +154,8 @@ function get_game( $game_id = false, $fullsize = false, $preview = false, $fulls
       {
         $gamewidth = ( !empty($gamewidth) ) ? 'width="'.$gamewidth.'"' : '';
         $gameheight = ( !empty($gameheight) ) ? 'height="'.$gameheight.'"' : '';
-        $code = '<iframe id="playframe" '.$gamewidth.' '.$gameheight.' src="'.$game_url.'" frameborder="0" scrolling="no"></iframe>';
+        $parameters = apply_filters( 'myarcade_iframe_parameters', 'frameborder="0" scrolling="no"', $game_id );
+        $code = '<iframe id="playframe" '.$gamewidth.' '.$gameheight.' '.$parameters.' src="'.$game_url.'" ></iframe>';
       } break;
 
       case 'unity':
@@ -177,9 +178,9 @@ function get_game( $game_id = false, $fullsize = false, $preview = false, $fulls
         $general = get_option( 'myarcade_general' );
 
         if ( !$preview && isset( $general['swfobject'] ) && $general['swfobject'] ) {
-          $flashvars = apply_filters('myarcade_swfobject_flashvars', array(), $game_variant, $game_id );
-          $params = apply_filters( 'myarcade_swfobject_params', array( 'wmode' => 'direct', 'allowscriptaccess' => 'always', 'swLiveConnect' => 'true', 'quality' => 'high' ), $game_variant, $game_id );
-          $attributes = apply_filters( 'myarcade_swfobject_attributes', array(), $game_variant, $game_id );
+          $flashvars = apply_filters('myarcade_swfobject_flashvars', array(), $game_id );
+          $params = apply_filters( 'myarcade_swfobject_params', array( 'wmode' => 'direct', 'allowscriptaccess' => 'always', 'swLiveConnect' => 'true', 'quality' => 'high' ), $game_id );
+          $attributes = apply_filters( 'myarcade_swfobject_attributes', array(), $game_id );
           $code  = '<div id="myarcade_swfobject_content"></div>'."\n";
           $code .= "<script type=\"text/javascript\">swfobject.embedSWF( '".$game_url."', 'myarcade_swfobject_content', '".$gamewidth."', '".$gameheight."', '9.0.0', '', ".json_encode($flashvars).", ".json_encode($params).", ".json_encode($attributes).");</script>";          }
         else {

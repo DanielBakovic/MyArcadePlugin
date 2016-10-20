@@ -3,8 +3,8 @@ Contributors: NetReview.de
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GD2C5P5RPPRYN
 Tags: WordPress Arcade, WP Arcade, WP Arcade Plugin, WPArcade, WPArcade Plugin, Flash Games, BigFish Games, Big Fish, Kongregate, Unity3D, Unity, HTML5, FlashGameDistribution, FreeGamesForYourWebsite, Plinga, Scirra, Softgames, Spilgames, Autoblog, Auto post, Games, Arcade Script, Arcade Plugin, Game Script, Arcade
 Requires at least: 4.0
-Tested up to: 4.3
-Stable tag: 5.1.0
+Tested up to: 4.6
+Stable tag: 5.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,12 +34,12 @@ FunGames Theme in Action
 
 = MyArcadePlugin Lite Features =
 * Fetch Games from 2 Player Games
-* Fetch Games from GamePix
+* Fetch Games from CoolGames
 * Fetch Games from Famobi
+* Fetch Games from GamePix
 * Fetch Games from MyArcadeFeed
 * Fetch Games from Softgames
 * Fetch Games from Spilgames
-* Fetch Games from UnityGames
 * Import Flash Games (SWF)
 * Import Iframe Games
 * Import Embed Code Games
@@ -62,6 +62,7 @@ MyArcadePlugin Lite is a fully functional but limited version of <a href='http:/
 * Fetch Games from 2 Player Games
 * Fetch Games from Arcade Game Feed
 * Fetch Games from Big Fish Games
+* Fetch Games from CoolGames
 * Fetch Games from Famobi
 * Fetch Games from FlashGameDistributrion
 * Fetch Games from FreeOnlineGames
@@ -70,16 +71,16 @@ MyArcadePlugin Lite is a fully functional but limited version of <a href='http:/
 * Fetch Games from HTML Games
 * Fetch Games from Kongregate
 * Fetch Games from MyArcadeFeed
+* Fetch Games from PlayToMax
 * Fetch Games from Plinga
 * Fetch Games from Scirra
 * Fetch Games from Softgames
 * Fetch Games from Spil Games
-* Fetch Games from UnityFeeds
 * Import Flash Games (SWF)
 * Import HTML5 Games
 * Import Shockwave Games (DCR)
-* Import IBPArcade Games
-* Import PHPBB Games
+* Import IBPArcade Games (TAR Archives)
+* Import PHPBB Games (ZIP Archives)
 * Import ZIP Games
 * Import Unity 3D Games
 * Import Mochi ZIP Files (Mochi Legacy Import)
@@ -106,7 +107,7 @@ MyArcadePlugin Lite is a fully functional but limited version of <a href='http:/
 * WordPress Multi Site Support (WPMU)
 * and a lot of more..
 
-With MyArcadePlugin you can automatically fetch games from 13 game distributors: 2PG, Arcade Game Feed, Big Fish Games, Famobi, FlashGameDistributrion (FGD), FreeGamesForYourWebsite (FOG), GameFeed by TalkArcades, GamePix, Kongregate, MyArcadeFeed, Scirra, Spil Games and UnityFeeds.
+With MyArcadePlugin you can automatically fetch games from 17 game distributors: 2PG, Arcade Game Feed, Big Fish Games, CoolGames, Famobi, FlashGameDistributrion (FGD), FreeGamesForYourWebsite (FOG), GameFeed by TalkArcades, GamePix, HTML5 Games, Kongregate, MyArcadeFeed, PlayToMax, Plinga, Scirra and Spil Games.
 
 Additionally you can import 10 game types manually: SWF Games, DCR Games, IBPArcade (IBProArcade), PHPBB Games, ZIP Games, Mochi ZIP Files, Unity 3D Games, HTML5, Embed Codes and Iframe Codes.
 
@@ -167,6 +168,20 @@ Deactivate MyArcadePlugin Lite and delete the Plugin. Upload MyArcadePugin Pro a
 11. GalleryGames - Free WP Arcade Theme available on MyArcadePlugin blog
 
 == CHANGELOG ==
+
+= v5.3.0 - 2016-09-06 - Based on MyArcadePlugin Pro 5.24.0 =
+  * New - CoolGames integration
+  * New - WordPress 4.6 ready
+  * New - Filter to modify iframe parameters
+    - apply_filters( 'myarcade_iframe_parameters', 'frameborder="0" scrolling="no"', $game_id );
+
+= v5.2.0 - 2016-07-04 - Based on MyArcadePlugin Pro 5.22.0 =
+  * New - PHP 7 compatibility
+  * New - WordPress 4.5 compatibility
+  * New - Spilgames - Updated feed integration to fetch mobile games
+  * New - Add 'mobile' tag automatically to mobile games
+  * Fix - Can't fetch MyArcadeFeed URLs
+  * Removed UnityFeeds support: Service has been discontinued
 
 = v5.1.0 - 2015-09-02 - Based on MyArcadePlugin Pro 5.19.0 =
   - New - Softgames feed integration
