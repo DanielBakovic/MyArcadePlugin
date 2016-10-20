@@ -3,9 +3,8 @@
  * UnityFeeds
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Fetch
  */
 
 /**
@@ -22,12 +21,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Display distributor settings on admin page
  *
- * @version 5.0.0
+ * @version 5.17.0
  * @access  public
  * @return  void
  */
 function myarcade_settings_unityfeeds() {
-  $unityfeeds = get_option( 'myarcade_unityfeeds' );
+  $unityfeeds = myarcade_get_settings( 'unityfeeds' );
   ?>
   <h2 class="trigger"><?php _e("UnityFeeds Games", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -36,7 +35,7 @@ function myarcade_settings_unityfeeds() {
         <tr>
           <td colspan="2">
             <i>
-              <?php _e("UnityFeeds provides a game feed with exclusive Unity3D games.", 'myarcadeplugin'); ?> Click <a href="http://unityfeeds.com/">here</a> to visit the UnityFeeds site.
+              <?php printf( __( "%s distributes Unity3D games.", 'myarcadeplugin' ), '<a href="http://unityfeeds.com/" target="_blank">UnityFeeds</a>' ); ?>
             </i>
           </td>
         </tr>
@@ -82,7 +81,7 @@ function myarcade_settings_unityfeeds() {
           <td><i><?php _e("Select a thumbnail size.", 'myarcadeplugin'); ?></i></td>
         </tr>
 
-        <tr><td colspan="2"><h3><?php _e("Thumbnail Size", 'myarcadeplugin'); ?></h3></td></tr>
+        <tr><td colspan="2"><h3><?php _e("Screenshot Size", 'myarcadeplugin'); ?></h3></td></tr>
 
         <tr>
           <td>
@@ -124,20 +123,34 @@ function myarcade_settings_unityfeeds() {
 }
 
 /**
+ * Retrieve distributor's default settings
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Default settings
+ */
+function myarcade_default_settings_unityfeeds() {
+  return array(
+    'feed'          => 'http://unityfeeds.com/feed/',
+    'category'      => 'all',
+    'thumbnail'     => '100x100',
+    'screenshot'    => '300x300',
+    'cron_publish'  => false,
+    'cron_publish_limit' => '1',
+  );
+}
+
+/**
  * Handle distributor settings update
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @access  public
  * @return  void
  */
 function myarcade_save_settings_unityfeeds() {
 
-  // Do a secuirty check before updating the settings
-  $myarcade_nonce = filter_input( INPUT_POST, 'myarcade_save_settings_nonce');
-  if ( ! $myarcade_nonce || ! wp_verify_nonce( $myarcade_nonce, 'myarcade_save_settings' ) ) {
-    // Security check failed .. don't update settings
-    return;
-  }
+  myarcade_check_settings_nonce();
 
   // UnityFeeds
   $unityfeeds = array();
@@ -154,7 +167,7 @@ function myarcade_save_settings_unityfeeds() {
 /**
  * Diesplay feed options on the fetch games page
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @return  void
  */
@@ -165,7 +178,7 @@ function myarcade_fetch_options_unityfeeds() {
 /**
  * Fetch UnityFeeds games
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @param   array  $args Fetching parameters
  * @return  void
@@ -185,7 +198,7 @@ function myarcade_feed_unityfeeds( $args = array() ) {
   $new_games = 0;
   $add_game = false;
 
-  $unityfeeds      = get_option('myarcade_unityfeeds');
+  $unityfeeds      = myarcade_get_settings( 'unityfeeds' );
   $feedcategories = get_option('myarcade_categories');
 
   // Init settings var's
@@ -216,6 +229,14 @@ function myarcade_feed_unityfeeds( $args = array() ) {
   if ( !empty($json_games) ) {
 
     foreach ($json_games as $game_obj) {
+
+      // Check the keyword filter before we do anything else
+      if ( ! empty( $settings['keyword_filter'] ) ) {
+        if ( ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->name ) ) && ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->description ) ) ) {
+          // Filter failed. Skip game
+          continue;
+        }
+      }
 
       $game = new stdClass();
 
@@ -304,5 +325,17 @@ function myarcade_feed_unityfeeds( $args = array() ) {
 
   // Show, how many games have been fetched
   myarcade_fetched_message( $new_games, $echo );
+}
+
+/**
+ * Return game embed method
+ *
+ * @version 5.18.0
+ * @since   5.18.0
+ * @access  public
+ * @return  string Embed Method
+ */
+function myarcade_embedtype_unityfeeds() {
+  return 'unity';
 }
 ?>

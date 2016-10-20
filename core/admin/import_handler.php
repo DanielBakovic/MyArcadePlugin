@@ -4,13 +4,11 @@
  * Handles file uploads for each game type
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/File
- * @version 5.0.0
  */
 
-/*
+/**
  * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
  * Do not modify! Do not sell! Do not distribute! -
  * Check our license Terms!
@@ -52,7 +50,7 @@ $game->error = '';
 $result = false;
 
 // Check the submission
-switch ( $_POST['upload'] ) {
+switch ( filter_input( INPUT_POST, 'upload' ) ) ) {
 
   // Upload SWF / DCR File
   case 'swf':

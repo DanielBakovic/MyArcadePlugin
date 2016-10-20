@@ -3,9 +3,8 @@
  * Adds Meta Boxes to WordPress post
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Admin
  */
 
 /**
@@ -22,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Add meta box to a game post.
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @return  void
  */
 function myarcade_add_meta_box_conditionally() {
@@ -48,7 +47,7 @@ add_action( 'admin_init', 'myarcade_add_meta_box_conditionally' );
 /**
  * Add MyArcade Game Details Meta Box
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @return  void
  */
@@ -69,7 +68,7 @@ function myarcade_game_details_meta_box() {
 /**
  * Displays the MyArcade Meta Box
  *
- * @version 5.0.0
+ * @version 5.14.0
  * @access  public
  * @return  void
  */
@@ -198,7 +197,7 @@ function myarcade_game_data_box() {
         $field = array( 'id' => 'mabp_screen2_url', 'label' => __('Game Screenshot No. 2', 'myarcadeplugin') );
 
         echo '<p class="myarcade-form-field"><label for="'.$field['id'].'">'.$field['label'].':</label>
-          <input type="text" class="screen1_path" name="'.$field['id'].'" id="'.$field['id'].'" value="'.$file_path.'" placeholder="'.__('File path / URL', 'myarcadeplugin').'" />
+          <input type="text" class="screen2_path" name="'.$field['id'].'" id="'.$field['id'].'" value="'.$file_path.'" placeholder="'.__('File path / URL', 'myarcadeplugin').'" />
           <input type="button"  class="upload_screen2_button button" value="'.__('Upload a file', 'myarcadeplugin').'" />
         </p>';
 
@@ -295,7 +294,7 @@ function myarcade_game_data_box() {
 /**
  * Update MyArcade Meta Box values
  *
- * @version 5.1.0
+ * @version 5.3.2
  * @access  public
  * @param   int $post_id    Post ID
  * @param   mixed $post     Post Object
@@ -312,9 +311,7 @@ function myarcade_meta_box_save($post_id, $post) {
     return $post_id;
   }
 
-  $nonce = filter_input( INPUT_POST, 'myarcade_meta_nonce' );
-
-  if ( !$nonce || ($nonce && !wp_verify_nonce( $nonce, 'myarcade_save_data' ))) {
+  if ( ! wp_verify_nonce( filter_input( INPUT_POST, 'myarcade_meta_nonce' ), 'myarcade_save_data' ) ) {
     return $post_id;
   }
 
@@ -322,36 +319,45 @@ function myarcade_meta_box_save($post_id, $post) {
     return $post_id;
   }
 
-  $game_height = filter_input( INPUT_POST, 'mabp_height' );
-  $game_width = filter_input( INPUT_POST, 'mabp_width' );
-  $game_description = filter_input( INPUT_POST, 'mabp_description' );
-  $game_instruction = filter_input( INPUT_POST, 'mabp_instructions' );
-  $game_scores = filter_input( INPUT_POST, 'mabp_leaderboard' );
-  $score_technologie = filter_input( INPUT_POST, 'mabp_score_bridge' );
+  $game_height = (isset($_POST['mabp_height'])) ? sanitize_text_field( $_POST['mabp_height'] ) : '';
+  $game_width = (isset($_POST['mabp_width'])) ? sanitize_text_field( $_POST['mabp_width'] ) : '';
+  $game_description = (isset($_POST['mabp_description'])) ? esc_textarea( $_POST['mabp_description'] ) : '';
+  $game_instruction = (isset($_POST['mabp_instructions'])) ? esc_textarea( $_POST['mabp_instructions'] ) : '';
+  $game_scores = (isset($_POST['mabp_leaderboard'])) ? sanitize_text_field( $_POST['mabp_leaderboard'] ) : '';
+  $score_technologie = (isset($_POST['mabp_score_bridge'] ) ) ? sanitize_text_field( $_POST['mabp_score_bridge'] ) : '';
 
-  update_post_meta($post_id, 'mabp_game_type', filter_input( INPUT_POST, 'mabp_game_type' ));
+  update_post_meta($post_id, 'mabp_game_type', sanitize_text_field( $_POST['mabp_game_type'] ) );
   update_post_meta($post_id, 'mabp_height', $game_height);
   update_post_meta($post_id, 'mabp_width', $game_width);
   update_post_meta($post_id, 'mabp_description',  $game_description);
   update_post_meta($post_id, 'mabp_instructions', $game_instruction);
   update_post_meta($post_id, 'mabp_leaderboard', $game_scores);
-  update_post_meta($post_id, 'mabp_score_order', filter_input( INPUT_POST, 'mabp_score_order' ));
+  update_post_meta($post_id, 'mabp_score_order', sanitize_text_field( $_POST['mabp_score_order'] ) );
   update_post_meta($post_id, 'mabp_score_bridge', $score_technologie );
 
-  update_post_meta($post_id, 'mabp_thumbnail_url', filter_input( INPUT_POST, 'mabp_thumbnail_url' ));
-  update_post_meta($post_id, 'mabp_swf_url', filter_input( INPUT_POST, 'mabp_swf_url' ));
-  update_post_meta($post_id, 'mabp_screen1_url', filter_input( INPUT_POST, 'mabp_screen1_url' ));
-  update_post_meta($post_id, 'mabp_screen2_url', filter_input( INPUT_POST, 'mabp_screen2_url' ));
-  update_post_meta($post_id, 'mabp_screen3_url', filter_input( INPUT_POST, 'mabp_screen3_url' ));
-  update_post_meta($post_id, 'mabp_screen4_url', filter_input( INPUT_POST, 'mabp_screen4_url' ));
-  update_post_meta($post_id, 'mabp_video_url', filter_input( INPUT_POST, 'mabp_video_url' ));
+  $thumb = (isset($_POST['mabp_thumbnail_url'])) ? esc_url( $_POST['mabp_thumbnail_url'] ) : '';
+  $game = (isset($_POST['mabp_swf_url'])) ? sanitize_text_field( $_POST['mabp_swf_url'] ) : ''; // This can be an embed code, too
+  $screen1 = (isset($_POST['mabp_screen1_url'])) ? esc_url( $_POST['mabp_screen1_url'] ) : '';
+  $screen2 = (isset($_POST['mabp_screen2_url'])) ? esc_url( $_POST['mabp_screen2_url'] ) : '';
+  $screen3 = (isset($_POST['mabp_screen3_url'])) ? esc_url( $_POST['mabp_screen3_url'] ) : '';
+  $screen4 = (isset($_POST['mabp_screen4_url'])) ? esc_url( $_POST['mabp_screen4_url'] ) : '';
+  $video_url = (isset($_POST['mabp_video_url'])) ? esc_url( $_POST['mabp_video_url'] ) : '';
+
+  update_post_meta($post_id, 'mabp_thumbnail_url', $thumb);
+  update_post_meta($post_id, 'mabp_swf_url', $game);
+  update_post_meta($post_id, 'mabp_screen1_url', $screen1);
+  update_post_meta($post_id, 'mabp_screen2_url', $screen2);
+  update_post_meta($post_id, 'mabp_screen3_url', $screen3);
+  update_post_meta($post_id, 'mabp_screen4_url', $screen4);
+  update_post_meta($post_id, 'mabp_video_url', $video_url);
 
 }
+//add_action('save_post', 'myarcade_meta_box_save', 1, 2);
 
 /**
  * Generate a text input field
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @param   array $field Field params
  * @return  void
@@ -387,7 +393,7 @@ function myarcade_wp_text_input( $field ) {
 /**
  * Generate a text area field
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @param   array $field Field params
  * @return  void
@@ -422,7 +428,7 @@ function myarcade_wp_textarea_input( $field ) {
 /**
  * Generate a select field
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @param   array $field Field params
  * @return  void
@@ -462,7 +468,7 @@ function myarcade_wp_select( $field ) {
 /**
  * Generate a checkbox input field
  *
- * @version 5.0.0
+ * @version 5.14.0
  * @access  public
  * @param   array $field Field params
  * @return  void

@@ -3,9 +3,8 @@
  * GameFeed by Talkarcades
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Fetch
  */
 
 /**
@@ -22,12 +21,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Display distributor settings on admin page
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @return  void
  */
 function myarcade_settings_gamefeed() {
-  $gamefeed = get_option( 'myarcade_gamefeed' );
+  $gamefeed = myarcade_get_settings( 'gamefeed' );
   ?>
   <h2 class="trigger"><?php myarcade_premium_img() ?> <?php _e("GameFeed by TalkArcades", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -38,7 +37,8 @@ function myarcade_settings_gamefeed() {
             <?php myarcade_premium_message() ?>
             <br />
             <i>
-              <?php echo sprintf( __("You need a free account on TalkArcades to be able to use the GameFeed AutoPublisher. Click %shere%s to create a new account.", 'myarcadeplugin'), '<a href="http://www.talkarcades.com" target="_blank">', '</a>'); ?>
+              <?php printf( __( "%s distributes Flash games.", 'myarcadeplugin' ), '<a href="http://www.talkarcades.com" target="_blank">TalkArcades</a>' ); ?>
+              <?php _e( "You need a free account on TalkArcades to be able to use the GameFeed AutoPublisher. eate a new account.", 'myarcadeplugin'); ?>
             </i>
             <br /><br />
           </td>
@@ -82,26 +82,38 @@ function myarcade_settings_gamefeed() {
 }
 
 /**
+ * Retrieve distributor's default settings
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Default settings
+ */
+function myarcade_default_settings_gamefeed() {
+  return array(
+    'status'        => 'publish',
+    'cron_publish'  => false,
+    'cron_publish_limit' => '1',
+  );
+}
+
+/**
  * Handle distributor settings update
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @access  public
  * @return  void
  */
 function myarcade_save_settings_gamefeed() {
 
-  // Do a secuirty check before updating the settings
-  $myarcade_nonce = filter_input( INPUT_POST, 'myarcade_save_settings_nonce');
-  if ( ! $myarcade_nonce || ! wp_verify_nonce( $myarcade_nonce, 'myarcade_save_settings' ) ) {
-    // Security check failed .. don't update settings
-    return;
-  }
+  myarcade_check_settings_nonce();
 
   // GameFeed Settings
   $gamefeed = array();
   $gamefeed['status'] = $_POST['gamefeed_status'];
   $gamefeed['cron_publish']        = (isset($_POST['gamefeed_cron_publish']) ) ? true : false;
   $gamefeed['cron_publish_limit']  = (isset($_POST['gamefeed_cron_publish_limit']) ) ? intval($_POST['gamefeed_cron_publish_limit']) : 1;
-    // Update Settings
-    update_option( 'myarcade_gamefeed', $gamefeed );
+  // Update Settings
+  update_option( 'myarcade_gamefeed', $gamefeed );
 }
+?>

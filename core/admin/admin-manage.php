@@ -3,12 +3,11 @@
  * Displays the manage games page on backend
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Admin
  */
 
-/*
+/**
  * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
  * Do not modify! Do not sell! Do not distribute! -
  * Check our license Terms!
@@ -22,7 +21,7 @@ if( !defined( 'ABSPATH' ) ) {
 /**
  * Manage Games
  *
- * @version 5.0.0
+ * @version 5.3.2
  * @access  public
  * @return  void
  */
@@ -47,27 +46,24 @@ function myarcade_manage_games() {
 
   $feedcategories = get_option('myarcade_categories');
 
-  // Init needed vars
-  $action = $results = $keyword = '';
+  $game_type    = isset( $_POST['distr'] ) ? sanitize_text_field( $_POST['distr'] ) : 'all';
+  $leaderboard  = isset( $_POST['leaderboard'] ) ? sanitize_text_field( $_POST['leaderboard'] ) : false;
+  $status       = isset( $_POST['status'] ) ? sanitize_text_field( $_POST['status'] ) : 'all';
+  $search       = empty( $_POST['q'] ) ? false : sanitize_text_field( $_POST['q'] );
+  $order        = isset( $_POST['order'] ) ? sanitize_text_field( $_POST['order'] ) : 'ASC';
+  $orderby      = isset( $_POST['orderby'] ) ? sanitize_text_field( $_POST['orderby'] ) : 'id';
+  $cat          = isset( $_POST['category'] ) ? sanitize_text_field( $_POST['category'] ) : 'all';
+  $games        = isset( $_POST['games'] ) ? sanitize_text_field( $_POST['games'] ) : '50';
+  $offset       = isset( $_POST['offset'] ) ? sanitize_text_field( $_POST['offset'] ) : '0';
 
-  $game_type    = isset($_POST['distr']) ? $_POST['distr'] : 'all';
-  $leaderboard  = isset($_POST['leaderboard']) ? $_POST['leaderboard'] : false;
-  //$coins        = isset($_POST['coins']) ? $_POST['coins'] : false;
-  $status       = isset($_POST['status']) ? $_POST['status'] : 'all';
-  $search       = empty($_POST['q']) ? false : $_POST['q'];
-  $order        = isset($_POST['order']) ? $_POST['order'] : 'ASC';
-  $orderby      = isset($_POST['orderby']) ? $_POST['orderby'] : 'id';
-  $cat          = isset($_POST['category']) ? $_POST['category'] : 'all';
-  $games        = isset($_POST['games']) ? $_POST['games'] : '50';
-  $offset       = isset($_POST['offset']) ? $_POST['offset'] : '0';
 
-  if ( isset($_POST['action']) ) {
-    $action = $_POST['action'];
-  }
+  $enable_delete = filter_input( INPUT_POST, 'enable_delete' );
+  $bulk_delete_button = filter_input( INPUT_POST, 'bulk_delete_button' );
 
-  if ( $action == 'search' ) {
-    $keyword = esc_sql($search);
+  $action = sanitize_text_field( filter_input( INPUT_POST, 'action' );
+  $results = false;
 
+  if ( 'search' == $action ) {
     $query_array = array();
 
     if ($search) {
@@ -81,10 +77,6 @@ function myarcade_manage_games() {
     if ( $leaderboard ) {
       $query_array[] = "leaderboard_enabled = '1'";
     }
-
-    /*if ( $coins ) {
-      $query_array[] = "coins_enabled = '1'";
-    }*/
 
     if ( $status != 'all' ) {
       $query_array[] = "status = '".$status."'";
@@ -111,22 +103,42 @@ function myarcade_manage_games() {
       }
     }
     else {
-      $query_string = $query_array[0];
+      if ( $count ) {
+        $query_string = $query_array[0];
+      }
     }
 
     if ( !empty($query_string) ) {
       $query_string = " WHERE ".$query_string;
     }
 
-    // Generate the query
-    $query = "SELECT * FROM " . $wpdb->prefix . 'myarcadegames' . $query_string." ORDER BY ".$orderby." ".$order." limit ".$offset.",".$games;
+    if ( "yes" == $enable_delete && $bulk_delete_button ) {
+      // Delete published posts first
+      if ( "published" == $status || "all" == $status ) {
+        $post_ids = $wpdb->get_results( "SELECT postid FROM " . $wpdb->prefix . 'myarcadegames' . $query_string );
+        if ( $post_ids ) {
+          foreach ( $post_ids as $key => $value ) {
+            if ( isset( $value->postid ) ) {
+              wp_delete_post( intval( $value->postid ), true );
+            }
+          }
+        }
+      }
 
-    $query_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $wpdb->prefix . 'myarcadegames' . $query_string);
+      // Now delete fetched games
+      $wpdb->query( "DELETE FROM " . $wpdb->prefix . 'myarcadegames' . $query_string );
+    }
+    else {
+      // Generate the query
+      $query = "SELECT * FROM " . $wpdb->prefix . 'myarcadegames' . $query_string." ORDER BY ".$orderby." ".$order." limit ".$offset.",".$games;
 
-    $results = $wpdb->get_results($query);
+      $query_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $wpdb->prefix . 'myarcadegames' . $query_string);
 
-    if (!$results) {
-      echo '<div class="mabp_error" style="width:685px">'.__("Nothing found!", 'myarcadeplugin').'</strong></div>';
+      $results = $wpdb->get_results($query);
+
+      if (!$results) {
+        echo '<div class="mabp_error" style="width:685px">'.__("Nothing found!", 'myarcadeplugin').'</strong></div>';
+      }
     }
   }
   ?>
@@ -134,7 +146,7 @@ function myarcade_manage_games() {
     <input type="hidden" name="action" value="search" />
     <div class="myarcade_border grey" style="width:680px">
       <?php _e("Search for", 'myarcadeplugin'); ?>
-      <input type="text" size="40" name="q" value="<?php echo $keyword; ?>" />
+      <input type="text" size="40" name="q" value="<?php echo $search; ?>" />
 
       <p class="myarcade_hr">&nbsp;</p>
 
@@ -209,14 +221,24 @@ function myarcade_manage_games() {
         <input type="text" size="3" name="offset" value="<?php echo $offset; ?>" />
       </div>
 
-      <div class="clear"> </div>
+      <div style="padding: 10px;width:300px;height:30px;float:left;">
+        <input class="button-primary" id="submit" type="submit" name="submit" value="Search" />
+      </div>
 
-      <input class="button-primary" id="submit" type="submit" name="submit" value="Search" />
+      <div class="myarcade_border bulk-delete" style="width:300px;height:25px;margin-right:15px;padding-top: 15px">
+        <input type="checkbox" name="enable_delete" id="enable_delete" value="yes" /> <?php _e("Yes, delete games", 'myarcadeplugin' ) ?>
+        <input type="submit" id="bulk_delete_button" name="bulk_delete_button" class="button-secondary" style="float:right;margin-top:-4px" onclick="return confirmBulkDelete();" disabled value="<?php _e("Bulk Delete", 'myarcadeplugin' ) ?>" />
+      </div>
+
+      <div class="clear"></div>
     </div>
   </form>
 
   <?php
-  if ( $results ) {
+  if ( "yes" == $enable_delete && $bulk_delete_button ) {
+    echo '<div class="mabp_info" style="width:685px">'.__("Bulk Delete executed successfully!", 'myarcadeplugin').'</strong></div>';
+  }
+  elseif ( $results ) {
     echo '<div class="mabp_info" style="width:685px">'.sprintf(__("Results found: <strong>%s</strong>. Displaying results from <strong>%s</strong> to <strong>%s</strong>.", 'myarcadeplugin'), $query_count, $offset, $games + $offset).'</div>';
 
     foreach ($results as $game) {
@@ -345,27 +367,20 @@ function myarcade_manage_games() {
   <script type="text/javascript">
     function thickboxResize() {
       var boundHeight = 800; // minimum height
-      //var boundWidth = 750; // minimum width
-
-      //var viewportWidth = (self.innerWidth || (document.documentElement.clientWidth || (document.body.clientWidth || 0)));
       var viewportHeight = (self.innerHeight || (document.documentElement.clientHeight || (document.body.clientHeight || 0)));
 
       jQuery('a.thickbox').each(function(){
         var text = jQuery(this).attr("href");
 
-        if ( viewportHeight < boundHeight  /*|| viewportHeight < boundWidth*/)
+        if ( viewportHeight < boundHeight )
         {
           // adjust the height
           text = text.replace(/height=[0-9]*/,'height=' + Math.round(viewportHeight * .8));
-          // adjust the width
-          //text = text.replace(/width=[0-9]*/,'width=' + Math.round(viewportWidth * .8));
         }
         else
         {
           // constrain the height by defined bounds
           text = text.replace(/height=[0-9]*/,'height=' + boundHeight);
-          // constrain the width by defined bounds
-          //text = text.replace(/width=[0-9]*/,'width=' + boundWidth);
         }
 
         jQuery(this).attr("href", text);
@@ -374,6 +389,22 @@ function myarcade_manage_games() {
 
     jQuery(window).bind('load', thickboxResize );
     jQuery(window).bind('resize', thickboxResize );
+
+    jQuery("#enable_delete").click(function() {
+      var checked_status = this.checked;
+      if (checked_status === true) {
+        jQuery("#bulk_delete_button").removeAttr("disabled");
+      } else {
+        jQuery("#bulk_delete_button").attr("disabled", "disabled");
+      }
+    });
+
+    function confirmBulkDelete() {
+      if ( confirm("<?php _e("Are you really sure you want to run a bulk game delete?", 'myarcadeplugin'); ?>") ) {
+        return true;
+      }
+      return false;
+    }
   </script>
   <?php
   myarcade_footer();

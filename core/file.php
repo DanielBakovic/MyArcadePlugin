@@ -3,12 +3,11 @@
  * File handle functions
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/File
  */
 
-/*
+/**
  * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
  * Do not modify! Do not sell! Do not distribute! -
  * Check our license Terms!
@@ -23,7 +22,7 @@ if ( !function_exists('file_put_contents') ) {
   /**
    * Alternative file_put_contents function
    *
-   * @version 5.0.0
+   * @version 5.13.0
    * @access  public
    * @param   string $filename File name
    * @param   string $data Data that should be written into the file
@@ -44,7 +43,7 @@ if ( !function_exists('file_put_contents') ) {
 /**
  * Delete a given file from the hard drive
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @param   string $file_abs Absolute path to a file
  * @return  void
@@ -58,7 +57,7 @@ function myarcade_del_file( $file_abs ) {
 /**
  * Checks if a game is deleteable
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @param   string $gametype Game type / distributor ID
  * @return  bool TRUE if game type is deletable
@@ -92,7 +91,7 @@ function myarcade_is_game_deleteable( $gametype ) {
 /**
  * Get the abspath of the given URL
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @param   string $url URL
  * @return  string|bool string if the absolute path has been found. Otherwise FALSE
@@ -124,7 +123,7 @@ function myarcade_get_abs_path( $url )  {
 /**
  * Delete game files when deleting a post
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @param   int $post_ID Post ID
  * @return  bool
@@ -196,7 +195,7 @@ add_action('before_delete_post', 'myarcade_delete_game');
  * Downloads a file using WordPress HTTP function. After the download
  * the file content will be returned. On error the function will return false.
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @param   string $url URL
  * @return  array
@@ -227,7 +226,7 @@ function myarcade_get_file( $url ) {
 /**
  * Determinate the file folder depended on the game type, file type and file name
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @param   string $name File name
  * @param   string $type Game type
@@ -304,7 +303,7 @@ function myarcade_get_folder_path($name = '', $type = '') {
 /**
  * Display a max post size message
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  void
  */
@@ -324,7 +323,7 @@ function myarcade_get_max_post_size_message() {
 /**
  * Returns the max post size in bytes
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  int
  */
@@ -343,7 +342,7 @@ function myarcade_get_max_post_size_bytes() {
 /**
  * List all files available in the uploads/game_type folder
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  void
  */
@@ -355,7 +354,7 @@ function myarcade_get_filelist() {
 
   $upload_dir = myarcade_upload_dir();
 
-  $type = $_POST['type'];
+  $type = sanitize_text_field( $_POST['type'] );
   $dir =  $upload_dir['gamesdir'] . 'uploads/' . $type;
 
   $files_array = array();

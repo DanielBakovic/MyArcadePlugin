@@ -3,9 +3,8 @@
  * GamePix Feed
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Fetch
  */
 
 /**
@@ -22,13 +21,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Display distributor settings on admin page
  *
- * @version 5.0.0
+ * @version 5.17.0
  * @access  public
  * @return  void
  */
 function myarcade_settings_gamepix() {
 
-  $gamepix = get_option( 'myarcade_gamepix' );
+  $gamepix = myarcade_get_settings( 'gamepix' );
   ?>
   <h2 class="trigger"><?php _e("GamePix", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -37,7 +36,7 @@ function myarcade_settings_gamepix() {
         <tr>
           <td colspan="2">
             <i>
-              <?php _e("GamePix offers you high quality HTML5 games.", 'myarcadeplugin'); ?> Click <a href="http://gamepix.com" target="_blank">here</a> to visit the GamePix site.
+              <?php printf( __( "%s distributes HTML5 games.", 'myarcadeplugin' ), '<a href="http://gamepix.com" target="_blank">GamePix</a>' ); ?>
             </i>
             <br /><br />
           </td>
@@ -68,6 +67,18 @@ function myarcade_settings_gamepix() {
           <td><i><?php _e("Select which games you would like to fetch.", 'myarcadeplugin'); ?></i></td>
         </tr>
 
+        <tr><td colspan="2"><h3><?php _e("Thumbnail Size", 'myarcadeplugin'); ?></h3></td></tr>
+
+        <tr>
+          <td>
+            <select size="1" name="gamepix_thumbnail" id="gamepix_thumbnail">
+              <option value="thumbnailUrl100" <?php myarcade_selected($gamepix['thumbnail'], 'thumbnailUrl100'); ?> ><?php _e("100x100", 'myarcadeplugin'); ?></option>
+              <option value="thumbnailUrl" <?php myarcade_selected($gamepix['thumbnail'], 'thumbnailUrl'); ?> ><?php _e("250x250", 'myarcadeplugin'); ?></option>
+            </select>
+          </td>
+          <td><i><?php _e("Select a thumbnail size.", 'myarcadeplugin'); ?></i></td>
+        </tr>
+
         <tr><td colspan="2"><h3><?php _e("Automated Game Publishing", 'myarcadeplugin'); ?></h3></td></tr>
 
         <tr>
@@ -94,26 +105,42 @@ function myarcade_settings_gamepix() {
 }
 
 /**
+ * Retrieve distributor's default settings
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Default settings
+ */
+function myarcade_default_settings_gamepix() {
+  return array(
+    'feed'          => 'http://games.gamepix.com/games',
+    'publisher_id'  => '10013',
+    'site_id'       => '20015',
+    'category'      => 'all',
+    'thumbnail'     => 'thumbnailUrl100',
+    'cron_publish'  => false,
+    'cron_publish_limit' => '1',
+  );
+}
+
+/**
  * Handle distributor settings update
  *
- * @version 5.0.0
+ * @version 5.3.2
  * @access  public
  * @return  void
  */
 function myarcade_save_settings_gamepix() {
 
-  // Do a secuirty check before updating the settings
-  $myarcade_nonce = filter_input( INPUT_POST, 'myarcade_save_settings_nonce');
-  if ( ! $myarcade_nonce || ! wp_verify_nonce( $myarcade_nonce, 'myarcade_save_settings' ) ) {
-    // Security check failed .. don't update settings
-    return;
-  }
+  myarcade_check_settings_nonce();
 
   $settings = array();
-  $settings['feed'] = (isset($_POST['gamepix_url'])) ? esc_sql($_POST['gamepix_url']) : '';
+  $settings['feed'] = (isset($_POST['gamepix_url'])) ? esc_url($_POST['gamepix_url']) : '';
   $settings['publisher_id'] = '10013';
   $settings['site_id'] = '20015';
-  $settings['category'] = (isset($_POST['gamepix_category'])) ? $_POST['gamepix_category'] : 'all';
+  $settings['category'] = (isset($_POST['gamepix_category'])) ? sanitize_text_field( $_POST['gamepix_category'] ) : 'all';
+  $settings['thumbnail'] = sanitize_text_field( filter_input( INPUT_POST, 'gamepix_thumbnail' ) );
   $settings['cron_publish'] = (isset($_POST['gamepix_cron_publish']) ) ? true : false;
   $settings['cron_publish_limit'] = (isset($_POST['gamepix_cron_publish_limit']) ) ? intval($_POST['gamepix_cron_publish_limit']) : 1;
 
@@ -124,7 +151,7 @@ function myarcade_save_settings_gamepix() {
 /**
  * Fetch FlashGameDistribution games
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @param   array  $args Fetching parameters
  * @return  void
@@ -143,7 +170,7 @@ function myarcade_feed_gamepix( $args = array() ) {
   $new_games = 0;
   $add_game = false;
 
-  $gamepix = get_option('myarcade_gamepix');
+  $gamepix = myarcade_get_settings( 'gamepix' );
   $feedcategories = get_option('myarcade_categories');
 
   // Init settings var's
@@ -155,14 +182,9 @@ function myarcade_feed_gamepix( $args = array() ) {
   }
 
   if ( empty( $settings['publisher_id']) || empty( $settings['site_id']) ) {
+    // Use our default affiliate credentials
     $settings['publisher_id'] = '10013';
     $settings['site_id'] = '20015';
-    ?>
-    <?php /* <div class="mabp_error"> */ ?>
-      <?php /* _e("Can't fetch GamePix games: Publisher ID and/or Site ID missing! Go to MyArcade settings page and add your IDs at GamePix Settings.", 'myarcadeplugin'); */ ?>
-    <?php /* </div> */ ?>
-    <?php
-    /*return;*/
   }
 
   // Generate Feed URL
@@ -182,6 +204,14 @@ function myarcade_feed_gamepix( $args = array() ) {
   //====================================
   if ( !empty($json_games->data) ) {
     foreach ($json_games->data as $game_obj) {
+
+      // Check the keyword filter before we do anything else
+      if ( ! empty( $settings['keyword_filter'] ) ) {
+        if ( ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->title ) ) && ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->description ) ) ) {
+          // Filter failed. Skip game
+          continue;
+        }
+      }
 
       $game = new stdClass();
       $game->uuid     = $game_obj->id . '_gamepix';
@@ -227,10 +257,16 @@ function myarcade_feed_gamepix( $args = array() ) {
         $game->slug          = myarcade_make_slug($game_obj->title);
         $game->description   = esc_sql($game_obj->description);
         $game->categs        = $categories_string;
-        $game->thumbnail_url = esc_sql($game_obj->thumbnailUrl100);
         $game->swf_url       = esc_sql( strtok( $game_obj->url, '?' ) );
         $game->width         = esc_sql($game_obj->width);
         $game->height        = esc_sql($game_obj->height);
+
+        if ( ! empty( $game_obj->$settings['thumbnail'] ) ) {
+          $game->thumbnail_url = esc_sql( $game_obj->$settings['thumbnail'] );
+        }
+        else {
+          $game->thumbnail_url = esc_sql($game_obj->thumbnailUrl100);
+        }
 
         $new_games++;
 
@@ -242,5 +278,29 @@ function myarcade_feed_gamepix( $args = array() ) {
 
   // Show, how many games have been fetched
   myarcade_fetched_message( $new_games, $echo );
+}
+
+/**
+ * Return game embed method
+ *
+ * @version 5.18.0
+ * @since   5.18.0
+ * @access  public
+ * @return  string Embed Method
+ */
+function myarcade_embedtype_gamepix() {
+  return 'iframe';
+}
+
+/**
+ * Return if games can be downloaded by this distirbutor
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  bool True if games can be downloaded
+ */
+function myarcade_can_download_gamepix() {
+  return false;
 }
 ?>

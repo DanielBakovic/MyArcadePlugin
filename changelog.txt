@@ -1,5 +1,14 @@
 - MyArcadePlugin Lite -
 
+v5.1.0 - 2015-09-02 - Based on MyArcadePlugin Pro 5.19.0
+  * New - Softgames feed integration
+  * New - Option to add a keyword filter while fetching to allow users to fetch only specific games
+  * New - Bulk game delete from "Manage Games" page
+  * New - GamePix - Option to select thumbnail size (100x100 or 250x250)
+  * Fix - Some FOG categories where not fetched correctly
+  * Fix - Can't download "Extra Large" thumbnails from Famobi
+  * Fix - Don't try to download Famobi games
+
 v5.0.0 - 2015-04-28 - Based on MyArcadePlugin Pro v5.16.2
   - New: 2PG feed integration (http://2pg.com)
   - New: Famobi feed integration (http://famobi.com)

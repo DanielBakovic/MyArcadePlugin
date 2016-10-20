@@ -3,9 +3,8 @@
  * Displays the publish games page on backend
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Admin
  */
 
 /**
@@ -22,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Publish Games page
  *
- * @version 5.0.0
+ * @version 5.3.2
  * @return  void
  */
 function myarcade_publish_games() {
@@ -34,18 +33,20 @@ function myarcade_publish_games() {
 
   $feedcategories = get_option('myarcade_categories');
 
+  $action = filter_input( INPUT_POST, 'action' );
+
   // Init some needed vars
-  if ( isset($_POST) && isset($_POST['action']) && ($_POST['action'] == 'publish') ) {
-    $game_type        = $_POST['distr'];
-    $leaderboard      = (isset($_POST['leaderboard'])) ? '1' : '0';
+  if ( ! empty($_POST) && 'publish' == $action ) ) {
+    $game_type        = sanitize_text_field( $_POST['distr'] );
+    $leaderboard      = ( isset( $_POST['leaderboard'] ) ) ? '1' : '0';
     //$coins            = (isset($_POST['coins'])) ? '1' : '0';
-    $status           = $_POST['status'];
-    $schedule         = (isset($_POST['scheduletime'])) ? intval($_POST['scheduletime']) : $general['schedule'];
-    $order            = ($_POST['order'] == 'ASC') ? 'ASC' : 'DESC';
-    $cat              = $_POST['category'];
-    $posts            = (isset($_POST['games'])) ? intval($_POST['games']) : false;
-    $download_thumbs  = (isset($_POST['downloadthumbs'])) ? true : false;
-    $download_screens = (isset($_POST['downloadscreens'])) ? true : false;
+    $status           = sanitize_text_field( $_POST['status'] );
+    $schedule         = ( isset($_POST['scheduletime'] ) ) ? intval( $_POST['scheduletime'] ) : $general['schedule'];
+    $order            = ( $_POST['order'] == 'ASC' ) ? 'ASC' : 'DESC';
+    $cat              = sanitize_text_field( $_POST['category'] );
+    $posts            = ( isset( $_POST['games'] ) ) ? intval( $_POST['games'] ) : false;
+    $download_thumbs  = ( isset( $_POST['downloadthumbs'] ) ) ? true : false;
+    $download_screens = ( isset( $_POST['downloadscreens'] ) ) ? true : false;
     $download_games   = (isset($_POST['downloadgames'])) ? true : false;
 
     // Generate the query

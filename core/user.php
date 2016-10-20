@@ -3,12 +3,11 @@
  * User functions
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Game
  */
 
-/*
+/**
  * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
  * Do not modify! Do not sell! Do not distribute! -
  * Check our license Terms!
@@ -20,11 +19,84 @@ if( !defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * New user profile created. Add the user to the gameplay table
+ *
+ * @version 5.13.0
+ * @access  public
+ * @param   int $user_ID User ID
+ * @return  void
+ */
+function myarcade_register_user( $user_ID ) {
+  global $wpdb;
+
+  if ( isset($user_ID) && is_int($user_ID) ) {
+    // Add the user to the gameplay table
+    $wpdb->query("INSERT INTO ".$wpdb->prefix.'myarcadeuser'." (
+        `user_id`, `points`, `plays`
+          ) VALUES (
+        $user_ID,
+        '0',
+        '1'
+      )"
+    );
+  }
+}
+add_action('user_reguster','myarcade_register_user');
+
+
+/**
+ * Get Avatar URL
+ *
+ * @version 5.13.0
+ * @access  public
+ * @return  string
+ */
+function myarcade_get_avatar_url() {
+  global $user_ID;
+
+  get_currentuserinfo();
+
+  if ( empty($user_ID) ) {
+    return false;
+  }
+
+  $avatar_image = get_avatar( $user_ID, '50');
+
+  preg_match('/src=[\',"](.*?)[\',"]/i', $avatar_image, $matches);
+
+  if ( !empty( $matches[1] ) ) {
+    return $matches[1];
+  }
+
+  return false;
+}
+
+/**
+ * Remove scores and game plays of the user that is deleted
+ *
+ * @version 5.13.0
+ * @access  public
+ * @param   int $user_ID User ID
+ * @return  void
+ */
+function myarcade_delete_user($user_ID) {
+  global $wpdb;
+
+  if ( isset($user_ID) && is_int($user_ID) ) {
+    // Delete user scores
+    $wpdb->query("DELETE FROM ".$wpdb->prefix.'myarcadescores'." WHERE `user_id` = '$user_ID'");
+    // Delete user gameplays
+    $wpdb->query("DELETE FROM ".$wpdb->prefix.'myarcadeuser'." WHERE `user_id` = '$user_ID'");
+  }
+}
+add_action('delete_user',  'myarcade_delete_user');
+
+/**
  * Shows MyArcade menu on the admin bar (Only for WP 3.1 and above)
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
- * @return  void
+ * @return  [type] [description]
  */
 function myarcade_bar_menu() {
   global $wp_admin_bar;

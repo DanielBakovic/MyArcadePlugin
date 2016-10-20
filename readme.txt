@@ -1,10 +1,10 @@
 === MyArcadePlugin Lite ===
 Contributors: NetReview.de
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GD2C5P5RPPRYN
-Tags: WordPress Arcade, WP Arcade, WP Arcade Plugin, WPArcade, WPArcade Plugin, Flash Games, Mochi Media, BigFish Games, Big Fish, Kongregate, Unity3D, Unity, HTML5, FlashGameDistribution, FreeGamesForYourWebsite, Scirra, Spilgames, Autoblog, Auto post, Games, Arcade Script, Arcade Plugin, Game Script, Arcade
-Requires at least: 3.6
-Tested up to: 3.9
-Stable tag: 4.0.0
+Tags: WordPress Arcade, WP Arcade, WP Arcade Plugin, WPArcade, WPArcade Plugin, Flash Games, BigFish Games, Big Fish, Kongregate, Unity3D, Unity, HTML5, FlashGameDistribution, FreeGamesForYourWebsite, Plinga, Scirra, Softgames, Spilgames, Autoblog, Auto post, Games, Arcade Script, Arcade Plugin, Game Script, Arcade
+Requires at least: 4.0
+Tested up to: 4.3
+Stable tag: 5.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,10 +33,11 @@ FunGames Theme in Action
 [youtube http://www.youtube.com/watch?v=iZ9BkbVoC8c]
 
 = MyArcadePlugin Lite Features =
-* Fetch Games from 2PG
+* Fetch Games from 2 Player Games
 * Fetch Games from GamePix
 * Fetch Games from Famobi
 * Fetch Games from MyArcadeFeed
+* Fetch Games from Softgames
 * Fetch Games from Spilgames
 * Fetch Games from UnityGames
 * Import Flash Games (SWF)
@@ -58,7 +59,7 @@ FunGames Theme in Action
 = MyArcadePlugin Pro Features =
 MyArcadePlugin Lite is a fully functional but limited version of <a href='http://myarcadeplugin.com/' title='WordPress Arcade Plugin'>MyArcadePlugin Pro</a>. Here are some of the features you will get with the premium version:
 
-* Fetch Games from 2PG
+* Fetch Games from 2 Player Games
 * Fetch Games from Arcade Game Feed
 * Fetch Games from Big Fish Games
 * Fetch Games from Famobi
@@ -66,9 +67,12 @@ MyArcadePlugin Lite is a fully functional but limited version of <a href='http:/
 * Fetch Games from FreeOnlineGames
 * Fetch Games from GameFeed by TalkArcades
 * Fetch Games from GamePix
+* Fetch Games from HTML Games
 * Fetch Games from Kongregate
 * Fetch Games from MyArcadeFeed
+* Fetch Games from Plinga
 * Fetch Games from Scirra
+* Fetch Games from Softgames
 * Fetch Games from Spil Games
 * Fetch Games from UnityFeeds
 * Import Flash Games (SWF)
@@ -133,35 +137,6 @@ After the installation you have to setup the plugin. You can find a <a href='htt
 = Will MyArcadePlugin work with a 'standard' WordPress theme? =
 Yes, the plugin doesn't require any theme changes when you use a standard coded theme.
 
-= How MyArcadePlugin saves game data? =
-The plugin adds the following custom fields to each game post:
-<ul>
-<li>mabp_description - holds the description of a game</li>
-<li>mabp_instructions - holds game instructions</li>
-<li>mabp_thumbnail_url - holds the complete URL of the game thumb</li>
-<li>mabp_swf_url - holds the URL of the game embed file</li>
-<li>mabp_screen1_url - screenshot 1 url</li>
-<li>mabp_screen2_url - screenshot 2 url</li>
-<li>mabp_screen3_url - screenshot 3 url</li>
-<li>mabp_screen4_url - screenshot 4 url</li>
-</ul>
-
-= How can I display game stored game data? =
-The most game data are handles automatically by the plugin but you are also able to display them separately to fit your theme. For example, to display the game description within the loop use:
-
-<code>
-<?php echo get_post_meta($post->ID, "mabp_description", true); ?>
-</code>
-
-
-= How can I embed the game code manually? =
-To embed the flash code of a game manually, you can use this inside your WordPress loop:
-
-<code>
-<?php echo get_game($post->ID); ?>
-</code>
-
-
 = Can I use MyArcadePlugin on an existing WordPress blog? =
 Yes, you can. We have created a theme integration Plugin that will integrate MyArcadePlugin with ease to every existing WordPress blog. Check the features on our site: <a href="http://myarcadeplugin.com/features/enhance-your-wp-blog/" title="MyArcadePlugin Theme Integration" target="_blank">MyArcadePlugin Theme Integration</a>
 
@@ -192,6 +167,15 @@ Deactivate MyArcadePlugin Lite and delete the Plugin. Upload MyArcadePugin Pro a
 11. GalleryGames - Free WP Arcade Theme available on MyArcadePlugin blog
 
 == CHANGELOG ==
+
+= v5.1.0 - 2015-09-02 - Based on MyArcadePlugin Pro 5.19.0 =
+  - New - Softgames feed integration
+  - New - Option to add a keyword filter while fetching to allow users to fetch only specific games
+  - New - Bulk game delete from "Manage Games" page
+  - New - GamePix - Option to select thumbnail size (100x100 or 250x250)
+  - Fix - Some FOG categories where not fetched correctly
+  - Fix - Can't download "Extra Large" thumbnails from Famobi
+  - Fix - Don't try to download Famobi games
 
 = Version 5.0.0 - 2015-05-03 - Based on MyArcadePlugin Pro v5.16.2 =
   - New: Famobi feed integration (http://famobi.com)

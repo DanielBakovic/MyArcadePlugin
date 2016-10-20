@@ -3,9 +3,8 @@
  * FreeGamesForYourWebsite
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Fetch
  */
 
 /**
@@ -22,12 +21,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Display distributor settings on admin page
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @return  void
  */
 function myarcade_settings_fog() {
-  $fog = get_option( 'myarcade_fog' );
+  $fog = myarcade_get_settings( 'fog' );
   ?>
   <h2 class="trigger"><?php myarcade_premium_img() ?> <?php _e("FreeOnlineGames (FOG)", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -38,7 +37,7 @@ function myarcade_settings_fog() {
             <?php myarcade_premium_message() ?>
             <p>
               <i>
-                <?php _e("FreeOnlineGames provides a game feed with hand picked quality games from several sources.", 'myarcadeplugin'); ?> Click <a href="http://www.freegamesforyourwebsite.com">here</a> to visit the FreeGamesForYourWebsite site.
+                <?php printf( __( "%s distributes Flash and Unity3D games.", 'myarcadeplugin' ), '<a href="http://www.freegamesforyourwebsite.com" target="_blank">FreeGamesForYourWebsite</a>' ); ?>
               </i>
             </p>
           </td>
@@ -165,19 +164,39 @@ function myarcade_settings_fog() {
 }
 
 /**
+ * Retrieve distributor's default settings
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Default settings
+ */
+function myarcade_default_settings_fog() {
+  return array(
+    'feed'          => 'http://www.freegamesforyourwebsite.com/feeds/games/',
+    'limit'         => '20',
+    'thumbsize'     => 'small',
+    'screenshot'    => true,
+    'tag'           => 'all',
+    'language'      => 'en',
+    'cron_fetch'    => false,
+    'cron_fetch_limit' => '1',
+    'cron_publish'  => false,
+    'cron_publish_limit' => '1',
+    'status'        => 'publish',
+  );
+}
+
+/**
  * Handle distributor settings update
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @access  public
  * @return  void
  */
 function myarcade_save_settings_fog() {
-  // Do a secuirty check before updating the settings
-  $myarcade_nonce = filter_input( INPUT_POST, 'myarcade_save_settings_nonce');
-  if ( ! $myarcade_nonce || ! wp_verify_nonce( $myarcade_nonce, 'myarcade_save_settings' ) ) {
-    // Security check failed .. don't update settings
-    return;
-  }
+
+  myarcade_check_settings_nonce();
 
   // FreeGamesForYourSite Settings
   $fog = array();
@@ -198,25 +217,108 @@ function myarcade_save_settings_fog() {
 }
 
 /**
- * Diesplay feed options on the fetch games page
+ * Display distributor fetch games options
  *
- * @version 5.0.0
+ * @version 5.19.0
+ * @since   5.19.0
  * @access  public
  * @return  void
  */
-function myarcade_fetch_options_fog() {
+function myarcade_fetch_settings_fog() {
 
+  $fog = myarcade_get_fetch_options_fog();
+  ?>
+  <div class="myarcade_border white hide mabp_680" id="fog">
+    <div style="float:left;width:150px;">
+      <input type="radio" name="fetchmethodfog" value="latest" <?php myarcade_checked($fog['method'], 'latest');?>>
+      <label><?php _e("Latest Games", 'myarcadeplugin'); ?></label>
+    </div>
+    <div class="myarcade_border" style="float:left;padding-top: 5px;background-color: #F9F9F9">
+      Fetch <input type="number" name="limitfog" value="<?php echo $fog['limit']; ?>" /> games
+    </div>
+    <div class="clear"></div>
+  </div>
+  <?php
+}
+
+/**
+ * Generate an options array with submitted fetching parameters
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Fetching options
+ */
+function myarcade_get_fetch_options_fog() {
+
+  // Get distributor settings
+  $settings = myarcade_get_settings( 'fog' );
+
+  // Set default fetching options
+  $settings['method']     = 'latest';
+
+  if ( 'start' == filter_input( INPUT_POST, 'fetch' ) ) {
+    // Set submitted fetching options
+    $settings['method']  = filter_input( INPUT_POST, 'fetchmethodfog' );
+    $settings['limit']   = filter_input( INPUT_POST, 'limitfog' );
+  }
+
+  return $settings;
+}
+
+/**
+ * Retrieve available distributor's categories mapped to MyArcadePlugin categories
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Distributor categories
+ */
+function myarcade_get_categories_fog() {
+  return array(
+    "Action"      => false,
+    "Adventure"   => true,
+    "Arcade"      => false,
+    "Board Game"  => false,
+    "Casino"      => false,
+    "Defense"     => true,
+    "Customize"   => false,
+    "Dress-Up"    => false,
+    "Driving"     => true,
+    "Education"   => false,
+    "Fighting"    => false,
+    "Jigsaw"      => false,
+    "Multiplayer" => true,
+    "Other"       => true,
+    "Puzzles"     => true,
+    "Rhythm"      => false,
+    "Shooting"    => true,
+    "Sports"      => true,
+    "Strategy"    => false,
+  );
 }
 
 /**
  * Fetch FreeGamesForYourWebsite games
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @access  public
  * @param   array  $args Fetching parameters
  * @return  void
  */
 function myarcade_feed_fog( $args = array() ) {
   myarcade_premium_message();
+}
+
+/**
+ * Return game embed method
+ *
+ * @version 5.18.0
+ * @since   5.18.0
+ * @access  public
+ * @return  string Embed Method
+ */
+function myarcade_embedtype_fog() {
+  return 'flash';
 }
 ?>

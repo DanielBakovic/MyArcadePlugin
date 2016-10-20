@@ -3,9 +3,8 @@
  * 2 Player Games
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Fetch
  */
 
 /**
@@ -22,13 +21,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Display distributor settings on admin page
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @return  void
  */
 function myarcade_settings_twopg() {
 
-  $twopg = get_option( 'myarcade_twopg' );
+  $twopg = myarcade_get_settings( 'twopg' );
   ?>
   <h2 class="trigger"><?php _e("2 Player Games", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -37,7 +36,7 @@ function myarcade_settings_twopg() {
         <tr>
           <td colspan="2">
             <i>
-              <?php _e("2 Player Games offers unique multi player games.", 'myarcadeplugin'); ?> Click <a href="http://2pg.com">here</a> to visit the 2PG site.
+              <?php printf( __( "%s distributes Flash games.", 'myarcadeplugin' ), '<a href="http://2pg.com" target="_blank">2 Player Games</a>' ); ?>
             </i>
             <br /><br />
           </td>
@@ -84,19 +83,32 @@ function myarcade_settings_twopg() {
 }
 
 /**
+ * Retrieve distributor's default settings
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Default settings
+ */
+function myarcade_default_settings_twopg() {
+  return array(
+    'feed'          => 'http://www.2pg.com/myarcadeplugin_feed.xml',
+    'all_categories' => false,
+    'cron_publish'  => false,
+    'cron_publish_limit' => '1',
+  );
+}
+
+/**
  * Handle distributor settings update
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @access  public
  * @return  void
  */
 function myarcade_save_settings_twopg() {
-  // Do a secuirty check before updating the settings
-  $myarcade_nonce = filter_input( INPUT_POST, 'myarcade_save_settings_nonce');
-  if ( ! $myarcade_nonce || ! wp_verify_nonce( $myarcade_nonce, 'myarcade_save_settings' ) ) {
-    // Security check failed .. don't update settings
-    return;
-  }
+
+  myarcade_check_settings_nonce();
 
   $twopg = array();
   $twopg['feed'] = (isset($_POST['twopg_url'])) ? esc_sql($_POST['twopg_url']) : '';
@@ -108,20 +120,9 @@ function myarcade_save_settings_twopg() {
 }
 
 /**
- * Diesplay feed options on the fetch games page
- *
- * @version 5.0.0
- * @access  public
- * @return  void
- */
-function myarcade_fetch_options_twopg() {
-
-}
-
-/**
  * Fetch 2PG games
  *
- * @version 5.0.0
+ * @version 5.18.0
  * @access  public
  * @param   array  $args Fetching parameters
  * @return  void
@@ -140,7 +141,7 @@ function myarcade_feed_twopg($args) {
   $new_games = 0;
   $add_game = false;
 
-  $twopg  = get_option('myarcade_twopg');
+  $twopg  = myarcade_get_settings( 'twopg' );
   $feedcategories = get_option('myarcade_categories');
 
   // Init settings vars
@@ -163,6 +164,14 @@ function myarcade_feed_twopg($args) {
 
   if ( !empty($games) && isset($games->gameset) ) {
     foreach ($games->gameset->game as $game_obj) {
+
+      // Check the keyword filter before we do anything else
+      if ( ! empty( $settings['keyword_filter'] ) ) {
+        if ( ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->name ) ) && ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->description ) ) ) {
+          // Filter failed. Skip game
+          continue;
+        }
+      }
 
       $game = new stdClass();
       $game->uuid     = $game_obj->id . '_twopg';

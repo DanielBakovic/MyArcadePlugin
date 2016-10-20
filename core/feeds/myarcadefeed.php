@@ -3,9 +3,8 @@
  * MyArcadeFeed
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Fetch
  */
 
 /**
@@ -22,12 +21,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Display distributor settings on admin page
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @return  void
  */
 function myarcade_settings_myarcadefeed() {
-  $myarcadefeed = get_option( 'myarcade_myarcadefeed' );
+  $myarcadefeed = myarcade_get_settings( 'myarcadefeed' );
   ?>
   <h2 class="trigger"><?php _e("MyArcadeFeed", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -92,20 +91,34 @@ function myarcade_settings_myarcadefeed() {
 }
 
 /**
+ * Retrieve distributor's default settings
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Default settings
+ */
+function myarcade_default_settings_myarcadefeed() {
+  return array(
+    'feed1'          => 'http://games.myarcadeplugin.com/game_feed.xml',
+    'feed2'          => '',
+    'feed3'          => '',
+    'feed4'          => '',
+    'feed5'          => '',
+    'all_categories' => false,
+  );
+}
+
+/**
  * Handle distributor settings update
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @access  public
  * @return  void
  */
 function myarcade_save_settings_myarcadefeed() {
 
-  // Do a secuirty check before updating the settings
-  $myarcade_nonce = filter_input( INPUT_POST, 'myarcade_save_settings_nonce');
-  if ( ! $myarcade_nonce || ! wp_verify_nonce( $myarcade_nonce, 'myarcade_save_settings' ) ) {
-    // Security check failed .. don't update settings
-    return;
-  }
+  myarcade_check_settings_nonce();
 
   // MyArcadeFeed
   $myarcadefeed = array();
@@ -121,20 +134,74 @@ function myarcade_save_settings_myarcadefeed() {
 }
 
 /**
- * Diesplay feed options on the fetch games page
+ * Display distributor fetch games options
  *
- * @version 5.0.0
+ * @version 5.19.0
+ * @since   5.19.0
  * @access  public
  * @return  void
  */
-function myarcade_fetch_options_myarcadefeed() {
+function myarcade_fetch_settings_myarcadefeed() {
 
+  $myarcadefeed = myarcade_get_fetch_options_myarcadefeed();
+  ?>
+
+  <div class="myarcade_border white hide mabp_680" id="myarcadefeed">
+    <?php
+    $myarcadefeed_array = array();
+    for ($i=1;$i<5;$i++) {
+      if ( !empty($myarcadefeed['feed'.$i])) {
+        $myarcadefeed_array[$i] = $myarcadefeed['feed'.$i];
+      }
+    }
+    if ( $myarcadefeed_array ) {
+      _e("Select a Feed:", 'myarcadeplugin');
+      ?>
+      <select name="myarcadefeedselect" id="myarcadefeedselect">
+        <?php
+        foreach ($myarcadefeed_array as $key => $val) {
+          echo '<option value="feed'.$key.'"> '.$val.' </option>';
+        }
+        ?>
+      </select>
+      <?php
+    } else {
+        ?>
+        <p class="mabp_error">
+          <?php _e("No MyArcadeFeed URLs found!", 'myarcadeplugin');?>
+        </p>
+        <?php
+    }
+    ?>
+  </div>
+  <?php
+}
+
+/**
+ * Generate an options array with submitted fetching parameters
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Fetching options
+ */
+function myarcade_get_fetch_options_myarcadefeed() {
+
+  // Get distributor settings
+  $settings = myarcade_get_settings( 'myarcadefeed' );
+
+  if ( 'start' == filter_input( INPUT_POST, 'fetch' ) ) {
+    // Set submitted fetching options
+    $settings['feed'] = filter_input( INPUT_POST, 'myarcadefeedselect' );
+  }
+
+  return $settings;
 }
 
 /**
  * Fetch MyArcadeFeed games
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @param   array  $args Fetching parameters
  * @return  void
@@ -153,7 +220,7 @@ function myarcade_feed_myarcadefeed($args) {
   $new_games = 0;
   $add_game = false;
 
-  $myarcadefeed  = get_option('myarcade_myarcadefeed');
+  $myarcadefeed   = myarcade_get_fetch_options_myarcadefeed();
   $feedcategories = get_option('myarcade_categories');
   $feed           = $settings['feed'];
 
@@ -173,6 +240,14 @@ function myarcade_feed_myarcadefeed($args) {
 
   if ( !empty($games) && isset($games->gameset) ) {
     foreach ($games->gameset->game as $game) {
+
+      // Check the keyword filter before we do anything else
+      if ( ! empty( $settings['keyword_filter'] ) ) {
+        if ( ! preg_match( $settings['keyword_filter'], strtolower( $game->name ) ) && ! preg_match( $settings['keyword_filter'], strtolower( $game->description ) ) ) {
+          // Filter failed. Skip game
+          continue;
+        }
+      }
 
       $game->uuid     = $game->id;
       // Generate a game tag for this game

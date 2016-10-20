@@ -3,9 +3,8 @@
  * Kongregate
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Fetch
  */
 
 /**
@@ -21,12 +20,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Display distributor settings on admin page
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @return  void
  */
 function myarcade_settings_kongregate() {
-  $kongregate = get_option( 'myarcade_kongregate' );
+  $kongregate = myarcade_get_settings( 'kongregate' );
   ?>
   <h2 class="trigger"><?php myarcade_premium_img() ?> <?php _e("Kongregate", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -37,7 +36,7 @@ function myarcade_settings_kongregate() {
             <?php myarcade_premium_message() ?>
             <br />
             <i>
-              <?php _e("Kongegrate provides sponsored game XML feed.", 'myarcadeplugin'); ?> Click <a href="http://www.kongregate.com/games_for_your_site">here</a> to visit the Kongregrate site.
+              <?php printf( __( "%s distributes Flash games.", 'myarcadeplugin' ), '<a href="http://www.kongregate.com/games_for_your_site" target="_blank">Kongegrate</a>' ); ?>
             </i>
             <br /><br />
           </td>
@@ -77,19 +76,31 @@ function myarcade_settings_kongregate() {
 }
 
 /**
+ * Retrieve distributor's default settings
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Default settings
+ */
+function myarcade_default_settings_kongregate() {
+  return array(
+    'feed'          => 'http://www.kongregate.com/games_for_your_site.xml',
+    'cron_publish'  => false,
+    'cron_publish_limit' => '1',
+  );
+}
+
+/**
  * Handle distributor settings update
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @access  public
  * @return  void
  */
 function myarcade_save_settings_kongregate() {
-  // Do a secuirty check before updating the settings
-  $myarcade_nonce = filter_input( INPUT_POST, 'myarcade_save_settings_nonce');
-  if ( ! $myarcade_nonce || ! wp_verify_nonce( $myarcade_nonce, 'myarcade_save_settings' ) ) {
-    // Security check failed .. don't update settings
-    return;
-  }
+
+  myarcade_check_settings_nonce();
 
   // Kongeregate Settings
   $kongregate = array();
@@ -103,25 +114,58 @@ function myarcade_save_settings_kongregate() {
 }
 
 /**
- * Diesplay feed options on the fetch games page
+ * Retrieve available distributor's categories mapped to MyArcadePlugin categories
  *
- * @version 5.0.0
+ * @version 5.19.0
+ * @since   5.19.0
  * @access  public
- * @return  void
+ * @return  array Distributor categories
  */
-function myarcade_fetch_options_kongregate() {
-
+function myarcade_get_categories_kongregate() {
+  return array(
+    "Action"      => true,
+    "Adventure"   => true,
+    "Arcade"      => false,
+    "Board Game"  => false,
+    "Casino"      => false,
+    "Defense"     => false,
+    "Customize"   => false,
+    "Dress-Up"    => false,
+    "Driving"     => false,
+    "Education"   => false,
+    "Fighting"    => false,
+    "Jigsaw"      => false,
+    "Multiplayer" => true,
+    "Other"       => false,
+    "Puzzles"     => true,
+    "Rhythm"      => true,
+    "Shooting"    => true,
+    "Sports"      => true,
+    "Strategy"    => true,
+  );
 }
 
 /**
  * Fetch Kongregate games
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @access  public
  * @param   array  $args Fetching parameters
  * @return  void
  */
 function myarcade_feed_kongregate( $args = array() ) {
- myarcade_premium_message();
+  myarcade_premium_message();
+}
+
+/**
+ * Return game embed method
+ *
+ * @version 5.18.0
+ * @since   5.18.0
+ * @access  public
+ * @return  string Embed Method
+ */
+function myarcade_embedtype_kongregate() {
+  return 'flash';
 }
 ?>

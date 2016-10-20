@@ -3,9 +3,8 @@
  * Feedback class to store errors and notifications
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Feedback
 */
 
 /**
@@ -25,7 +24,7 @@ class MyArcade_Feedback {
   /**
    * Constructor
    *
-   * @version 5.0.0
+   * @version 5.13.0
    * @access  public
    * @param   string  $type    message or error
    * @param   string  $message Message text
@@ -51,7 +50,7 @@ class MyArcade_Feedback {
   /**
    * Retrieve all error messages. Returns an array, string or outputs all error messages
    *
-   * @version 5.0.0
+   * @version 5.13.0
    * @access  public
    * @param   array  $args
    * @return  string
@@ -90,7 +89,7 @@ class MyArcade_Feedback {
   /**
    * Retrieve all messages. Returns an array, string or outputs all error messages
    *
-   * @version 5.0.0
+   * @version 5.13.0
    * @access  public
    * @param   array  $args
    * @return  string
@@ -132,7 +131,7 @@ class MyArcade_Feedback {
   /**
    * Add a new error message
    *
-   * @version 5.0.0
+   * @version 5.13.0
    * @access  public
    * @param   string $message Error message
    */
@@ -143,7 +142,7 @@ class MyArcade_Feedback {
   /**
    * Add a new message
    *
-   * @version 5.0.0
+   * @version 5.13.0
    * @access  public
    * @param   string $message Message string
    */
@@ -154,7 +153,7 @@ class MyArcade_Feedback {
   /**
    * Check if there are error messages available
    *
-   * @version 5.0.0
+   * @version 5.13.0
    * @access  public
    * @return  boolean TRUE if there are error messages available
    */
@@ -170,7 +169,7 @@ class MyArcade_Feedback {
   /**
    * Check if there are messages available
    *
-   * @version 5.0.0
+   * @version 5.13.0
    * @access  public
    * @return  boolean TRUE if there are messages available
    */
@@ -187,7 +186,7 @@ class MyArcade_Feedback {
 /**
  * Check wheather the variable is a MyArcadePlugin feedback object
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @param   object $thing MyArcade_Feedback object
  * @return  boolean TRUE if thing is a MyArcade_Feedback object

@@ -3,12 +3,11 @@
  * Game Functions
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Game
  */
 
-/*
+/**
  * Copyright @ Daniel Bakovic - kontakt@netreview.de
  * Do not modify! Do not sell! Do not distribute! -
  * Check our license Terms!
@@ -23,7 +22,7 @@ if ( ! function_exists('is_game') ) {
   /**
    * Check if the displayed post is a game post
    *
-   * @version 5.0.0
+   * @version 5.15.0
    * @access  public
    * @param   int $post_id Post ID
    * @return  boolean TRUE if the post is a game post
@@ -53,7 +52,7 @@ if ( ! function_exists( 'is_leaderboard_game' ) ) {
   /**
    * Check if the current game supports scores
    *
-   * @version 5.0.0
+   * @version 5.15.0
    * @access  public
    * @param   int $post_id Post ID
    * @return  boolean TRUE if the game supports scores.
@@ -81,7 +80,7 @@ if ( ! function_exists( 'is_leaderboard_game' ) ) {
 /**
  * Embeds the flash code to the post content if activated
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @param   string $content Post Content
  * @return  string          Post Content
@@ -123,7 +122,7 @@ add_filter('the_content', 'myarcade_embed_handler', 99);
  *
  * Don't delete this function. Maybe some old themes are still using it!
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  false
  */
@@ -135,7 +134,7 @@ function enabled_global_scores() {
 /**
  * Check the game width. If the game is larger than defined max. width return true, otherwise false.
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @param   int $postid Post ID
  * @return  boolean

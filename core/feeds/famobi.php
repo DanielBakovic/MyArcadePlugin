@@ -3,9 +3,8 @@
  * Famobi Feed
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Fetch
  */
 
 /**
@@ -22,13 +21,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Display distributor settings on admin page
  *
- * @version 5.0.0
+ * @version 5.16.2
  * @access  public
  * @return  void
  */
 function myarcade_settings_famobi() {
 
-  $famobi = get_option( 'myarcade_famobi' );
+  $famobi = myarcade_get_settings( 'famobi' );
   ?>
   <h2 class="trigger"><?php _e("Famobi", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -37,7 +36,7 @@ function myarcade_settings_famobi() {
         <tr>
           <td colspan="2">
             <i>
-              <?php _e("Famobi offers you high quality HTML5 games.", 'myarcadeplugin'); ?> <?php printf( __("Click %shere%s to visit the Famobi site.", 'myarcadeplugin'), '<a href="http://famobi.com" title="Famobi" target="_blank"', '</a>' ); ?>
+              <?php printf( __( "%s distributes HTML5 games.", 'myarcadeplugin' ), '<a href="http://famobi.com" target="_blank">Famobi</a>' ); ?>
             </i>
             <br /><br />
           </td>
@@ -151,27 +150,44 @@ function myarcade_settings_famobi() {
 }
 
 /**
+ * Retrieve distributor's default settings
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Default settings
+ */
+function myarcade_default_settings_famobi() {
+  return array(
+    'feed'          => 'http://api.famobi.com/feed',
+    'affiliate_id'  => 'A-MYARCADEPLUGIN',
+    'thumbsize'     => 'thumb_120',
+    'category'      => 'all',
+    'language'      => 'en_EN',
+    'cron_fetch'    => false,
+    'cron_fetch_limit' => '1',
+    'cron_publish'  => false,
+    'cron_publish_limit' => '1',
+  );
+}
+
+/**
  * Handle distributor settings update
  *
- * @version 5.0.0
+ * @version 5.3.2
  * @access  public
  * @return  void
  */
 function myarcade_save_settings_famobi() {
 
-  // Do a secuirty check before updating the settings
-  $myarcade_nonce = filter_input( INPUT_POST, 'myarcade_save_settings_nonce');
-  if ( ! $myarcade_nonce || ! wp_verify_nonce( $myarcade_nonce, 'myarcade_save_settings' ) ) {
-    // Security check failed .. don't update settings
-    return;
-  }
+  myarcade_check_settings_nonce();
 
   $settings = array();
-  $settings['feed'] = (isset($_POST['famobi_url'])) ? esc_sql($_POST['famobi_url']) : '';
+  $settings['feed'] = (isset($_POST['famobi_url'])) ? esc_url( $_POST['famobi_url'] ) : '';
   $settings['affiliate_id'] = 'A-MYARCADEPLUGIN';
-  $settings['category'] = (isset($_POST['famobi_category'])) ? $_POST['famobi_category'] : 'all';
-  $settings['thumbsize'] = (isset($_POST['famobi_thumbsize'])) ? $_POST['famobi_thumbsize'] : 'thumb_120';
-  $settings['language'] = (isset($_POST['famobi_language'])) ? $_POST['famobi_language'] : 'en_EN';
+  $settings['category'] = (isset($_POST['famobi_category'])) ? sanitize_text_field( $_POST['famobi_category'] ) : 'all';
+  $settings['thumbsize'] = (isset($_POST['famobi_thumbsize'])) ? sanitize_text_field( $_POST['famobi_thumbsize'] ) : 'thumb_120';
+  $settings['language'] = (isset($_POST['famobi_language'])) ? sanitize_text_field( $_POST['famobi_language'] ) : 'en_EN';
   $settings['cron_fetch'] = (isset($_POST['famobi_cron_fetch'])) ? true : false;
   $settings['cron_fetch_limit']    = (isset($_POST['famobi_cron_fetch_limit']) ) ? intval($_POST['famobi_cron_fetch_limit']) : 1;
   $settings['cron_publish'] = (isset($_POST['famobi_cron_publish']) ) ? true : false;
@@ -182,9 +198,97 @@ function myarcade_save_settings_famobi() {
 }
 
 /**
+ * Display distributor fetch games options
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  void
+ */
+function myarcade_fetch_settings_famobi() {
+
+  $famobi = myarcade_get_fetch_options_famobi();
+  ?>
+  <div class="myarcade_border white hide mabp_680" id="famobi">
+    <div style="float:left;width:150px">
+      <input type="radio" name="fetchmethodfamobi" value="latest" <?php myarcade_checked($famobi['method'], 'latest');?>>
+    <label><?php _e("Latest Games", 'myarcadeplugin'); ?></label>
+    <br />
+    <input type="radio" name="fetchmethodfamobi" value="offset" <?php myarcade_checked($famobi['method'], 'offset');?>>
+    <label><?php _e("Use Offset", 'myarcadeplugin'); ?></label>
+    </div>
+    <div class="myarcade_border" style="float:left;padding-top: 5px;background-color: #F9F9F9">
+    Fetch <input type="number" name="famobi_limit" value="<?php echo $famobi['limit']; ?>" /> games <span id="offsfamobi" class="hide">from offset <input id="radiooffsfamobi" type="number" name="offsetfamobi" value="<?php echo $famobi['offset']; ?>" /> </span>
+    </div>
+    <div class="clear"></div>
+  </div>
+  <?php
+}
+
+/**
+ * Generate an options array with submitted fetching parameters
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Fetching options
+ */
+function myarcade_get_fetch_options_famobi() {
+
+  // Get distributor settings
+  $settings = myarcade_get_settings( 'famobi' );
+
+  if ( 'start' == filter_input( INPUT_POST, 'fetch' ) ) {
+    $settings['method'] = filter_input( INPUT_POST, 'fetchmethodfamobi' );
+    $settings['offset'] = intval( filter_input( INPUT_POST, 'offsetfamobi' ) );
+    $settings['limit'] = intval( filter_input( INPUT_POST, 'famobi_limit' ) );
+  }
+  else {
+    $settings['method'] = 'latest';
+    $settings['offset'] = 0;
+    $settings['limit'] = 100;
+  }
+
+  return $settings;
+}
+
+/**
+ * Retrieve available distributor's categories mapped to MyArcadePlugin categories
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Distributor categories
+ */
+function myarcade_get_categories_famobi() {
+  return array(
+    "Action"      => "action,jump-and-run",
+    "Adventure"   => false,
+    "Arcade"      => true,
+    "Board Game"  => "cards,match-3",
+    "Casino"      => false,
+    "Defense"     => false,
+    "Customize"   => "make-up",
+    "Dress-Up"    => "dress-up,girls",
+    "Driving"     => "cars,racing",
+    "Education"   => false,
+    "Fighting"    => false,
+    "Jigsaw"      => false,
+    "Multiplayer" => true,
+    "Other"       => "quiz,cooking",
+    "Puzzles"     => true,
+    "Rhythm"      => false,
+    "Shooting"    => false,
+    "Sports"      => true,
+    "Strategy"    => "breakout,bubble-shooter",
+  );
+}
+
+/**
  * Fetch games
  *
- * @version 5.0.0
+ * @version 5.19.0
+ * @since   5.16.0
  * @access  public
  * @param   array  $args Fetching parameters
  * @return  void
@@ -204,7 +308,8 @@ function myarcade_feed_famobi( $args = array() ) {
   $new_games = 0;
   $add_game = false;
 
-  $famobi = get_option('myarcade_famobi');
+  $famobi = myarcade_get_fetch_options_famobi();
+  $famobi_categories = myarcade_get_categories_famobi();
   $feedcategories = get_option('myarcade_categories');
   $general = get_option('myarcade_general');
 
@@ -249,6 +354,14 @@ function myarcade_feed_famobi( $args = array() ) {
   if ( !empty($json_games->games) ) {
     foreach ($json_games->games as $game_obj) {
 
+      // Check the keyword filter before we do anything else
+      if ( ! empty( $settings['keyword_filter'] ) ) {
+        if ( ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->name ) ) && ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->description ) ) ) {
+          // Filter failed. Skip game
+          continue;
+        }
+      }
+
       $game = new stdClass();
       $game->uuid     = crc32( $game_obj->package_id ) . '_famobi';
       // Generate a game tag for this game
@@ -268,7 +381,7 @@ function myarcade_feed_famobi( $args = array() ) {
 
         $categories_string = 'Other';
 
-        foreach($game_obj->categories as $gamecat) {
+        foreach( $game_obj->categories as $gamecat ) {
 
           // Transform some feed categories
           switch ( strtolower($gamecat) ) {
@@ -277,19 +390,22 @@ function myarcade_feed_famobi( $args = array() ) {
             } break;
           }
 
-          foreach ($feedcategories as $feedcat) {
-            if ( $feedcat['Status'] == 'checked' && $feedcat['Famobi'] !== false ) {
-              if ( $feedcat['Famobi'] === true ) {
-                $cat_name = $feedcat['Name'];
-              }
-              else {
-                $cat_name = $feedcat['Famobi'];
-              }
+          foreach ( $feedcategories as $feedcat ) {
+            if ( $feedcat['Status'] == 'checked' ) {
+              if ( ! empty( $famobi_categories[ $feedcat['Name'] ] ) ) {
+                // Set category name to check
+                if ( $famobi_categories[ $feedcat['Name'] ] === true ) {
+                  $cat_name = $feedcat['Name'];
+                }
+                else {
+                  $cat_name = $famobi_categories[ $feedcat['Name'] ];
+                }
 
-              if ( strpos( strtolower($cat_name), strtolower($gamecat) ) !== false ) {
-                $add_game = true;
-                $categories_string = $feedcat['Name'];
-                break 2;
+                if ( strpos( strtolower($cat_name), strtolower($gamecat) ) !== false ) {
+                  $add_game = true;
+                  $categories_string = $feedcat['Name'];
+                  break 2;
+                }
               }
             }
           }
@@ -346,5 +462,29 @@ function myarcade_feed_famobi( $args = array() ) {
 
   // Show, how many games have been fetched
   myarcade_fetched_message( $new_games, $echo );
+}
+
+/**
+ * Return game embed method
+ *
+ * @version 5.18.0
+ * @since   5.18.0
+ * @access  public
+ * @return  string Embed Method
+ */
+function myarcade_embedtype_famobi() {
+  return 'iframe';
+}
+
+/**
+ * Return if games can be downloaded by this distirbutor
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  bool True if games can be downloaded
+ */
+function myarcade_can_download_famobi() {
+  return false;
 }
 ?>

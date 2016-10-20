@@ -3,12 +3,11 @@
  * Displays the settings page on backend
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Admin
  */
 
-/*
+/**
  * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
  * Do not modify! Do not sell! Do not distribute! -
  * Check our license Terms!
@@ -22,7 +21,7 @@ if( !defined( 'ABSPATH' ) ) {
 /**
  * Settings page
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @access  public
  * @return  void
  */
@@ -43,11 +42,7 @@ function myarcade_settings() {
 
   if ($action == 'save') {
 
-    $myarcade_nonce = filter_input( INPUT_POST, 'myarcade_save_settings_nonce');
-
-    if ( ! $myarcade_nonce || ! wp_verify_nonce( $myarcade_nonce, 'myarcade_save_settings' ) ) {
-      wp_die( __('Security check failed. Please refresh the page and retry to submit settings again.', 'myarcadeplugin') );
-    }
+    myarcade_check_settings_nonce();
 
     // Remove the settings update notice if set
     if ( get_transient('myarcade_settings_update_notice') == true  ) {
@@ -112,13 +107,18 @@ function myarcade_settings() {
 
     // Update distributor settings dynamically
     foreach ($myarcade_distributors as $key => $name) {
-      $distributor_file = MYARCADE_CORE_DIR . '/feeds/' . $key . '.php';
-      if ( file_exists( $distributor_file ) ) {
-        include_once( $distributor_file );
-        $settings_update_function = 'myarcade_save_settings_' . $key;
+      // Generate save settings function name
+      $settings_update_function = 'myarcade_save_settings_' . $key;
+
+      // Get distributor integration file
+      myarcade_distributor_integration( $key );
+
+      // Check if function exists
+      if ( function_exists( $settings_update_function ) ) {
+        // Update settings
         $settings_update_function();
       }
-    }
+    } // end foreach
 
     // END Settings Updates
     //_________________________________________________________________________
@@ -175,7 +175,7 @@ function myarcade_settings() {
 
   // Load settings dynamically
   foreach ($myarcade_distributors as $key => $name) {
-    $$key = get_option( 'myarcade_' . $key );
+    $$key = myarcade_get_settings( $key );
   }
 
   // Create directories
@@ -415,7 +415,7 @@ function myarcade_settings() {
                 <td>
                 <?php
                   foreach ($categories as $feedcat) {
-                    echo '<input type="checkbox" name="gamecats[]" value="'.$feedcat['Slug'].'" '.$feedcat['Status'].' /><label class="opt">&nbsp;'.$feedcat['Name'].' '.$feedcat['Info'].'</label><br />';
+                    echo '<input type="checkbox" name="gamecats[]" value="'.$feedcat['Slug'].'" '.$feedcat['Status'].' /><label class="opt">&nbsp;'.$feedcat['Name'].'</label><br />';
                   }
                 ?>
                 </td>
@@ -886,13 +886,13 @@ function myarcade_settings() {
         // Category Mapping
         //----------------------------------------------------------------------
         ?>
-        <h2 class="trigger"><?php myarcade_premium_img() ?> <?php _e("Category Mapping", 'myarcadeplugin'); ?></h2>
+        <h2 class="trigger"><?php myarcade_premium_img(); ?> <?php _e("Category Mapping", 'myarcadeplugin'); ?></h2>
         <div class="toggle_container">
           <div class="block">
             <table class="optiontable" width="100%">
               <tr>
                 <td colspan="4">
-                  <php myarcade_premium_message() ?>
+                  <?php myarcade_premium_message() ?>
                   <br
                   <i>
                     <?php _e("Map default categories to your own category names. This feature allows you to publish games in translated or summarized categories instead of using the predefined category names. (optional)", 'myarcadeplugin'); ?>
@@ -1094,14 +1094,14 @@ function myarcade_settings() {
 
               <tr>
                 <td colspan="3">
-                  <p class="mabp_info" style="padding:10px"><?php _e("Attention! All setting will be reset!", 'myarcadeplugin'); ?></p>
+                  <p class="mabp_info" style="padding:10px"><?php _e("Attention! All MyArcadePlugin settings will be reset to default!", 'myarcadeplugin'); ?></p>
                   <form method="post" name="defaultsettings">
                     <input type="hidden" name="loaddefaults" id="loaddefaults" value="yes" />
                     <input type="checkbox" name="checkdefaults" id="checkdefaults" value="yes" /> Yes, I want to load default settings <input id="submitdefaults" type="submit" name="submitdefaults" class="button-secondary" value="<?php _e("Load Default Settings", 'myarcadeplugin'); ?>" disabled />
                   </form>
                   <script type="text/javascript">
                     /* <![CDATA[ */
-                    jQuery("#checkdefaults").click(function() {;
+                    jQuery("#checkdefaults").click(function() {
                       var checked_status = this.checked;
                       if (checked_status === true) {
                         jQuery("#submitdefaults").removeAttr("disabled");
@@ -1133,13 +1133,17 @@ function myarcade_settings() {
         <?php
         // Load settings page dynamically for each distributor
         foreach ($myarcade_distributors as $key => $name) {
-          $distributor_file = MYARCADE_CORE_DIR . '/feeds/' . $key . '.php';
-          if ( file_exists( $distributor_file ) ) {
-            include_once( $distributor_file );
-            $settings_function = 'myarcade_settings_' . $key;
-            if ( function_exists( $settings_function ) ) {
-              $settings_function();
-            }
+          $settings_function = 'myarcade_settings_' . $key;
+
+          // Get distributor integration file
+          myarcade_distributor_integration( $key );
+
+          // Check if settings function exists
+          if ( function_exists( $settings_function ) ) {
+            $settings_function();
+          }
+          else {
+            // Settings function doesn't exist. Maybe there are no settings available for this distributor.
           }
         }
         ?>
@@ -1157,7 +1161,7 @@ function myarcade_settings() {
 /**
  * Create categories from the given array
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @param   array $categories Categories to create
  * @return  void
@@ -1213,7 +1217,7 @@ function myarcade_create_categories( $categories ) {
 /**
  * Load default MyArcadePlugin settings
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @access  public
  * @return  void
  */
@@ -1235,14 +1239,21 @@ function myarcade_load_default_settings() {
 
   update_option('myarcade_general', $myarcade_general_default);
 
-  foreach ( $myarcade_distributors as $key => $name ) {
-    // Generate the default var name
-    $default_settings_var = 'myarcade_' . $key . '_default';
+  foreach ($myarcade_distributors as $key => $name) {
+    // Generate save settings function name
+    $settings_default_function = 'myarcade_default_settings_' . $key;
 
-    if ( ! empty( $$default_settings_var ) ) {
-      update_option( 'myarcade_' . $key, $$default_settings_var );
+    // Get distributor integration file
+    myarcade_distributor_integration( $key );
+
+    // Check if function exists
+    if ( function_exists( $settings_default_function ) ) {
+      // Update settings
+      $settings = $settings_default_function();
+
+      update_option( 'myarcade_' . $key, $settings );
     }
-  }
+  } // end foreach
 
   // Include the feed game categories
   $catfile = MYARCADE_CORE_DIR.'/feedcats.php';
@@ -1255,5 +1266,22 @@ function myarcade_load_default_settings() {
   }
 
   update_option('myarcade_categories', $feedcategories);
+}
+
+/**
+ * Check settings nonce
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  [type] [description]
+ */
+function myarcade_check_settings_nonce() {
+  $myarcade_nonce = filter_input( INPUT_POST, 'myarcade_save_settings_nonce');
+
+  if ( ! $myarcade_nonce || ! wp_verify_nonce( $myarcade_nonce, 'myarcade_save_settings' ) ) {
+    // Security check failed .. don't update settings
+    wp_die( __('Security check failed. Please refresh the page and retry to submit settings again.', 'myarcadeplugin') );
+  }
 }
 ?>

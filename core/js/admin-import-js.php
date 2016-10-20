@@ -281,8 +281,30 @@ jQuery(document).ready(function() {
     jQuery('#slug').val('');
 
     switch (this.value) {
-      case 'importswfdcr': {
+      case 'importibparcade': {
+        jQuery('#importswfdcr').hide();
         jQuery('#importembedif').hide();
+        jQuery('#thumbform').hide();
+        jQuery('#importphpbb').hide();
+        jQuery('#importunity').hide();
+        jQuery('#importibparcade').fadeIn('slow');
+      }
+      break;
+
+      case 'importphpbb': {
+        jQuery('#importswfdcr').hide();
+        jQuery('#importembedif').hide();
+        jQuery('#thumbform').hide();
+        jQuery('#importphpbb').fadeIn('slow');
+        jQuery('#importunity').hide();
+        jQuery('#importibparcade').hide();
+      }
+      break;
+
+      case 'importswfdcr': {
+        jQuery('#importibparcade').hide();
+        jQuery('#importembedif').hide();
+        jQuery('#importphpbb').hide();
         jQuery('#importunity').hide();
         jQuery('#importswfdcr').fadeIn('slow');
         jQuery('#thumbform').fadeIn('slow');
@@ -290,7 +312,9 @@ jQuery(document).ready(function() {
       break;
 
       case 'importembedif': {
+        jQuery('#importibparcade').hide();
         jQuery('#importswfdcr').hide();
+        jQuery('#importphpbb').hide();
         jQuery('#importunity').hide();
         jQuery('#importembedif').fadeIn('slow');
         jQuery('#thumbform').fadeIn('slow');
@@ -298,7 +322,9 @@ jQuery(document).ready(function() {
       break;
 
       case 'importunity': {
+        jQuery('#importibparcade').hide();
         jQuery('#importswfdcr').hide();
+        jQuery('#importphpbb').hide();
         jQuery('#importunity').fadeIn('slow');
         jQuery('#importembedif').hide();
         jQuery('#thumbform').fadeIn('slow');

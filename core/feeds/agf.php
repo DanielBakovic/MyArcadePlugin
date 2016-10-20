@@ -3,9 +3,8 @@
  * Arcade Game Feed
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Fetch
  */
 
 /**
@@ -22,13 +21,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Display distributor settings on admin page
  *
- * @version 5.0.0
+ * @version 5.17.0
  * @access  public
  * @return  void
  */
 function myarcade_settings_agf() {
 
-  $agf = get_option( 'myarcade_agf' );
+  $agf = myarcade_get_settings( 'agf' );
   ?>
   <h2 class="trigger"><?php myarcade_premium_img() ?> <?php _e("Arcade Game Feed (AGF)", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -39,7 +38,7 @@ function myarcade_settings_agf() {
             <?php myarcade_premium_message() ?>
             <br />
             <i>
-              <?php _e("Arcade Games Feed is a new game distributors which offer quality flash games.", 'myarcadeplugin'); ?> Click <a href="http://arcadegamefeed.com">here</a> to visit the Arcade Game Feed site.
+              <?php printf( __( "%s distributes Flash games.", 'myarcadeplugin' ), '<a href="http://arcadegamefeed.com" target="_blank">Arcade Games Feed</a>' ); ?>
             </i>
             <br /><br />
           </td>
@@ -60,6 +59,18 @@ function myarcade_settings_agf() {
             <input type="text" size="40"  name="agf_limit" value="<?php echo $agf['limit']; ?>" />
           </td>
           <td><i><?php _e("How many games should be fetched at once.", 'myarcadeplugin'); ?></i></td>
+        </tr>
+
+        <tr><td colspan="2"><h3><?php _e("Thumbnail Size", 'myarcadeplugin'); ?></h3></td></tr>
+
+        <tr>
+          <td>
+            <select size="1" name="agf_thumbnail" id="agf_thumbnail">
+              <option value="lgthumb" <?php myarcade_selected($agf['thumbnail'], 'lgthumb'); ?> ><?php _e("100x100", 'myarcadeplugin'); ?></option>
+              <option value="thumbnail" <?php myarcade_selected($agf['thumbnail'], 'thumbnail'); ?> ><?php _e("180x135", 'myarcadeplugin'); ?></option>
+            </select>
+          </td>
+          <td><i><?php _e("Select a thumbnail size.", 'myarcadeplugin'); ?></i></td>
         </tr>
 
         <tr><td colspan="2"><h3><?php _e("Automated Game Fetching", 'myarcadeplugin'); ?></h3></td></tr>
@@ -106,24 +117,40 @@ function myarcade_settings_agf() {
 }
 
 /**
+ * Retrieve distributor's default settings
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Default settings
+ */
+function myarcade_default_settings_agf() {
+  return array(
+    'feed'                => 'http://www.arcadegamefeed.com/feed.php',
+    'limit'               => '50',
+    'thumbnail'           => 'thumbnail',
+    'cron_fetch'          => false,
+    'cron_fetch_limit'    => '1',
+    'cron_publish'        => false,
+    'cron_publish_limit'  => '1',
+  );
+}
+
+/**
  * Handle distributor settings update
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @access  public
  * @return  void
  */
 function myarcade_save_settings_agf() {
 
-  // Do a secuirty check before updating the settings
-  $myarcade_nonce = filter_input( INPUT_POST, 'myarcade_save_settings_nonce');
-  if ( ! $myarcade_nonce || ! wp_verify_nonce( $myarcade_nonce, 'myarcade_save_settings' ) ) {
-    // Security check failed .. don't update settings
-    return;
-  }
+  myarcade_check_settings_nonce();
 
   $agf = array();
   $agf['feed'] = (isset($_POST['agf_url'])) ? esc_sql($_POST['agf_url']) : '';
   $agf['limit'] = (isset($_POST['agf_limit'])) ? intval( $_POST['agf_limit']) : '';
+  $agf['thumbnail'] = filter_input( INPUT_POST, 'agf_thumbnail' );
   $agf['cron_fetch'] = (isset($_POST['agf_cron_fetch']) ) ? true : false;
   $agf['cron_fetch_limit'] = (isset($_POST['agf_cron_fetch_limit']) ) ? intval($_POST['agf_cron_fetch_limit']) : 1;
   $agf['cron_publish'] = (isset($_POST['agf_cron_publish']) ) ? true : false;
@@ -133,25 +160,66 @@ function myarcade_save_settings_agf() {
 }
 
 /**
- * Diesplay feed options on the fetch games page
+ * Display distributor fetch games options
  *
- * @version 5.0.0
+ * @version 5.19.0
+ * @since   5.19.0
  * @access  public
  * @return  void
  */
-function myarcade_fetch_options_agf() {
+function myarcade_fetch_settings_agf() {
 
+  $agf = myarcade_get_fetch_options_agf();
+  ?>
+  <div class="myarcade_border white hide mabp_680" id="agf">
+    Fetch <input type="number" name="agf_limit" value="<?php echo $agf['limit']; ?>" /> games
+    <div class="clear"></div>
+  </div>
+  <?php
+}
+
+/**
+ * Generate an options array with submitted fetching parameters
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Fetching options
+ */
+function myarcade_get_fetch_options_agf() {
+
+  // Get distributor settings
+  $settings = myarcade_get_settings( 'agf' );
+
+  if ( 'start' == filter_input( INPUT_POST, 'fetch' ) ) {
+    // Set submitted fetching options
+    $settings['limit'] = filter_input( INPUT_POST, 'agf_limit' );
+  }
+
+  return $settings;
 }
 
 /**
  * Fetch FlashGameDistribution games
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @param   array  $args Fetching parameters
  * @return  void
  */
 function myarcade_feed_agf( $args = array() ) {
   myarcade_premium_message();
+}
+
+/**
+ * Return game embed method
+ *
+ * @version 5.18.0
+ * @since   5.18.0
+ * @access  public
+ * @return  string Embed Method
+ */
+function myarcade_embedtype_agf() {
+  return 'flash';
 }
 ?>

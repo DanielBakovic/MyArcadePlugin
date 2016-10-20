@@ -3,12 +3,11 @@
  * Admin functions
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Admin
  */
 
-/*
+/**
  * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
  * Do not modify! Do not sell! Do not distribute! -
  * Check our license Terms!
@@ -25,7 +24,7 @@ require_once( MYARCADE_CORE_DIR . '/admin/admin-post-meta.php' );
 /**
  * Register MyArcade menus
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  void
  */
@@ -80,7 +79,7 @@ add_action('admin_menu', 'myarcade_admin_menu', 9);
 /**
  * Display the bulk game publishing page
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @return void
  */
 function myarcade_publish_games_page() {
@@ -91,7 +90,7 @@ function myarcade_publish_games_page() {
 /**
  * Display the fetch games page
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @return void
  */
 function myarcade_fetch_page() {
@@ -102,7 +101,7 @@ function myarcade_fetch_page() {
 /**
  * Display the import games page
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @return  void
  */
 function myarcade_import_games_page() {
@@ -113,7 +112,7 @@ function myarcade_import_games_page() {
 /**
  * Displays the dashboard page
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  void
  */
@@ -125,7 +124,7 @@ function myarcade_show_stats_page() {
 /**
  * Display the settings page
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  void
  */
@@ -137,7 +136,7 @@ function myarcade_settings_page() {
 /**
  * Display the manage games page
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  [type] [description]
  */
@@ -149,7 +148,7 @@ function myarcade_manage_games_page() {
 /**
  * [myarcade_manage_scores_page description]
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  [type] [description]
  */
@@ -161,7 +160,7 @@ function myarcade_manage_scores_page() {
 /**
  * Load game import scripts
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  void
  */
@@ -177,12 +176,14 @@ function myarcade_import_scripts() {
 /**
  * Load required scripts
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @access  public
  * @return  void
  */
 function myarcade_admin_scripts() {
   global $pagenow;
+
+  $screen = get_current_screen();
 
   if ($pagenow == 'post.php') {
     wp_register_script( 'myarcade_writepanel', MYARCADE_JS_URL . '/writepanel.js', array('jquery') );
@@ -190,9 +191,15 @@ function myarcade_admin_scripts() {
   }
 
   if ( $pagenow == 'admin.php' ) {
-    if ( isset($_GET['page']) && ($_GET['page'] == 'myarcade-publish-games') ) {
-      wp_enqueue_script( 'jquery-ui-progressbar', MYARCADE_JS_URL . '/jquery.ui.progressbar.min.js', array( 'jquery-ui-core', 'jquery-ui-widget' ), '1.8.6' );
-      wp_enqueue_style( 'jquery-ui-myarcadeplugin', MYARCADE_JS_URL . '/jquery-ui-1.7.2.custom.css', array(), '1.7.2' );
+    switch ( $screen->id ) {
+      case 'myarcade_page_myarcade-publish-games': {
+        wp_enqueue_script( 'jquery-ui-progressbar', MYARCADE_JS_URL . '/jquery.ui.progressbar.min.js', array( 'jquery-ui-core', 'jquery-ui-widget' ), '1.8.6' );
+        wp_enqueue_style( 'jquery-ui-myarcadeplugin', MYARCADE_JS_URL . '/jquery-ui-1.7.2.custom.css', array(), '1.7.2' );
+      } break;
+
+      case 'myarcade_page_myarcade-fetch': {
+        wp_enqueue_script( 'myarcadeplugin-script', MYARCADE_JS_URL . '/myarcadeplugin.js', array( 'jquery' ) );
+      } break;
     }
   }
 }
@@ -201,26 +208,29 @@ add_action('admin_enqueue_scripts', 'myarcade_admin_scripts');
 /**
  * Modifies the WordPress upload folders
  *
- * @version 5.0.0
+ * @version 5.3.2
  * @access  public
  * @param   array $upload
  * @return  array
  */
 function myarcade_downloads_upload_dir( $upload ) {
-  if ( isset($_POST['type'] ) ) {
-    switch ( $_POST['type'] ) {
-      case 'myarcade_image': {
-        $upload['subdir'] = '/thumbs';
-        $upload['path'] =  $upload['basedir'] . $upload['subdir'];
-        $upload['url'] = $upload['baseurl'] . $upload['subdir'];
-      } break;
 
-      case 'myarcade_game': {
-        $upload['subdir'] = '/games';
-        $upload['path'] =  $upload['basedir'] . $upload['subdir'];
-        $upload['url'] = $upload['baseurl'] . $upload['subdir'];
-      }
-    }
+  switch ( filter_input( INPUT_POST, 'type' ) ) {
+    case 'myarcade_image': {
+      $upload['subdir'] = '/thumbs';
+      $upload['path'] =  $upload['basedir'] . $upload['subdir'];
+      $upload['url'] = $upload['baseurl'] . $upload['subdir'];
+    } break;
+
+    case 'myarcade_game': {
+      $upload['subdir'] = '/games';
+      $upload['path'] =  $upload['basedir'] . $upload['subdir'];
+      $upload['url'] = $upload['baseurl'] . $upload['subdir'];
+    } break;
+
+    default:
+      // Do nothing
+    break;
   }
 
   return $upload;
@@ -232,7 +242,7 @@ add_action('media_upload_myarcade_game', 'myarcade_media_upload_game_files');
 /**
  * Trigger WordPress media_upload_file action
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  void
  */
@@ -243,7 +253,7 @@ function myarcade_media_upload_game_files() {
 /**
  * Extend WordPress upload mimes
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @param   array  $existing_mimes
  * @return  array
@@ -262,7 +272,7 @@ add_filter('upload_mimes', 'myarcade_upload_mimes');
 /**
  * Load requires scripts and styles
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  [type] [description]
  */
@@ -290,9 +300,71 @@ function myarcade_load_scriptstyle() {
 add_action('admin_menu', 'myarcade_load_scriptstyle', 99);
 
 /**
+ * Show MyArcadePlugin notices
+ *
+ * @version 5.18.0
+ * @access  public
+ * @return  void
+ */
+function myarcade_notices() {
+  if ( get_option( 'myarcade_rating_div' ) == "no" ) {
+    $install_date = get_option( 'myarcade_install_date' );
+    $display_date = date('Y-m-d h:i:s');
+    $datetime1 = new DateTime($install_date);
+    $datetime2 = new DateTime($display_date);
+    $diff_intrval = round(($datetime2->format('U') - $datetime1->format('U')) / (60*60*24));
+
+    if ( $diff_intrval >= 7 ) {
+      echo '<div class="updated notice map_fivestar">
+        <p>Awesome, you\'ve been using <strong>MyArcadePlugin</strong> for a while. May we ask you to give it a <strong>5-star</strong> rating on Wordpress?
+          <br /><strong>Your MyArcadePlugin Team</strong>
+          <ul>
+            <li><a href="https://wordpress.org/support/view/plugin-reviews/myarcadeblog#postform" class="thankyou" target="_new" title="Ok, you deserved it" style="font-weight:bold;">Ok, you deserved it</a></li>
+              <li><a href="javascript:void(0);" class="mapHideRating" title="I already did" style="font-weight:bold;">I already did</a></li>
+              <li><a href="javascript:void(0);" class="mapHideRating" title="No, not good enough" style="font-weight:bold;">No, not good enough</a></li>
+          </ul>
+      </div>
+      <script>
+      jQuery( document ).ready(function( $ ) {
+      jQuery(\'.mapHideRating\').click(function(){
+          var data={\'action\':\'hide_rating\'}
+               jQuery.ajax({
+          url: "'.admin_url( 'admin-ajax.php' ).'",
+          type: "post",
+          data: data,
+          dataType: "json",
+          async: !0,
+          success: function(e) {
+              if (e=="success") {
+                 jQuery(\'.map_fivestar\').slideUp(\'slow\');
+              }
+          }
+           });
+          })
+      });
+      </script>
+      ';
+    }
+  }
+}
+
+/**
+ * Hide MyArcadePlugin rating
+ *
+ * @version 5.13.0
+ * @access  public
+ * @return  void
+ */
+function myarcade_hide_rating_div() {
+  update_option('myarcade_rating_div','yes');
+    echo json_encode(array("success")); exit;
+}
+add_action('wp_ajax_hide_rating','myarcade_hide_rating_div');
+
+/**
  * Show MyArcadePlugin header on plugin option pages
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @param   boolean $echo
  * @return  void
  */
@@ -311,13 +383,12 @@ function myarcade_header($echo = true) {
   </script>
   <?php
   echo '<div class="wrap">';
-  ?><h2>MyArcadePlugin Lite</h2><?php
 }
 
 /**
  * Show MyArcadePlugin footer on plugin options page
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @param   boolean $echo
  * @return  void
  */
@@ -332,7 +403,7 @@ function myarcade_footer($echo = true) {
 /**
  * Update old MyArcadePlugin version
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  void
  */
@@ -346,7 +417,7 @@ add_action('wp_loaded', 'myarcade_plugin_update');
 /**
  * Show a game
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @param   object $game Game object
  * @return  void
@@ -549,9 +620,9 @@ function myarcade_show_game($game) {
 /**
  * MyArcade AJAX handler
  *
- * @version 5.0.0
+ * @version 5.3.2
  * @access  public
- * @return  [type] [description]
+ * @return  void
  */
 function myarcade_handler() {
   global $wpdb;
@@ -561,20 +632,21 @@ function myarcade_handler() {
     wp_die('You do not have permissions access this site!');
   }
 
-  if ( isset( $_POST['gameid']) ) {
-    $gameID = $_POST['gameid'];
-  }
+  $gameID = intval( filter_input( INPUT_POST, 'gameid' ) );
+  $action = sanitize_text_field( filter_input( INPUT_POST, 'func' ) );
 
-  switch ($_POST['func']) {
+
+  switch ( $action ) {
     /* Manage Games */
     case "publish":
     case "draft": {
-      if ( !isset($gameID) || empty($gameID) ) {
-        echo "No Game ID!"; die();
+      if ( ! $gameID ) {
+        echo "No Game ID!";
+        die();
       }
 
       // Publish this game
-      myarcade_add_games_to_blog( array('game_id' => $gameID, 'echo' => false, 'post_status' => $_POST['func'] ) );
+      myarcade_add_games_to_blog( array('game_id' => $gameID, 'echo' => false, 'post_status' => $action ) );
 
       // Get game status
       $status = $wpdb->get_var("SELECT status FROM ".$wpdb->prefix . 'myarcadegames'." WHERE id = '$gameID'");
@@ -582,7 +654,7 @@ function myarcade_handler() {
     } break;
 
     case "delete": {
-      if ( !isset($gameID) || empty($gameID) ) {
+      if ( ! $gameID ) {
         echo "No Game ID!";
         die();
       }
@@ -613,45 +685,48 @@ function myarcade_handler() {
     } break;
 
     case "remove": {
-      if ( !isset($gameID) || empty($gameID) ) {
+      if ( ! $gameID ) {
         echo "No Game ID!";
         die();
       }
 
       // Remove this game from mysql database
-      $query = "DELETE FROM ".$wpdb->prefix . 'myarcadegames'." WHERE id = $gameID LIMIT 1";
-      $wpdb->query($query);
+      $query = "DELETE FROM ".$wpdb->prefix . 'myarcadegames'." WHERE id = {$gameID} LIMIT 1";
+      $wpdb->query( $query );
       echo "removed";
     } break;
 
     /* Category Mapping */
     case "addmap": {
-      if (intval($_POST['mapcat']) > 0) {
+      $mapping = intval( filter_input( INPUT_POST, 'mapcat' ) );
+      $feedcat = sanitize_text_field( filter_input( INPUT_POST, 'feedcat' ) );
+
+      if ( $mapping ) {
         // Init var for map processing
         $map_category = true;
 
-        $section = filter_input( INPUT_POST, 'section' );
+        $section = sanitize_text_field( filter_input( INPUT_POST, 'section' ) );
 
         if ( 'general' == $section ) {
           // Get game_categories as array
           $feedcategories = get_option('myarcade_categories');
 
           for ($i=0; $i<count($feedcategories); $i++) {
-            if ($feedcategories[$i]['Slug'] == $_POST['feedcat']) {
+            if ( $feedcategories[$i]['Slug'] == $feedcat ) {
               if ( empty($feedcategories[$i]['Mapping']) ) {
-                $feedcategories[$i]['Mapping'] = $_POST['mapcat'];
+                $feedcategories[$i]['Mapping'] = $mapping;
               }
               else {
                 // Check, if this category is already mapped
                 $mapped_cats = explode(',', $feedcategories[$i]['Mapping']);
                 foreach ($mapped_cats as $mapped_cat) {
-                  if ($mapped_cat == $_POST['mapcat']) {
+                  if ($mapped_cat == $mapping ) {
                     $map_category = false;
                     break;
                   }
                 }
 
-                $feedcategories[$i]['Mapping'] = $feedcategories[$i]['Mapping'] . "," . $_POST['mapcat'];
+                $feedcategories[$i]['Mapping'] = $feedcategories[$i]['Mapping'] . "," . $mapping;
               }
 
               break;
@@ -665,65 +740,17 @@ function myarcade_handler() {
             $general= get_option('myarcade_general');
 
             if ( $general['post_type'] == 'post' ) {
-              $cat_name = get_cat_name($_POST['mapcat']);
+              $cat_name = get_cat_name( $mapping );
             } else {
               if (taxonomy_exists($general['custom_category'])) {
-                $cat_name_tax = get_term_by('id', $_POST['mapcat'], $general['custom_category']);
+                $cat_name_tax = get_term_by('id', $mapping, $general['custom_category']);
                 $cat_name = $cat_name_tax->name;
               }
             }
 
             ?>
-            <span id="general_delmap_<?php echo $_POST['mapcat']; ?>_<?php echo $feedcategories[$i]['Slug']; ?>" class="remove_map">
-              <img style="flaot:left;top:4px;position:relative;" src="<?php echo MYARCADE_CORE_URL; ?>/images/remove.png" alt="UnMap" onclick="myabp_del_map('<?php echo $_POST['mapcat']; ?>', '<?php echo $feedcategories[$i]['Slug']; ?>', 'general')" />&nbsp;<?php echo $cat_name; ?>
-            </span>
-            <?php
-          }
-        }
-        elseif ( "bigfish" == $section ) {
-          // Get Big Fish Game Settings
-          $bigfish = get_option('myarcade_bigfish');
-
-          for ($i=0; $i<count($bigfish['categories']); $i++) {
-            if ($bigfish['categories'][$i]['ID'] == $_POST['feedcat']) {
-              if ( empty($bigfish['categories'][$i]['Mapping']) ) {
-                $bigfish['categories'][$i]['Mapping'] = $_POST['mapcat'];
-              }
-              else {
-                // Check, if this category is already mapped
-                $mapped_cats = explode(',', $bigfish['categories'][$i]['Mapping']);
-                foreach ($mapped_cats as $mapped_cat) {
-                  if ($mapped_cat == $_POST['mapcat']) {
-                    $map_category = false;
-                    break;
-                  }
-                }
-
-                $bigfish['categories'][$i]['Mapping'] = $bigfish['categories'][$i]['Mapping'] . "," . $_POST['mapcat'];
-              }
-
-              break;
-            }
-          }
-
-          if ($map_category == true) {
-            // Update Mapping
-            update_option('myarcade_bigfish', $bigfish);
-
-            $general= get_option('myarcade_general');
-
-            if ( $general['post_type'] == 'post' ) {
-              $cat_name = get_cat_name($_POST['mapcat']);
-            } else {
-              if (taxonomy_exists($general['custom_category'])) {
-                $cat_name_tax = get_term_by('id', $_POST['mapcat'], $general['custom_category']);
-                $cat_name = $cat_name_tax->name;
-              }
-            }
-
-            ?>
-            <span id="bigfish_delmap_<?php echo $_POST['mapcat']; ?>_<?php echo $bigfish['categories'][$i]['ID']; ?>" class="remove_map">
-              <img style="flaot:left;top:4px;position:relative;" src="<?php echo MYARCADE_CORE_URL; ?>/images/remove.png" alt="UnMap" onclick="myabp_del_map('<?php echo $_POST['mapcat']; ?>', '<?php echo $bigfish['categories'][$i]['ID']; ?>', 'bigfish')" />&nbsp;<?php echo $cat_name; ?>
+            <span id="general_delmap_<?php echo $mapping; ?>_<?php echo $feedcategories[$i]['Slug']; ?>" class="remove_map">
+              <img style="flaot:left;top:4px;position:relative;" src="<?php echo MYARCADE_CORE_URL; ?>/images/remove.png" alt="UnMap" onclick="myabp_del_map('<?php echo $mapping; ?>', '<?php echo $feedcategories[$i]['Slug']; ?>', 'general')" />&nbsp;<?php echo $cat_name; ?>
             </span>
             <?php
           }
@@ -732,7 +759,10 @@ function myarcade_handler() {
     } break;
 
     case "delmap": {
-      if ( intval($_POST['mapcat']) > 0 ) {
+      $mapcat = intval( filter_input( INPUT_POST, 'mapcat' ) );
+      $feedcat = sanitize_text_field( filter_input( INPUT_POST, 'feedcat' ) );
+
+      if ( $mapcat ) {
         $update_mapping = false;
 
         $section = filter_input( INPUT_POST, 'section' );
@@ -742,11 +772,11 @@ function myarcade_handler() {
           $feedcategories = get_option('myarcade_categories');
 
           for ($i=0; $i<count($feedcategories); $i++) {
-            if ($feedcategories[$i]['Slug'] == $_POST['feedcat']) {
+            if ( $feedcategories[$i]['Slug'] == $feedcat ) {
               $mapped_cats = explode(',', $feedcategories[$i]['Mapping']);
 
               for($j=0; $j<count($mapped_cats); $j++) {
-                if ($mapped_cats[$j] == $_POST['mapcat']) {
+                if ( $mapped_cats[$j] == $mapcat ) {
                   unset($mapped_cats[$j]);
                   $feedcategories[$i]['Mapping'] = implode(',', $mapped_cats);
                   $update_mapping = true;
@@ -759,31 +789,6 @@ function myarcade_handler() {
 
           if ($update_mapping == true) {
             update_option('myarcade_categories', $feedcategories);
-          }
-        }
-        elseif ( 'bigfish' == $section ) {
-          // Get Big Fish Games setting
-          $bigfish = get_option('myarcade_bigfish');
-
-          for ($i=0; $i<count($bigfish['categories']); $i++) {
-            if ($bigfish['categories'][$i]['ID'] == $_POST['feedcat']) {
-              $mapped_cats = explode(',', $bigfish['categories'][$i]['Mapping']);
-
-              for($j=0; $j<count($mapped_cats); $j++) {
-                if ($mapped_cats[$j] == $_POST['mapcat']) {
-                  unset($mapped_cats[$j]);
-                  $bigfish['categories'][$i]['Mapping'] = implode(',', $mapped_cats);
-                  $update_mapping = true;
-                  break;
-                }
-              }
-              break;
-            }
-          }
-
-          if ($update_mapping == true) {
-            // Update Big Fish Games category mapping
-            update_option('myarcade_bigfish', $bigfish);
           }
         }
       }
@@ -827,10 +832,12 @@ function myarcade_handler() {
     } break;
 
     case "delete_score": {
-      if ( isset( $_POST['scoreid'] ) ) {
+      $scoreid = intval( filter_input( INPUT_POST, 'scoreid' ) );
+
+      if ( $scoreid ) {
 
         // get score
-        $old_score = $wpdb->get_row("SELECT * FROM ".$wpdb->prefix.'myarcadescores'." WHERE id = '{$_POST['scoreid']}'");
+        $old_score = $wpdb->get_row("SELECT * FROM ".$wpdb->prefix.'myarcadescores'." WHERE id = '{$scoreid}'");
         // Get highscore
         $highscore = $wpdb->get_row("SELECT * FROM ".$wpdb->prefix.'myarcadehighscores'." WHERE game_tag = '{$old_score->game_tag}' AND user_id = '{$old_score->user_id}' AND score = '{$old_score->score}'");
 
@@ -841,12 +848,12 @@ function myarcade_handler() {
         }
 
 
-        $wpdb->query("DELETE FROM ".$wpdb->prefix.'myarcadescores'." WHERE id = '".$_POST['scoreid']."'");
+        $wpdb->query("DELETE FROM ".$wpdb->prefix.'myarcadescores'." WHERE id = '".$scoreid."'");
       }
     } break;
 
     case "delete_game_scores": {
-      $game_tag = filter_input( INPUT_POST, 'game_tag' );
+      $game_tag = sanitize_text_field( filter_input( INPUT_POST, 'game_tag' ) );
 
       if ( $game_tag ) {
         $wpdb->query( "DELETE FROM " . $wpdb->prefix.'myarcadescores' . " WHERE game_tag = '{$game_tag}'" );
@@ -855,11 +862,13 @@ function myarcade_handler() {
     } break;
 
     case "dircheck": {
-      if ( isset( $_POST['directory'] ) ) {
+      $directory = sanitize_text_field( filter_input( INPUT_POST, 'directory' ) );
+
+      if ( $directory ) {
 
         $upload_dir = myarcade_upload_dir();
 
-        if ( $_POST['directory'] == 'games' ) {
+        if ( $directory == 'games' ) {
           if ( !is_writable( $upload_dir['gamesdir'] ) ) {
             echo '<p class="mabp_error mabp_680">'.sprintf(__("The games directory '%s' must be writeable (chmod 777) in order to download games.", 'myarcadeplugin'), $upload_dir['gamesdir']).'</p>';
           }
@@ -870,6 +879,10 @@ function myarcade_handler() {
         }
       }
     } break;
+
+    default:
+      // Do nothing
+    break;
   }
 
   wp_die();
@@ -879,7 +892,7 @@ add_action('wp_ajax_myarcade_handler', 'myarcade_handler');
 /**
  * Display settings update notice
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  [type] [description]
  */
@@ -903,7 +916,7 @@ if ( get_transient('myarcade_settings_update_notice') ) {
 /**
  * Helper function for form selections
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @param   string $selected Selected item
  * @param   string $current  Current item
  * @return  void
@@ -917,7 +930,7 @@ function myarcade_selected( $selected, $current ) {
 /**
  * Helper function for check boxes
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @param   mixed $var
  * @param   mixed $value
  * @return  void
@@ -931,7 +944,7 @@ function myarcade_checked( $var, $value ) {
 /**
  *  Helper function for multi selectors
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @param   mixed $var
  * @param   mixed $value
  * @return  void
@@ -950,7 +963,7 @@ function myarcade_checked_array( $var, $value ) {
 /**
  * Create required MyArcadePlugin directories
  *
- * @version 5.0.0
+ * @version 5.15.1
  * @access  public
  * @return  void
  */

@@ -3,11 +3,11 @@
  * Plugin Name:  MyArcadePlugin Lite
  * Plugin URI:   http://myarcadeplugin.com
  * Description:  WordPress Arcade Plugin
- * Version:      5.0.0
+ * Version:      5.1.0
  * Author:       Daniel Bakovic
  * Author URI:   http://myarcadeplugin.com
- * Requires at least: 3.9
- * Tested up to: 4.2
+ * Requires at least: 4.0
+ * Tested up to: 4.3
  */
 
 /**
@@ -20,7 +20,7 @@
 /**
  * Init MyArcadePlugin when WordPress initializes
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @return  void
  */
@@ -38,6 +38,8 @@ function myarcade_init() {
 
   add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'myarcade_action_links' );
 
+  add_action('admin_notices', 'myarcade_notices');
+
   // Set default distributors and custom game types
   myarcade_set_distributors();
   myarcade_set_game_type_custom();
@@ -47,13 +49,13 @@ add_action( 'init', 'myarcade_init' );
 /**
  * Defines initial constants
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @return  void
  */
 function myarcade_initial_constants() {
 
   // Define MyArcadePlugin version
-  define('MYARCADE_VERSION', '5.0.0');
+  define('MYARCADE_VERSION', '5.1.0');
 
   // You need at least PHP Version 5.3.0+ to run this plugin
   define('MYARCADE_PHP_VERSION', '5.3.0');
@@ -85,17 +87,17 @@ function myarcade_initial_constants() {
   define('MYARCADE_MODULE_URL', MYARCADE_URL      . '/modules');
   define('MYARCADE_JS_URL',     MYARCADE_CORE_URL . '/js');
 
-  define('MYARCADE_UPDATE_API', 'http://api.myarcadeplugin.com/check.php');
   define('MYARCADE_PLUGIN_SLUG', basename( dirname( __FILE__ ) ) );
 }
 
 /**
  * Include required files used in admin and on the frontend.
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @return  void
  */
 function myarcade_includes() {
+
   require_once 'core/debug.php';
   require_once 'core/template.php';
   require_once 'core/game.php';
@@ -119,7 +121,7 @@ function myarcade_includes() {
 /**
  * Set default game distributors
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @return  void
  */
 function myarcade_set_distributors() {
@@ -131,6 +133,7 @@ function myarcade_set_distributors() {
       'famobi'        => 'Famobi',
       'gamepix'       => 'GamePix',
       'myarcadefeed'  => 'MyArcadeFeed',
+      'softgames'     => 'Softgames',
       'spilgames'     => 'Spil Games',
       'unityfeeds'    => 'UnityFeeds',
       'agf'           => '- PRO - Arcade Game Feed',
@@ -138,8 +141,9 @@ function myarcade_set_distributors() {
       'fgd'           => '- PRO - FlashGameDistribution',
       'fog'           => '- PRO - FreeOnlineGames',
       'gamefeed'      => '- PRO - GameFeed',
+      'htmlgames'     => '- PRO - HTML Games',
       'kongregate'    => '- PRO - Kongregate',
-      'mochi'         => '- PRO - Mochi Media',
+      'plinga'        => '- PRO - Plinga',
       'scirra'        => '- PRO - Scirra',
     )
   );
@@ -148,7 +152,7 @@ function myarcade_set_distributors() {
 /**
  * Set default custom game types
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @return  void
  */
 function myarcade_set_game_type_custom() {
@@ -169,7 +173,7 @@ function myarcade_set_game_type_custom() {
 /**
  * Load game import handler
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @return  void
  */
 function myarcade_import_handler() {
@@ -181,7 +185,7 @@ add_action('wp_ajax_myarcade_import_handler', 'myarcade_import_handler');
  * Load frontend scripts.
  * Loads SWFObject if activated on MyArcadePlugin options.
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @return  void
  */
 function myarcade_frontend_scripts() {
@@ -200,7 +204,7 @@ add_action( 'wp_print_scripts', 'myarcade_frontend_scripts' );
 /**
  * Defines MyArcadePlugin cron intervals
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  arrray cron schedule intervals
  */
@@ -220,7 +224,7 @@ function myarcade_get_cron_intervals() {
 /**
  * Exstends the WP cron function
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @param  array $schedules WordPress schedules
  * @return array
  */
@@ -240,7 +244,7 @@ add_filter('cron_schedules', 'myarcade_extend_cron');
 /**
  * Call MyArcadePlugin install function
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @param   bool $network_wide TRUE if this is a network activation (multisite)
  * @return  void
@@ -263,7 +267,7 @@ register_activation_hook( __FILE__, 'myarcade_do_install' );
 /**
  * Call MyArcadePlugin uninstall function
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @param   bool $network_wide TRUE if this is a network activation (multisite)
  * @return  void
@@ -280,7 +284,7 @@ register_deactivation_hook( __FILE__, 'myarcade_do_uninstall' );
 /**
  * Add MyArcade action links on plugins page
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @param   array $links Default links
  * @return  array links
  */
@@ -297,7 +301,7 @@ function myarcade_action_links( $links ) {
 /**
  * Get MyArcade upload directories
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @return  array Upload directories (absolute and url)
  */
 function myarcade_upload_dir() {
@@ -334,27 +338,6 @@ function myarcade_upload_dir() {
 }
 
 /**
- * Check if MyArcadePlugin is activated for network
- *
- * @version 5.0.0
- * @access  public
- * @return  bool TRUE if activated for network
- */
-function myarcade_is_network_activated() {
-  if ( is_multisite() ) {
-    if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
-      require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
-    }
-
-    if ( is_plugin_active_for_network( 'myarcadeplugin/myarcadeplugin.php' ) ) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-/**
  * MyArcadePlugin Premium Hint
  *
  * @version 5.0.0
@@ -364,7 +347,6 @@ function myarcade_is_network_activated() {
 function myarcade_premium_img() {
   echo '<img src="'.MYARCADE_URL.'/images/locked.png" alt="Pro Version Only!" title="Pro Version Only!" />';
 }
-
 /**
  * MyArcadePlugin Upgrade Hint
  *
@@ -378,5 +360,71 @@ function myarcade_premium_message( $class = 'mabp_800') {
     <?php myarcade_premium_img() ?> Please consider upgrading to <a href="http://myarcadeplugin.com" title="Upgrade">MyArcadePlugin Pro</a> if you want to use this feature.
   </div>
   <?php
+}
+
+/**
+ * Locate and include distributor's integration file
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  void
+ */
+function myarcade_distributor_integration( $key ) {
+
+  $distributor_file = apply_filters( 'myarcade_distributor_integration', MYARCADE_CORE_DIR . '/feeds/' . $key . '.php', $key );
+
+  if ( file_exists( $distributor_file ) ) {
+    include_once( $distributor_file );
+  }
+}
+
+/**
+ * Get distributor's settings
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Settings
+ */
+function myarcade_get_settings( $key ) {
+  global $myarcade_distributors;
+
+  $settings = get_option( 'myarcade_' . $key );
+
+  if ( ! $settings ) {
+
+    // Load distributors if not already loaded..
+    if ( empty( $myarcade_distributors ) ) {
+      myarcade_set_distributors();
+    }
+
+    if ( array_key_exists( $key, $myarcade_distributors ) ) {
+      // Default settings function
+      $settings_function = 'myarcade_default_settings_' . $key;
+
+      if ( function_exists( $settings_function ) ) {
+        $settings = $settings_function();
+      }
+      else {
+        // Function doesn't exist. Try to find the distributor integration file
+        $distributor_file = apply_filters( 'myarcade_distributor_integration', MYARCADE_CORE_DIR . '/feeds/' . $key . '.php', $key );
+
+        if ( file_exists( $distributor_file ) ) {
+          include_once( $distributor_file );
+
+          if ( function_exists( $settings_function ) ) {
+            $settings = $settings_function();
+          }
+        }
+      }
+    }
+  }
+
+  if ( ! $settings ) {
+    $settings = array();
+  }
+
+  return $settings;
 }
 ?>

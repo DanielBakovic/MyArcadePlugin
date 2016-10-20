@@ -3,9 +3,8 @@
  * MyArcadePlugin Debugging Functions
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Debug
  */
 
 /**
@@ -28,7 +27,7 @@ define( 'MYARCADE_DEBUG_TRANSLATOR', false );
 /**
  * Writes a message into a log file
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @param string $message Message which should be logged
  * @return void
  */
@@ -74,7 +73,7 @@ if ( MYARCADE_DEBUG ) {
 /**
  * Log score submission
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @param string $message Message which should be logged
  * @return void
  */
@@ -91,7 +90,7 @@ function myarcade_log_score( $message = '' ) {
 /**
  * Log manual import
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @param string $message Message which should be logged
  * @return void
  */
@@ -108,7 +107,7 @@ function myarcade_log_import( $message = '' ) {
 /**
  * Log core
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @param string $message Message which should be logged
  * @return void
  */
@@ -125,7 +124,7 @@ function myarcade_log_core ( $message = '' ) {
 /**
  * Log translator
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @param string $message Message which should be logged
  * @return void
  */
@@ -142,7 +141,7 @@ function myarcade_log_translator($message = '') {
 /**
  * Prints the var content for debugging purpose
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @param mixed $var Variable
  * @return void
  */

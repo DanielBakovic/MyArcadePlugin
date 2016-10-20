@@ -3,12 +3,11 @@
  * Install / Update functions
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Setup
  */
 
-/*
+/**
  * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
  * Do not modify! Do not sell! Do not distribute! -
  * Check our license Terms!
@@ -22,9 +21,9 @@ if( !defined( 'ABSPATH' ) ) {
 /**
  * Installation function
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @access  public
- * @return  [type] [description]
+ * @return  void
  */
 function myarcade_install() {
   global $wpdb, $wp_version;
@@ -82,122 +81,17 @@ function myarcade_install() {
   // Check if the table needs to be upgraded..
   myarcade_upgrade_games_table();
 
-
-  // Include the feed game categories
-  $catfile = MYARCADE_CORE_DIR.'/feedcats.php';
-  if ( file_exists($catfile) ) {
-    include($catfile);
-  }
-  else {
-    wp_die('Required configuration file not found!', 'Error: MyArcadePlugin Activation');
-  }
-
-  $default_settings = MYARCADE_CORE_DIR.'/settings.php';
-  if ( file_exists($default_settings) ) {
-    include($default_settings);
-  }
-  else {
-    wp_die('Required configuration file not found!', 'Error: MyArcadePlugin Activation');
-  }
-
-  // General Settings
-  $myarcade_general = get_option('myarcade_general');
-
-  if ( !$myarcade_general ) {
-    update_option('myarcade_general', $myarcade_general_default);
-  }
-  else {
-    // Upgrade General Settings if needed
-    foreach ($myarcade_general_default as $setting => $val) {
-      if ( !array_key_exists($setting, $myarcade_general) ) {
-        $myarcade_general[$setting] = $val;
-      }
-    }
-    update_option('myarcade_general', $myarcade_general);
-  }
+  // Upgrade general settings
+  myarcade_update_general_settings();
 
   // Update distributor settings
   myarcade_update_distributor_settings();
 
-  // Categories
-  $myarcade_categories = get_option('myarcade_categories');
-
-  if ( empty($myarcade_categories) ) {
-    add_option('myarcade_categories', $feedcategories, '', 'no');
-  }
-  else {
-    // Upgrade Categories if needed
-    for ($i = 0; $i < count($feedcategories); $i++) {
-      foreach ($myarcade_categories as $old_cat) {
-        if ($old_cat['Name'] == $feedcategories[$i]['Name']) {
-          // Save Category Status and Mapping to the new array
-          $feedcategories[$i]['Status']  = $old_cat['Status'];
-          $feedcategories[$i]['Mapping'] = $old_cat['Mapping'];
-          // Go to the next category
-          break;
-        }
-      }
-    }
-
-    update_option('myarcade_categories', $feedcategories);
-  }
+  // Update categories
+  myarcade_update_categories();
 
   // Check for upgrade to the new settings structure
   if ( !get_option('myarcade_version') ) {
-    if ($wpdb->get_var("show tables like '" . $wpdb->prefix . 'myarcadesettings' . "'") == $wpdb->prefix . 'myarcadesettings') {
-
-      // An Old settings table exists..
-      $myarcade_settings  = $wpdb->get_row("SELECT * FROM ".$wpdb->prefix . 'myarcadesettings');
-
-      // Upgrade General Settings
-      $myarcade_general = get_option('myarcade_general');
-      if ($myarcade_settings->leaderboard_active == 'Yes') { $myarcade_general['scores'] = true; } else { $myarcade_general['scores'] = false; }
-      if ($myarcade_settings->onlyhighscores == 'Yes') { $myarcade_general['highscores'] = true; } else { $myarcade_general['highscores'] = false; }
-      $myarcade_general['posts'] = intval($myarcade_settings->publish_games);
-      if ($myarcade_settings->publish_status == 'scheduled') $myarcade_settings->publish_status = 'future';
-      $myarcade_general['status'] = $myarcade_settings->publish_status;
-      $myarcade_general['schedule'] = $myarcade_settings->cron_interval;
-      if ($myarcade_settings->download_thumbs == 'Yes') { $myarcade_general['down_thumbs'] = true; } else { $myarcade_general['down_thumbs'] = false; }
-      if ($myarcade_settings->download_games == 'Yes') { $myarcade_general['down_games'] = true; } else { $myarcade_general['down_games'] = false; }
-      if ($myarcade_settings->download_screens == 'Yes') { $myarcade_general['down_screens'] = true; } else { $myarcade_general['down_screens'] = false; }
-      if ($myarcade_settings->delete_files == 'Yes') { $myarcade_general['delete'] = true; } else { $myarcade_general['delete'] = false; }
-      if ($myarcade_settings->create_categories == 'Yes') { $myarcade_general['create_cats'] = true; } else { $myarcade_general['create_cats'] = false; }
-      if ($myarcade_settings->first_cat == 'Yes') { $myarcade_general['firstcat'] = true; } else { $myarcade_general['firstcat'] = false; }
-
-      $myarcade_general['interval'] = intval($myarcade_settings->schedule);
-      $myarcade_general['parent'] = $myarcade_settings->parent_category;
-      if ($myarcade_settings->single_publish == 'Yes') { $myarcade_general['single'] = true; } else { $myarcade_general['single'] = false; }
-      $myarcade_general['singlecat'] = intval($myarcade_settings->single_catid);
-      $myarcade_general['max_width'] = intval($myarcade_settings->maxwidth);
-      $myarcade_general['embed'] = $myarcade_settings->embed_flashcode;
-      $myarcade_general['template'] = $myarcade_settings->template;
-      if ($myarcade_settings->use_template == 'Yes') { $myarcade_general['use_template'] = true; } else { $myarcade_general['use_template'] = false; }
-      if ($myarcade_settings->allow_user_post == 'Yes') { $myarcade_general['allow_user'] = true; } else { $myarcade_general['allow_user'] = false; }
-
-      update_option('myarcade_general', $myarcade_general);
-
-      // Upgrade Categories and Mapping
-      $old_cat_settings = unserialize($myarcade_settings->game_categories);
-      $feedcategories = get_option('myarcade_categories');
-
-      for ($i = 0; $i < count($feedcategories); $i++) {
-        foreach ($old_cat_settings as $old_cat) {
-          if ($old_cat['Name'] == $feedcategories[$i]['Name']) {
-            // Save Category Status and Mapping to the new array
-            $feedcategories[$i]['Status']  = $old_cat['Status'];
-            $feedcategories[$i]['Mapping'] = $old_cat['Mapping'];
-            // Go to the next category
-            break;
-          }
-        }
-      }
-
-      update_option('myarcade_categories', $feedcategories);
-
-      // Remove the settings table after successfull upgrade
-      $wpdb->query("DROP TABLE ".$wpdb->prefix . 'myarcadesettings');
-    }
-
     update_option('myarcade_version', MYARCADE_VERSION);
   }
   else {
@@ -281,12 +175,16 @@ function myarcade_install() {
   }
 
   myarcade_create_directories();
+
+  // Add plugin installation date and variable for rating div
+  add_option( 'myarcade_install_date', date('Y-m-d h:i:s') );
+  add_option( 'myarcade_rating_div', 'no' );
 }
 
 /**
  * Upgrade games table
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  void
  */
@@ -410,7 +308,7 @@ function myarcade_upgrade_games_table() {
 /**
  * Upgrade scores table
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  void
  */
@@ -440,7 +338,7 @@ function myarcade_upgrade_scores_table() {
 /**
  * Upgrade the feed categories
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  void
  */
@@ -472,17 +370,14 @@ function myarcade_upgrade_categories() {
 }
 
 /**
- * Update distributor's settings
+ * Upgrade general settings
  *
- * @version 5.0.0
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
  * @return  void
  */
-function myarcade_update_distributor_settings() {
-  global $myarcade_distributors;
-
-  if ( empty( $myarcade_distributors ) ) {
-    myarcade_set_distributors();
-  }
+function myarcade_update_general_settings() {
 
   $default_settings = MYARCADE_CORE_DIR.'/settings.php';
 
@@ -490,63 +385,135 @@ function myarcade_update_distributor_settings() {
     include( $default_settings );
   }
   else {
-    wp_die('Required configuration file not found!', 'Error: MyArcadePlugin Activation');
+    wp_die( 'Required configuration file not found!', 'Error: MyArcadePlugin Activation' );
   }
 
-  foreach ($myarcade_distributors as $key => $name) {
-    // Generate the default var name
-    $default_settings_var = 'myarcade_' . $key . '_default';
+  // General Settings
+  $myarcade_general = get_option('myarcade_general');
 
-    if ( isset( $$default_settings_var ) && ! empty( $$default_settings_var ) ) {
-
-      $default_settings = $$default_settings_var;
-
-      // Get options
-      $options = get_option( 'myarcade_' . $key );
-
-      // Check if options exists
-      if ( ! $options ) {
-        // Add new options
-        add_option( 'myarcade_' . $key, $default_settings, '', 'no' );
+  if ( ! $myarcade_general ) {
+    $myarcade_general = $myarcade_general_default;
+  }
+  else {
+    // Upgrade settings
+    foreach ( $myarcade_general_default as $setting => $val ) {
+      if ( ! array_key_exists( $setting, $myarcade_general ) ) {
+        $myarcade_general[ $setting ] = $val;
       }
-      else {
-        // Options already exists. We need an update
-        foreach ( $default_settings as $setting => $val ) {
-          if ( ! array_key_exists( $setting, $options ) ) {
-            $options[ $setting ] = $val;
-          }
+    }
+  }
+
+  update_option( 'myarcade_general', $myarcade_general );
+}
+
+/**
+ * Update distributor's settings
+ *
+ * @version 5.19.0
+ * @return  void
+ */
+function myarcade_update_distributor_settings() {
+  global $myarcade_distributors;
+
+  // Load distributors if not already loaded..
+  if ( empty( $myarcade_distributors ) ) {
+    myarcade_set_distributors();
+  }
+
+  foreach ( $myarcade_distributors as $key => $name ) {
+    // Default settings function
+    $settings_function = 'myarcade_default_settings_' . $key;
+    $default_settings = array();
+
+    if ( function_exists( $settings_function ) ) {
+      $default_settings = $settings_function();
+    }
+    else {
+      // Function doesn't exist. Try to find the distributor integration file
+      $distributor_file = apply_filters( 'myarcade_distributor_integration', MYARCADE_CORE_DIR . '/feeds/' . $key . '.php', $key );
+
+      if ( file_exists( $distributor_file ) ) {
+        include_once( $distributor_file );
+
+        if ( function_exists( $settings_function ) ) {
+          $default_settings = $settings_function();
         }
-
-        // Do a settings specific update routine
-        switch ( $key ) {
-          case 'spilgames': {
-            // Overwrite Spilgames Feed URL
-            $options['feed'] = $default_settings['feed'];
-          } break;
-
-          case 'myarcadefeed': {
-            // Delete 2PG feed URL
-            for ( $i = 1; $i <= 5; $i++ ) {
-              if ( !empty( $options['feed' . $i] ) ) {
-                if ( strpos( $options['feed'.$i], '2pg.com') !== FALSE ) {
-                  $options['feed'.$i] = '';
-                }
-              }
-            }
-          } break;
-        }
-
-        // Update settings
-        update_option( 'myarcade_' . $key, $options );
       }
+    }
+
+    // Get options
+    $options = get_option( 'myarcade_' . $key );
+
+    // Check if options exists
+    if ( ! $options && ! empty( $default_settings ) ) {
+      // Add new options
+      add_option( 'myarcade_' . $key, $default_settings, '', 'no' );
+    }
+    else {
+      // Options already exists. We need an update
+      foreach ( $default_settings as $setting => $val ) {
+        if ( ! array_key_exists( $setting, $options ) ) {
+          $options[ $setting ] = $val;
+        }
+      }
+
+      // Update settings
+      update_option( 'myarcade_' . $key, $options );
     } // end if default sttings exists
   } // end foreach distributors
 }
 
 /**
+ * Update category settings
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  void
+ */
+function myarcade_update_categories() {
+
+  // Include the feed game categories
+  $catfile = MYARCADE_CORE_DIR.'/feedcats.php';
+
+  if ( file_exists( $catfile ) ) {
+    include( $catfile );
+  }
+  else {
+    wp_die( 'Required configuration file not found!', 'Error: MyArcadePlugin Activation' );
+  }
+
+  // Get Categories
+  $myarcade_categories = get_option('myarcade_categories');
+
+  if ( false === $myarcade_categories ) {
+    add_option('myarcade_categories', $feedcategories, '', 'no');
+  }
+  elseif ( empty( $myarcade_categories ) ) {
+    update_option('myarcade_categories', $feedcategories);
+  }
+  else {
+    // Upgrade Categories if needed
+    for ($i = 0; $i < count($feedcategories); $i++) {
+      foreach ($myarcade_categories as $old_cat) {
+        if ($old_cat['Name'] == $feedcategories[$i]['Name']) {
+          // Save Category Status and Mapping to the new array
+          $feedcategories[$i]['Status']  = $old_cat['Status'];
+          $feedcategories[$i]['Mapping'] = $old_cat['Mapping'];
+          // Go to the next category
+          break;
+        }
+      }
+    }
+
+    update_option('myarcade_categories', $feedcategories);
+  }
+}
+
+/**
  * Uninstall MyArcadePlugin
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  void
  */

@@ -3,9 +3,8 @@
  * Big Fish Games
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Fetch
  */
 
 /**
@@ -22,12 +21,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Display distributor settings on admin page
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @access  public
  * @return  void
  */
 function myarcade_settings_bigfish() {
-  $bigfish = get_option( 'myarcade_bigfish' );
+  $bigfish = myarcade_get_settings( 'bigfish' );
   ?>
   <h2 class="trigger"><?php myarcade_premium_img() ?> <?php _e("Big Fish Games", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -38,8 +37,8 @@ function myarcade_settings_bigfish() {
             <?php myarcade_premium_message() ?>
             <br />
             <i>
+             <?php printf( __( "%s distributes HTML5 games.", 'myarcadeplugin' ), '<a href="https://affiliates.bigfishgames.com/" target="_blank">Big Fish Games</a>' ); ?>
              <?php _e("Big Fish Games offers an affiliate programm with 70% commisions for each sale you generate.", 'myarcadeplugin'); ?>
-             <?php _e('Click <a href="https://affiliates.bigfishgames.com/" title="Big Fish Affiliates" target=_blank"">here</a> to sign up on Big Fish Games Affiliate program.', 'myarcadeplugin'); ?>
             </i>
             <br /><br />
           </td>
@@ -50,7 +49,7 @@ function myarcade_settings_bigfish() {
           <td>
             <input type="text" size="40"  name="big_username" value="<?php echo $bigfish['username']; ?>" />
           </td>
-          <td><i><?php _e("Enter your Big Fish Games user name.", 'myarcadeplugin'); ?></i></td>
+          <td><i><?php _e("Enter your Big Fish Games affiliate user name.", 'myarcadeplugin'); ?></i></td>
         </tr>
         <tr><td colspan="2"><h3><?php _e("Affiliate Code", 'myarcadeplugin'); ?></h3></td></tr>
         <tr>
@@ -166,19 +165,40 @@ function myarcade_settings_bigfish() {
 }
 
 /**
+ * Retrieve distributor's default settings
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Default settings
+ */
+function myarcade_default_settings_bigfish() {
+  include( MYARCADE_CORE_DIR . "/feeds/bigfish/categories.php" );
+
+  return array(
+    'username'        => '',
+    'affiliate_code'  => '',
+    'locale'          => 'en',
+    'gametype'        => 'og',
+    'template'        => '%DESCRIPTION% %BULLET_POINTS% %BUY_GAME% %SYSREQUIREMENTS%',
+    'thumbnail'       => 'medium',
+    'create_cats'     => true,
+    'categories'      => $bigfish_categories,
+    'cron_publish'    => false,
+    'cron_publish_limit' => '1',
+  );
+}
+
+/**
  * Handle distributor settings update
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @access  public
  * @return  void
  */
 function myarcade_save_settings_bigfish() {
-  // Do a secuirty check before updating the settings
-  $myarcade_nonce = filter_input( INPUT_POST, 'myarcade_save_settings_nonce');
-  if ( ! $myarcade_nonce || ! wp_verify_nonce( $myarcade_nonce, 'myarcade_save_settings' ) ) {
-    // Security check failed .. don't update settings
-    return;
-  }
+
+  myarcade_check_settings_nonce();
 
   $bigfish = array();
   $bigfish['username'] = (isset($_POST['big_username'])) ? sanitize_text_field($_POST['big_username']) : '';
@@ -224,24 +244,84 @@ function myarcade_save_settings_bigfish() {
 }
 
 /**
- * Diesplay feed options on the fetch games page
+ * Display distributor fetch games options
  *
- * @version 5.0.0
+ * @version 5.19.0
+ * @since   5.19.0
  * @access  public
  * @return  void
  */
-function myarcade_fetch_options_bigfish() {
+function myarcade_fetch_settings_bigfish() {
 
+  $bigfish = myarcade_get_fetch_options_bigfish();
+  ?>
+  <div class="myarcade_border white hide mabp_680" id="bigfish">
+    <?php _e("Select a game type", 'myarcadeplugin'); ?>
+    <select name="big_gametype" id="big_gametype">
+      <option value="pc" <?php myarcade_selected($bigfish['gametype'], "pc"); ?>><?php _e("PC Games", 'myarcadeplugin'); ?></option>
+      <option value="mac" <?php myarcade_selected($bigfish['gametype'], "mac"); ?>><?php _e("Mac Games", 'myarcadeplugin'); ?></option>
+      <option value="og" <?php myarcade_selected($bigfish['gametype'], "og"); ?>><?php _e("Online Games", 'myarcadeplugin'); ?></option>
+    </select>
+  </div>
+  <?php
+}
+
+/**
+ * Generate an options array with submitted fetching parameters
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  array Fetching options
+ */
+function myarcade_get_fetch_options_bigfish() {
+
+  // Get distributor settings
+  $settings = myarcade_get_settings( 'bigfish' );
+
+  // Set default fetching options
+  $settings['echo'] = true;
+
+  if ( 'start' == filter_input( INPUT_POST, 'fetch' ) ) {
+    // Set submitted fetching options
+    $settings['gametype'] = filter_input( INPUT_POST, 'big_gametype' );
+  }
+
+  return $settings;
 }
 
 /**
  * Fetch Big Fish Games
  *
- * @version 5.0.0
+ * @version 5.19.0
  * @param   array $args Feed settings
  * @return  void
  */
 function myarcade_feed_bigfish( $args =array() ) {
   myarcade_premium_message();
+}
+
+/**
+ * Return game embed method
+ *
+ * @version 5.18.0
+ * @since   5.18.0
+ * @access  public
+ * @return  string Embed Method
+ */
+function myarcade_embedtype_bigfish() {
+  return 'iframe';
+}
+
+/**
+ * Return if games can be downloaded by this distirbutor
+ *
+ * @version 5.19.0
+ * @since   5.19.0
+ * @access  public
+ * @return  bool True if games can be downloaded
+ */
+function myarcade_can_download_bigfish() {
+  return false;
 }
 ?>

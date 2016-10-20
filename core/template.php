@@ -5,12 +5,11 @@
  * Functions used in the template files to output content
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Template
  */
 
-/*
+/**
  * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
  * Do not modify! Do not sell! Do not distribute! -
  * Check our license Terms!
@@ -24,7 +23,7 @@ if( !defined( 'ABSPATH' ) ) {
 /**
  * Add MyArcade comment on the theme footer
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  void
  */
@@ -36,7 +35,7 @@ add_action('wp_footer', 'myarcade_comment');
 /**
  * Add MyArcade comment on theme header
  *
- * @version 5.0.0
+ * @version 5.13.0
  * @access  public
  * @return  void
  */

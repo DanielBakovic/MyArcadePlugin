@@ -3,12 +3,11 @@
  * Fetch Games
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright (c) 2015, Daniel Bakovic
+ * @copyright 2009-2015 Daniel Bakovic
  * @license http://myarcadeplugin.com
- * @package MyArcadePlugin/Core/Fetch
  */
 
-/*
+/**
  * Copyright @ Daniel Bakovic - contact@myarcadeplugin.com
  * Do not modify! Do not sell! Do not distribute! -
  * Check our license Terms!
@@ -22,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Checks if json functions are available on the server
  *
- * @version 5.0.0
+ * @version 5.15.0
  * @param boolean $echo true show messages, false hide messages
  * @return boolean
  */
@@ -57,7 +56,7 @@ function myarcade_check_json($echo) {
 /**
  * Fetch and encode games from the given URL
  *
- * @version 5.0.0
+ * @version  5.19.0
  * @param array $args Fetching parameters
  * @return mixed fetched games
  */
@@ -71,6 +70,19 @@ function myarcade_fetch_games( $args = array() ) {
 
   $r = wp_parse_args( $args, $defaults );
   extract($r);
+
+  if ( ! $url ) {
+    if ( $echo ) {
+      ?>
+      <p class="mabp_info mabp_680">
+        <?php echo __("No Feed URL provided!", 'myarcadeplugin'); ?>
+      </p>
+      <?php
+    }
+
+    return false;
+  }
+
 
   $games = false;
 
@@ -130,7 +142,9 @@ function myarcade_fetch_games( $args = array() ) {
       }
 
       // Decode the downloaded json feed
-      $games = json_decode($feed['response']);
+      // Clean unvalid characters (included for example in Scirra feed)
+      $feed['response'] = str_replace( "[\k]","", $feed['response'] );
+      $games = json_decode(  $feed['response'] );
 
       // Check if the decode was successfull
       if ($games) {
