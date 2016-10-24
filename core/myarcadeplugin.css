@@ -69,7 +69,7 @@
   width:250px;
   background-color: #ffebe8;
   border: 2px groove #c00;
-  z-index: 9999 !important;
+  z-index: 9999;
 }
 
 .importmethod {
@@ -254,8 +254,7 @@ text-shadow:0 1px 0 #FFFFFF;
   margin-right: 15px;
 }
 
-/*.myarcade_form input, .myarcade_form select { margin-bottom: 0px !important; padding: 5px !important; height:auto !important; }*/
-.myarcade_form textarea { margin-bottom: 0px !important; padding: 6px; }
+.myarcade_form textarea { margin-bottom: 0px; padding: 6px; }
 .myarcade_form input:focus, .myarcade_form textarea:focus {border:1px solid #CCCCCC; background-color: #F9F9F9;}
 .myarcade_form input:focus[readonly], .myarcade_form select:focus[readonly], .myarcade_form select:focus[disabled], .myarcade_form textarea:focus[readonly] {color:#AAAAAA; background-color:#EEEEEE; }
 .myarcade_form input:focus, .myarcade_form textarea:focus {border:1px solid #CCCCCC; background-color: #F9F9F9;}
@@ -396,13 +395,13 @@ text-shadow:0 1px 0 #FFFFFF;
 .myarcade_game_panel .description{padding:0;margin:0 0 0 7px;}
 .myarcade_game_panel .description-block{margin-left:0;display:block;}
 .myarcade_game_panel textarea,.myarcade_game_panel input,.myarcade_game_panel select{margin:0;}
-.myarcade_game_panel textarea{width:50% !important;float:left;}
+.myarcade_game_panel textarea{width:50%;float:left;}
 .myarcade_game_panel input{width:50%;float:left;}
 .myarcade_game_panel input.button{width:auto;margin-left:8px;}
 .myarcade_game_panel .checkbox {vertical-align:middle;margin:7px 0;width:auto;}
 .myarcade_game_panel select{float:left;}
 .myarcade_game_panel .short{width:20%;}
-.myarcade_game_panel .sized{width:auto !important;margin-right:6px;}
+.myarcade_game_panel .sized{width:auto;margin-right:6px;}
 .myarcade_game_panel .options_group{border-top:1px solid white;border-bottom:1px solid #DFDFDF;}
 
 #myarcade-gamelist li {
