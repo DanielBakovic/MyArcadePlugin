@@ -13,7 +13,7 @@ if( !defined( 'ABSPATH' ) ) {
 /**
  * Settings page
  *
- * @version 5.19.0
+ * @version 5.3.2
  * @access  public
  * @return  void
  */
@@ -27,9 +27,9 @@ function myarcade_settings() {
   <h2><?php _e("Settings"); ?></h2>
   <?php
 
-  $action = isset($_POST['feedaction']) ? $_POST['feedaction'] : '';
+  $action = filter_input( INPUT_POST, 'feedaction' );
 
-  if ($action == 'save') {
+  if ( 'save' ==  $action ) {
 
     myarcade_check_settings_nonce();
 
@@ -39,59 +39,37 @@ function myarcade_settings() {
     }
 
     $general = array();
-    if ( isset($_POST['leaderboardenable'])) $general['scores'] = true; else $general['scores'] = false;
-    if ( isset($_POST['onlyhighscores'])) $general['highscores'] = true; else $general['highscores'] = false;
-    if ( isset($_POST['game_count'])) $general['posts'] = intval($_POST['game_count']); else $general['posts'] = '';
-    if ( isset($_POST['publishstatus'])) $general['status'] = $_POST['publishstatus']; else $general['status'] = 'publish';
-    if ( isset($_POST['schedtime'])) $general['schedule'] = intval( $_POST['schedtime']); else $general['schedule'] = 0;
-    if ( isset($_POST['downloadthumbs'])) $general['down_thumbs'] = true; else $general['down_thumbs'] = false;
-    if ( isset($_POST['downloadgames'])) $general['down_games'] = true; else $general['down_games'] = false;
-    if ( isset($_POST['downscreens'])) $general['down_screens'] = true; else $general['down_screens'] = false;
-    if ( isset($_POST['deletefiles'])) $general['delete'] = true; else $general['delete'] = false;
-
-    $general['folder_structure'] = (isset($_POST['folder_structure'])) ? $_POST['folder_structure'] : false;
-    $general['automated_fetching']  = false;
-    $general['interval_fetching']   = 'hourly';
-    $general['automated_publishing']  = false;
-    $general['interval_publishing']   = 'daily';
-    $general['swfobject'] = isset( $_POST['swfobject'] ) ? true : false;
-    $general['cron_publish_limit'] = 1;
-
-    if ( isset($_POST['createcats'])) $general['create_cats'] = true; else $general['create_cats'] = false;
-    if ( isset($_POST['parentcatid'])) $general['parent'] = $_POST['parentcatid']; else $general['parent'] = '';
-    if ( isset($_POST['firstcat'])) $general['firstcat'] = true; else $general['firstcat'] = false;
-    if ( isset($_POST['maxwidth'])) $general['max_width'] = intval($_POST['maxwidth']); else $general['max_width'] = '';
-    if ( isset($_POST['singlecat'])) $general['single'] = true; else $general['single'] = false;
-    if ( isset($_POST['singlecatid'])) $general['singlecat'] = $_POST['singlecatid']; else $general['singlecat'] = '';
-    if ( isset($_POST['embedflashcode'])) $general['embed'] = $_POST['embedflashcode']; else $general['embed'] = 'manually';
-    if ( isset($_POST['usetemplate'])) $general['use_template'] = true; else $general['use_template'] = false;
-    if ( isset($_POST['post_template'])) $general['template'] = stripslashes($_POST['post_template']); else $general['template'] = '';
-    if ( isset($_POST['allow_user'])) $general['allow_user'] = true; else $general['allow_user'] = false;
-    if ( isset($_POST['limitplays'])) $general['limit_plays'] = intval($_POST['limitplays']); else $general['limit_plays'] = 0;
-    if ( isset($_POST['limitmessage'])) $general['limit_message'] = stripslashes($_POST['limitmessage']); else $general['limit_message'] = '';
-    if ( isset($_POST['posttype'])) $general['post_type'] = $_POST['posttype']; else $general['post_type'] = 'post';
-    if ( isset($_POST['featured_image'])) $general['featured_image'] = true; else $general['featured_image'] = false;
-
-    $general['play_delay'] = '30';
-    $general['translation'] = 'none';
-    $general['bingid'] = '';
-    $general['bingsecret'] = '';
-    $general['translate_to'] = 'en';
-    $general['translate_fields'] = array();
-    $general['translate_games'] = array();
-    $general['google_id'] = '';
-    $general['google_translate_to'] = 'en';
-    $general['yandex_key'] = '';
-    $general['yandex_translate_to'] = 'de';
-
-    // Custom taxonomies
-    $general['custom_category'] =  isset($_POST['customtaxcat']) ? $_POST['customtaxcat'] : '';
-    $general['custom_tags'] = isset($_POST['customtaxtag']) ? $_POST['customtaxtag'] : '';
-    // Default CSS / JS Styles
-    $general['disable_game_tags'] = isset( $_POST['disable_game_tags'] ) ? true : false;
+    $general['scores'] = filter_input( INPUT_POST, 'leaderboardenable', FILTER_VALIDATE_BOOLEAN );
+    $general['highscores'] = filter_input( INPUT_POST, 'onlyhighscores', FILTER_VALIDATE_BOOLEAN );
+    $general['posts'] = intval( filter_input( INPUT_POST, 'game_count' ) );
+    $general['status'] = filter_input( INPUT_POST, 'publishstatus', FILTER_SANITIZE_STRING, array( "options" => array( "default" => 'publish' ) ) );
+    $general['schedule'] = intval( filter_input( INPUT_POST, 'schedtime' ) );
+    $general['down_thumbs'] = filter_input( INPUT_POST, 'downloadthumbs', FILTER_VALIDATE_BOOLEAN );
+    $general['down_games'] = filter_input( INPUT_POST, 'downloadgames', FILTER_VALIDATE_BOOLEAN );
+    $general['down_screens'] = filter_input( INPUT_POST, 'downscreens', FILTER_VALIDATE_BOOLEAN );
+    $general['delete'] = filter_input( INPUT_POST, 'deletefiles', FILTER_VALIDATE_BOOLEAN );
+    $general['folder_structure'] = sanitize_text_field( filter_input( INPUT_POST 'folder_structure' ) );
+    $general['swfobject'] = filter_input( INPUT_POST, 'swfobject', FILTER_VALIDATE_BOOLEAN );
+    $general['create_cats'] = filter_input( INPUT_POST, 'createcats', FILTER_VALIDATE_BOOLEAN );
+    $general['parent'] = intval( filter_input( INPUT_POST 'parentcatid' ) );
+    $general['firstcat'] = filter_input( INPUT_POST, 'firstcat', FILTER_VALIDATE_BOOLEAN );
+    $general['maxwidth'] = sanitize_text_field( filter_input( INPUT_POST 'maxwidth' ) );
+    $general['single'] = filter_input( INPUT_POST, 'singlecat', FILTER_VALIDATE_BOOLEAN );
+    $general['singlecat'] = intval( filter_input( INPUT_POST 'singlecatid' ) );
+    $general['embed'] = sanitize_text_field( filter_input( INPUT_POST 'embedflashcode', array( "options" => array( "default" => 'manually' ) ) ) );
+    $general['use_template'] = filter_input( INPUT_POST, 'usetemplate', FILTER_VALIDATE_BOOLEAN );
+    $general['template'] = esc_textarea( filter_input( INPUT_POST 'post_template' ) );
+    $general['allow_user'] = filter_input( INPUT_POST, 'allow_user', FILTER_VALIDATE_BOOLEAN );
+    $general['limit_plays'] = intval( filter_input( INPUT_POST 'limitplays' ) );
+    $general['limit_message'] = esc_textarea( filter_input( INPUT_POST 'limitmessage' ) );
+    $general['post_type'] = sanitize_text_field( filter_input( INPUT_POST 'posttype', array( "options" => array( "default" => 'post' ) ) ) );
+    $general['featured_image'] = filter_input( INPUT_POST, 'featured_image', FILTER_VALIDATE_BOOLEAN );
+    $general['custom_category'] = sanitize_text_field( filter_input( INPUT_POST 'customtaxcat' ) );
+    $general['custom_tags'] = sanitize_text_field( filter_input( INPUT_POST 'customtaxtag' ) );
+    $general['disable_game_tags'] = filter_input( INPUT_POST, 'disable_game_tags', FILTER_VALIDATE_BOOLEAN );
 
     // Update Settings
-    update_option('myarcade_general', $general);
+    update_option( 'myarcade_general', $general );
 
     // Update distributor settings dynamically
     foreach ($myarcade_distributors as $key => $name) {
@@ -114,7 +92,12 @@ function myarcade_settings() {
     //
     // Create Game Categories
     //
-    if ( isset($_POST['gamecats'])) $categories_post = $_POST['gamecats']; else $categories_post = array();
+    $categories_post =  isset( $_POST['gamecats'] ) ) ? $_POST['gamecats'] : array();
+
+    if ( ! is_array( $categories_post ) ) {
+      // Something went wrong.
+      $categories_post = array();
+    }
 
     // Get current settings
     $feedcategories = get_option('myarcade_categories');
@@ -148,7 +131,11 @@ function myarcade_settings() {
     echo '<p class="mabp_info mabp_800">'.__("Your settings have been updated!", 'myarcadeplugin').'</p>';
   } // END - if action
 
-  if ( isset($_POST['loaddefaults']) && isset($_POST['checkdefaults']) && $_POST['checkdefaults'] == 'yes' ) {
+  // Check if we should reset settings to default
+  $load_defaults = filter_input( INPUT_POST, 'loaddefaults' );
+  $confirmation = filter_input( INPUT_POST, 'checkdefaults' );
+
+  if ( $load_default && 'yes' == $confirmation ) {
     myarcade_load_default_settings();
     echo '<p class="mabp_info mabp_800">'.__("Default settings have been restored!", 'myarcadeplugin').'</p>';
   }
