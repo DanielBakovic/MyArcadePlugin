@@ -77,7 +77,7 @@ function myarcade_settings_twopg() {
 /**
  * Retrieve distributor's default settings
  *
- * @version 5.19.0
+ * @version 5.27.0
  * @since   5.19.0
  * @access  public
  * @return  array Default settings
@@ -102,10 +102,8 @@ function myarcade_save_settings_twopg() {
 
   myarcade_check_settings_nonce();
 
-  $defaults = myarcade_default_settings_twopg();
-
   $twopg = array();
-  $twopg['feed'] = (!empty($_POST['twopg_url'])) ? esc_sql($_POST['twopg_url']) : $defaults['feed'];
+  $twopg['feed'] = (isset($_POST['twopg_url'])) ? esc_sql($_POST['twopg_url']) : '';
   $twopg['all_categories'] = (isset($_POST['twopg_all_categories'])) ? true : false;
   $twopg['cron_publish'] = (isset($_POST['twopg_cron_publish']) ) ? true : false;
   $twopg['cron_publish_limit'] = (isset($_POST['twopg_cron_publish_limit']) ) ? intval($_POST['twopg_cron_publish_limit']) : 1;
@@ -116,7 +114,7 @@ function myarcade_save_settings_twopg() {
 /**
  * Fetch 2PG games
  *
- * @version 5.18.0
+ * @version 5.26.0
  * @access  public
  * @param   array  $args Fetching parameters
  * @return  void
@@ -129,8 +127,8 @@ function myarcade_feed_twopg($args) {
     'settings' => array()
   );
 
-  $r = wp_parse_args( $args, $defaults );
-  extract($r);
+  $args = wp_parse_args( $args, $defaults );
+  extract($args);
 
   $new_games = 0;
   $add_game = false;
@@ -159,95 +157,80 @@ function myarcade_feed_twopg($args) {
   if ( !empty($games) && isset($games->gameset) ) {
     foreach ($games->gameset->game as $game_obj) {
 
-      // Check the keyword filter before we do anything else
-      if ( ! empty( $settings['keyword_filter'] ) ) {
-        if ( ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->name ) ) && ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->description ) ) ) {
-          // Filter failed. Skip game
-          continue;
-        }
-      }
-
       $game = new stdClass();
       $game->uuid     = $game_obj->id . '_twopg';
       // Generate a game tag for this game
       $game->game_tag = md5( $game_obj->id . $game_obj->name . 'twopg' );
 
-      // Check, if this game is present in the games table
-      $duplicate_game = $wpdb->get_var("SELECT id FROM ".$wpdb->prefix . 'myarcadegames'." WHERE uuid = '".$game->uuid."' OR game_tag = '".$game->game_tag."' OR name = '".esc_sql($game_obj->name)."'");
+      $categories = explode( ',', $game_obj->category );
 
-      if ( !$duplicate_game ) {
-        // Check game categories and add game if it's category has been selected
-
-        $categories = explode( ',', $game_obj->category );
-
-        if ( ! $settings['all_categories'] ) {
-          $add_game = false;
-          // Category-Check
-          foreach ($feedcategories as $feedcat) {
-            foreach ( $categories as $category ) {
-              if ( ($feedcat['Name'] == $category) && ($feedcat['Status'] == 'checked') ) {
-                $add_game = true;
-                break;
-              }
-            }
-            if ( $add_game ) {
+      if ( ! $settings['all_categories'] ) {
+        $add_game = false;
+        // Category-Check
+        foreach ($feedcategories as $feedcat) {
+          foreach ( $categories as $category ) {
+            if ( ($feedcat['Name'] == $category) && ($feedcat['Status'] == 'checked') ) {
+              $add_game = true;
               break;
             }
           }
-
-          // Should we add this game?
-          if ($add_game == false) { continue; }
-        }
-
-        // Decode URL
-        $game_obj->gamecode = urldecode($game_obj->gamecode);
-
-        // Check for file extension or embed code
-        if ( strpos( $game_obj->gamecode, 'src=') !== FALSE ) {
-          // This is an embed code game
-          $game->type = 'embed';
-        }
-        else {
-          $extension = pathinfo( $game_obj->gamecode , PATHINFO_EXTENSION );
-
-          switch ( $extension ) {
-            case 'dcr' : {
-              $game->type = 'dcr';
-            } break;
-
-            case 'unity3d' : {
-              $game->type = 'unity';
-            }
-
-            case 'html' : {
-              $game->type = 'iframe';
-            } break;
-
-            default : {
-              $game->type = 'twopg';
-            } break;
+          if ( $add_game ) {
+            break;
           }
         }
 
-        $game->name           = esc_sql( $game_obj->name );
-        $game->slug           = myarcade_make_slug($game_obj->name);
-        $game->description    = esc_sql($game_obj->description);
-        $game->instructions    = esc_sql($game_obj->instructions);
-        $game->categs         = esc_sql($game_obj->category);
-        $game->thumbnail_url  = esc_sql($game_obj->thumbnail);
-        $game->swf_url        = esc_sql($game_obj->gamecode);
-        $game->width         = esc_sql($game_obj->width);
-        $game->height        = esc_sql($game_obj->height);
-        $game->screen1_url    = !empty($game_obj->screenshot_1) ? $game_obj->screenshot_1 : '';
-        $game->screen2_url    = !empty($game_obj->screenshot_2) ? $game_obj->screenshot_2 : '';
-        $game->screen3_url    = !empty($game_obj->screenshot_3) ? $game_obj->screenshot_3 : '';
-        $game->screen4_url    = !empty($game_obj->screenshot_4) ? $game_obj->screenshot_4 : '';
-        $game->tags           = ( !empty($game_obj->tags) ) ? esc_sql($game_obj->tags) : '';
+        // Should we add this game?
+        if ($add_game == false) { continue; }
+      }
 
+      // Decode URL
+      $game_obj->gamecode = urldecode($game_obj->gamecode);
+
+      // Check for file extension or embed code
+      if ( strpos( $game_obj->gamecode, 'src=') !== FALSE ) {
+        // This is an embed code game
+        $game->type = 'embed';
+      }
+      else {
+        $extension = pathinfo( $game_obj->gamecode , PATHINFO_EXTENSION );
+
+        switch ( $extension ) {
+          case 'dcr' : {
+            $game->type = 'dcr';
+          } break;
+
+          case 'unity3d' : {
+            $game->type = 'unity';
+          }
+
+          case 'html' : {
+            $game->type = 'iframe';
+          } break;
+
+          default : {
+            $game->type = 'twopg';
+          } break;
+        }
+      }
+
+      $game->name           = esc_sql( $game_obj->name );
+      $game->slug           = myarcade_make_slug($game_obj->name);
+      $game->description    = esc_sql($game_obj->description);
+      $game->instructions    = esc_sql($game_obj->instructions);
+      $game->categs         = esc_sql($game_obj->category);
+      $game->thumbnail_url  = esc_sql($game_obj->thumbnail);
+      $game->swf_url        = esc_sql($game_obj->gamecode);
+      $game->width         = esc_sql($game_obj->width);
+      $game->height        = esc_sql($game_obj->height);
+      $game->screen1_url    = !empty($game_obj->screenshot_1) ? $game_obj->screenshot_1 : '';
+      $game->screen2_url    = !empty($game_obj->screenshot_2) ? $game_obj->screenshot_2 : '';
+      $game->screen3_url    = !empty($game_obj->screenshot_3) ? $game_obj->screenshot_3 : '';
+      $game->screen4_url    = !empty($game_obj->screenshot_4) ? $game_obj->screenshot_4 : '';
+      $game->tags           = ( !empty($game_obj->tags) ) ? esc_sql($game_obj->tags) : '';
+
+      // Add game to the database
+      if ( myarcade_add_fetched_game( $game, $args ) ) {
         $new_games++;
-
-        // Add game to the database
-        myarcade_add_fetched_game( $game, $echo );
       }
     }
   }

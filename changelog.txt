@@ -1,8 +1,48 @@
 - MyArcadePlugin Lite -
 
-v5.3.2 - 2016-xx-xx
-  * Tweak - Improved plugin security
-  * Tweak - Removed unsued jquery.form.js file
+v5.4.0 - 2017-01-01 - Based on MyArcadePlugin Pro 5.30.0
+  * New - GameDistribution feed integration (http://www.gamedistribution.com/games/)
+  * New - Auto update for Lite version
+  * New - Stats page with useful statistics:
+    - Summary Plays: Today, Yesterday, Last 7 Days, Last 30 Days, Total
+    - Top 10 Games of all time
+    - Daily game plays chart for 30 days
+    - Hourly game plays chart for last 24 hours
+    - Latest game plays with play durations
+    - Ratio pie chart: registered vs. unregistered users
+    - Most active users
+    - Unpopular games
+    - Currently unplayed games
+  * New - Track game plays and play durations for each game and user
+  * New - Global game play counter
+  * New - Count game plays for each game
+  * New - Upload game images with WP Media Uploader according to MyArcade permalink structure
+  * New - Softgames - Language selection
+  * New - Save thumbnails only at a single location
+  * New - Add game thumbnails automatically to WordPress media library
+  * New - Plinga - SSL suppport added
+  * New - Softgames - SSL suppport added
+  * New - Option to handle SSL for already published games (Enable on the options page)
+  * New - Rich text editors for game description and instructions
+  * New - Use SSL to embed games if SSL is enabled for distributors who supports it
+  * New - Option to fetch only mobile games
+  * New - Filter to allow game filtering on fetching
+    - apply_filters( 'myarcade_add_fetched_game', true, $game )
+  * New - Updated Spilgames integration
+  * Fix - Thumbnails marked as "Unattached" on the media library even if they are set as featured image
+  * Fix - Images are not removed from media library on game delete
+  * Fix - Post content thumbnail URL when using the %THUMB% placeholder
+  * Fix - 2PG Feed URL
+  * Fix - Displaying of PlayToMax games
+  * Fix - Display embed code on custom post meta
+  * Tweak - Create required folders on access if they not exist
+  * Tweak - Optimized import handler JS code to avoid conflicts if TinyMCE is disabled
+  * Tweak - Added allowfullscreen parameter to iframe
+  * Tweak - Improved fullscreen game displaying
+  * Tweak - Improved file deletion procedure
+  * Tweak - Removed option to delete game files. Files will be automatically deleted on post delete
+  * Tweak - Removed download thumbnails option. Thumbnails are now automatically added as featured image
+  * Tweak - Game thumbnails will automatically be added as post featured images
 
 v5.3.1 - 2016-10-17
   * Tweak - Removed game download function to fit WordPress.org rules

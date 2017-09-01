@@ -35,7 +35,7 @@ function myarcade_get_embed_type( $game_type ) {
 /**
  * Show a game depended on the game type
  *
- * @version 5.19.0
+ * @version 5.29.0
  * @access  public
  * @param   int  $game_id        Post ID
  * @param   boolean $fullsize   TRUE to display the game with origial dimensions
@@ -64,8 +64,8 @@ function get_game( $game_id = false, $fullsize = false, $preview = false, $fulls
       $gameheight = apply_filters('myarcade_game_height', get_post_meta($game_id, "mabp_height", true) );
     }
     else {
-      $gamewidth  = apply_filters('myarcade_fullscreen_width',  '93%');
-      $gameheight = apply_filters('myarcade_fullscreen_height', '93%');
+      $gamewidth  = apply_filters('myarcade_fullscreen_width',  '100%');
+      $gameheight = apply_filters('myarcade_fullscreen_height', '100%');
     }
 
     $game_url = apply_filters( 'myarcade_swf_url', get_post_meta($game_id, "mabp_swf_url", true) );
@@ -122,64 +122,77 @@ function get_game( $game_id = false, $fullsize = false, $preview = false, $fulls
     } break;
   }
 
-  $show_game = true;
+  // Do some actions when this is not a game preview
+  if ($preview == true) {
+    $show_game = true;
+  }
+  else {
+    $show_game = myarcade_play_check();
+  }
 
   // Init game code
   $code = '';
 
   if ($show_game == true) {
     // Embed game code
-    $embed_type = myarcade_get_embed_type( $game_variant );
 
-    switch ( $embed_type ) {
+      $embed_type = myarcade_get_embed_type( $game_variant );
 
-      case 'embed': {
-        // Embed or Iframe code
-        $code = stripcslashes($game_url);
-      } break;
+      switch ( $embed_type ) {
 
-      case 'dcr': {
-        // Premium
-      } break;
+        case 'embed': {
+          // Embed or Iframe code
+          $code = stripcslashes($game_url);
+        } break;
 
-      case 'iframe':
-      {
-        $gamewidth = ( !empty($gamewidth) ) ? 'width="'.$gamewidth.'"' : '';
-        $gameheight = ( !empty($gameheight) ) ? 'height="'.$gameheight.'"' : '';
-        $parameters = apply_filters( 'myarcade_iframe_parameters', 'frameborder="0" scrolling="no"', $game_id );
-        $code = '<iframe id="playframe" '.$gamewidth.' '.$gameheight.' '.$parameters.' src="'.$game_url.'" ></iframe>';
-      } break;
+        case 'dcr': {
+          // DCR File
+          $code = '<object classid="clsid:166B1BCA-3F9C-11CF-8075-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/director/sw.cab" width="'.$gamewidth.'" height="'.$gameheight.'">
+                    <param name="src" value="'.$game_url.'">
+                    <param name="wmode" value="transparent">
+                    <param name="wmode" value="opaque" />
+                    <embed src="'.$game_url.'" width="'.$gamewidth.'"  height="'.$gameheight.' pluginspage="http://www.macromedia.com/shockwave/download/" type="application/x-director"">
+                  </object>';
+        } break;
 
-      case 'unity':
-      {
-        $code  = '<script type="text/javascript" src="http://webplayer.unity3d.com/download_webplayer-3.x/3.0/uo/UnityObject.js"></script>' . "\n";
-        $code .= '<script type="text/javascript">' . "\n";
-        $code .= 'unityObject.embedUnity("unityPlayer", "'.$game_url.'", "'.$gamewidth.'", "'.$gameheight.'");' . "\n";
-        $code .= '</script>' . "\n";
-        $code .= '<div id="unityPlayer"><div class="missing"><a href="http://unity3d.com/webplayer/" title="Unity Web Player. Install now!"><img alt="Unity Web Player. Install now!" src="http://webplayer.unity3d.com/installation/getunity.png" width="193" height="63" /></a></div></div>';
-      } break;
+        case 'iframe':
+        {
+          $gamewidth = ( !empty($gamewidth) ) ? 'width="'.$gamewidth.'"' : '';
+          $gameheight = ( !empty($gameheight) ) ? 'height="'.$gameheight.'"' : '';
+          $parameters = apply_filters( 'myarcade_iframe_parameters', 'frameborder="0" scrolling="no" allowfullscreen="true"', $game_id );
+          $code = '<iframe id="playframe" '.$gamewidth.' '.$gameheight.' '.$parameters.' src="'.$game_url.'" ></iframe>';
+        } break;
 
-      case 'spilgames_player_api' : {
-        $code = '<div class="gameplayer" data-sub="cdn" data-width="'.$gamewidth.'" data-height="'.$gameheight.'" data-gid="'.$game_player_api_id.'" data-source="MyArcadePlugin"></div>';
-        $code .= '<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src="http://cdn.gameplayer.io/api/js/publisher.js";fjs.parentNode.insertBefore(js, fjs);}(document, "script", "gameplayer-publisher"));</script>';
-      } break;
+        case 'unity':
+        {
+          $code  = '<script type="text/javascript" src="http://webplayer.unity3d.com/download_webplayer-3.x/3.0/uo/UnityObject.js"></script>' . "\n";
+          $code .= '<script type="text/javascript">' . "\n";
+          $code .= 'unityObject.embedUnity("unityPlayer", "'.$game_url.'", "'.$gamewidth.'", "'.$gameheight.'");' . "\n";
+          $code .= '</script>' . "\n";
+          $code .= '<div id="unityPlayer"><div class="missing"><a href="http://unity3d.com/webplayer/" title="Unity Web Player. Install now!"><img alt="Unity Web Player. Install now!" src="http://webplayer.unity3d.com/installation/getunity.png" width="193" height="63" /></a></div></div>';
+        } break;
 
-      case 'flash':
-      default:
-      {
-        $general = get_option( 'myarcade_general' );
+        case 'spilgames_player_api' : {
+          $code = '<div class="gameplayer" data-sub="cdn" data-width="'.$gamewidth.'" data-height="'.$gameheight.'" data-gid="'.$game_player_api_id.'" data-source="MyArcadePlugin"></div>';
+          $code .= '<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src="http://cdn.gameplayer.io/api/js/publisher.js";fjs.parentNode.insertBefore(js, fjs);}(document, "script", "gameplayer-publisher"));</script>';
+        } break;
 
-        if ( !$preview && isset( $general['swfobject'] ) && $general['swfobject'] ) {
-          $flashvars = apply_filters('myarcade_swfobject_flashvars', array(), $game_id );
-          $params = apply_filters( 'myarcade_swfobject_params', array( 'wmode' => 'direct', 'allowscriptaccess' => 'always', 'swLiveConnect' => 'true', 'quality' => 'high' ), $game_id );
-          $attributes = apply_filters( 'myarcade_swfobject_attributes', array(), $game_id );
-          $code  = '<div id="myarcade_swfobject_content"></div>'."\n";
-          $code .= "<script type=\"text/javascript\">swfobject.embedSWF( '".$game_url."', 'myarcade_swfobject_content', '".$gamewidth."', '".$gameheight."', '9.0.0', '', ".json_encode($flashvars).", ".json_encode($params).", ".json_encode($attributes).");</script>";          }
-        else {
-          $embed_parameters = apply_filters( 'myarcade_embed_parameters', 'wmode="direct" menu="false" quality="high"', $game_id );
-          $code = '<embed src="'.$game_url.'" '.$embed_parameters.' width="'.$gamewidth.'" height="'.$gameheight.'" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />';
-        }
-      } break;
+        case 'flash':
+        default:
+        {
+          $general = get_option( 'myarcade_general' );
+
+          if ( !$preview && isset( $general['swfobject'] ) && $general['swfobject'] ) {
+            $flashvars = apply_filters('myarcade_swfobject_flashvars', array(), $game_id );
+            $params = apply_filters( 'myarcade_swfobject_params', array( 'wmode' => 'direct', 'allowscriptaccess' => 'always', 'swLiveConnect' => 'true', 'quality' => 'high' ), $game_id );
+            $attributes = apply_filters( 'myarcade_swfobject_attributes', array(), $game_id );
+            $code  = '<div id="myarcade_swfobject_content"></div>'."\n";
+            $code .= "<script type=\"text/javascript\">swfobject.embedSWF( '".$game_url."', 'myarcade_swfobject_content', '".$gamewidth."', '".$gameheight."', '9.0.0', '', ".json_encode($flashvars).", ".json_encode($params).", ".json_encode($attributes).");</script>";          }
+          else {
+            $embed_parameters = apply_filters( 'myarcade_embed_parameters', 'wmode="direct" menu="false" quality="high"', $game_id );
+            $code = '<embed src="'.$game_url.'" '.$embed_parameters.' width="'.$gamewidth.'" height="'.$gameheight.'" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />';
+          }
+        } break;
     }
   }
 
@@ -189,7 +202,7 @@ function get_game( $game_id = false, $fullsize = false, $preview = false, $fulls
 /**
  * Get game embed code which can be displayed on text areas
  *
- * @version 5.18.0
+ * @version 5.25.0
  * @access  public
  * @param   boolean $post_id Post ID
  * @return  string           Embed code
@@ -218,7 +231,13 @@ function get_game_code( $post_id = false ) {
     } break;
 
     case 'dcr': {
-      // Premium
+      // DCR File
+      $code = '<object classid="clsid:166B1BCA-3F9C-11CF-8075-444553540000" codebase="http://active.macromedia.com/director/cabs/sw.cab" width="'.$gamewidth.'" height="'.$gameheight.'">
+          <param name="src" value="'.$game_url.'">
+          <param name="wmode" value="transparent">
+          <param name="wmode" value="opaque" />
+          <embed src="'.$game_url.'" width="'.$gamewidth.'"  height="'.$gameheight.'">
+        </object>';
     } break;
 
     case 'iframe':

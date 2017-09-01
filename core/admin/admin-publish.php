@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Publish Games page
  *
- * @version 5.3.2
+ * @version 5.28.0
  * @return  void
  */
 function myarcade_publish_games() {
@@ -25,20 +25,18 @@ function myarcade_publish_games() {
 
   $feedcategories = get_option('myarcade_categories');
 
-  $action = filter_input( INPUT_POST, 'action' );
-
   // Init some needed vars
-  if ( ! empty($_POST) && 'publish' == $action ) ) {
-    $game_type        = sanitize_text_field( $_POST['distr'] );
-    $leaderboard      = ( isset( $_POST['leaderboard'] ) ) ? '1' : '0';
+  if ( isset($_POST) && isset($_POST['action']) && ($_POST['action'] == 'publish') ) {
+    $game_type        = $_POST['distr'];
+    $leaderboard      = (isset($_POST['leaderboard'])) ? '1' : '0';
     //$coins            = (isset($_POST['coins'])) ? '1' : '0';
-    $status           = sanitize_text_field( $_POST['status'] );
-    $schedule         = ( isset($_POST['scheduletime'] ) ) ? intval( $_POST['scheduletime'] ) : $general['schedule'];
-    $order            = ( $_POST['order'] == 'ASC' ) ? 'ASC' : 'DESC';
-    $cat              = sanitize_text_field( $_POST['category'] );
-    $posts            = ( isset( $_POST['games'] ) ) ? intval( $_POST['games'] ) : false;
-    $download_thumbs  = ( isset( $_POST['downloadthumbs'] ) ) ? true : false;
-    $download_screens = ( isset( $_POST['downloadscreens'] ) ) ? true : false;
+    $status           = $_POST['status'];
+    $schedule         = (isset($_POST['scheduletime'])) ? intval($_POST['scheduletime']) : $general['schedule'];
+    $order            = ($_POST['order'] == 'ASC') ? 'ASC' : 'DESC';
+    $cat              = $_POST['category'];
+    $posts            = (isset($_POST['games'])) ? intval($_POST['games']) : false;
+    $download_screens = (isset($_POST['downloadscreens'])) ? true : false;
+    $download_games   = (isset($_POST['downloadgames'])) ? true : false;
 
     // Generate the query
     $query_array = array();
@@ -53,10 +51,6 @@ function myarcade_publish_games() {
     if ( $leaderboard == '1') {
       $query_array[] = "leaderboard_enabled = '1'";
     }
-
-    /*if ( $coins == '1') {
-      $query_array[] = "coins_enabled = '1'";
-    }*/
 
     if ( $cat != 'all') {
       $query_array[] = "categories LIKE '%".$feedcategories[ (int) $cat ]['Name']."%'";
@@ -112,7 +106,6 @@ function myarcade_publish_games() {
     $order            = 'ASC';
     $cat              = 'all';
     $posts            = $general['posts'];
-    $download_thumbs  = $general['down_thumbs'];
     $download_screens = $general['down_screens'];
 
     $start_publishing = 'init';
@@ -189,7 +182,6 @@ function myarcade_publish_games() {
       </div>
 
       <div class="myarcade_border white" style="width:300px;height:50px;float:left;">
-        <input type="checkbox" value="1" id="downloadthumbs" name="downloadthumbs" <?php myarcade_checked($download_thumbs, true); ?> /> Download Thumbnails<br />
         <input type="checkbox" value="1" id="downloadscreens" name="downloadscreens" <?php myarcade_checked($download_screens, true); ?>/> Download Screenshots<br />
       </div>
 
@@ -208,15 +200,15 @@ function myarcade_publish_games() {
     }
 
     jQuery(document).ready(function($){
-      $("#downloadthumbs").change(function() {
-        if ( $('#downloadthumbs').attr('checked') || $('#downloadscreens').attr('checked') ) {
-          myarcade_check_dir('thumbs');
+      $("#downloadgames").change(function() {
+        if ( $('#downloadgames').attr('checked') ) {
+          myarcade_check_dir('games');
         } else {
-          $('#down_thumbs').html("");
+          $('#down_games').html("");
         }
       });
       $("#downloadscreens").change(function() {
-        if ( $('#downloadscreens').attr('checked') || $('#downloadthumbs').attr('checked') ) {
+        if ( $('#downloadscreens').attr('checked') ) {
           myarcade_check_dir('thumbs');
         } else {
           $('#down_thumbs').html("");
@@ -230,8 +222,14 @@ function myarcade_publish_games() {
   ?>
 
   <div id="down_thumbs">
-    <?php if ( ($download_thumbs || $download_screens) && ( ! is_writable( $upload_dir['thumbsdir'] ) ) ) {
-      echo '<p class="mabp_error mabp_680">'.sprintf(__("The thumbs directory '%s' must be writeable (chmod 777) in order to download thumbnails or screenshots.", 'myarcadeplugin'),  $upload_dir['thumbsdir'] ).'</p>';
+    <?php if ( $download_screens && ( ! is_writable( $upload_dir['thumbsdir'] ) ) ) {
+      echo '<p class="mabp_error mabp_680">'.sprintf( __("The images directory '%s' must be writeable (chmod 777) in order to download game images.", 'myarcadeplugin'),  $upload_dir['thumbsdir'] ).'</p>';
+    }
+    ?>
+  </div>
+  <div id="down_games">
+    <?php if ($download_games && ( ! is_writable( $upload_dir['gamesdir'] ) ) ) {
+      echo '<p class="mabp_error mabp_680">'.sprintf(__("The games directory '%s' must be writeable (chmod 777) in order to download games.", 'myarcadeplugin'), $upload_dir['gamesdir'] ).'</p>';
     }
     ?>
   </div>
@@ -343,8 +341,8 @@ function myarcade_publish_games() {
             status: '<?php echo $status; ?>',
             schedule: '<?php echo $schedule; ?>',
             count: myarcade_count,
-            download_thumbs: '<?php echo $download_thumbs; ?>',
-            download_screens: '<?php echo $download_screens; ?>'
+            download_screens: '<?php echo $download_screens; ?>',
+            download_games: '<?php echo $download_games; ?>'
           },
           success: function( response ) {
             if ( response !== Object( response ) || ( typeof response.success === "undefined" && typeof response.error === "undefined" ) ) {

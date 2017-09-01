@@ -119,7 +119,7 @@ function myarcade_default_settings_gamepix() {
 /**
  * Handle distributor settings update
  *
- * @version 5.3.2
+ * @version 5.19.0
  * @access  public
  * @return  void
  */
@@ -128,11 +128,11 @@ function myarcade_save_settings_gamepix() {
   myarcade_check_settings_nonce();
 
   $settings = array();
-  $settings['feed'] = (isset($_POST['gamepix_url'])) ? esc_url($_POST['gamepix_url']) : '';
   $settings['publisher_id'] = '10013';
   $settings['site_id'] = '20015';
-  $settings['category'] = (isset($_POST['gamepix_category'])) ? sanitize_text_field( $_POST['gamepix_category'] ) : 'all';
-  $settings['thumbnail'] = sanitize_text_field( filter_input( INPUT_POST, 'gamepix_thumbnail' ) );
+  $settings['feed'] = (isset($_POST['gamepix_url'])) ? esc_sql($_POST['gamepix_url']) : '';
+  $settings['category'] = (isset($_POST['gamepix_category'])) ? $_POST['gamepix_category'] : 'all';
+  $settings['thumbnail'] = filter_input( INPUT_POST, 'gamepix_thumbnail' );
   $settings['cron_publish'] = (isset($_POST['gamepix_cron_publish']) ) ? true : false;
   $settings['cron_publish_limit'] = (isset($_POST['gamepix_cron_publish_limit']) ) ? intval($_POST['gamepix_cron_publish_limit']) : 1;
 
@@ -156,8 +156,8 @@ function myarcade_feed_gamepix( $args = array() ) {
     'settings' => array(),
   );
 
-  $r = wp_parse_args( $args, $defaults );
-  extract($r);
+  $args = wp_parse_args( $args, $defaults );
+  extract($args);
 
   $new_games = 0;
   $add_game = false;
@@ -197,75 +197,60 @@ function myarcade_feed_gamepix( $args = array() ) {
   if ( !empty($json_games->data) ) {
     foreach ($json_games->data as $game_obj) {
 
-      // Check the keyword filter before we do anything else
-      if ( ! empty( $settings['keyword_filter'] ) ) {
-        if ( ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->title ) ) && ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->description ) ) ) {
-          // Filter failed. Skip game
-          continue;
-        }
-      }
-
       $game = new stdClass();
       $game->uuid     = $game_obj->id . '_gamepix';
       // Generate a game tag for this game
       $game->game_tag = md5( $game_obj->id . 'gamepix' );
 
-      // Check, if this game is present in the games table
-      $duplicate_game = $wpdb->get_var("SELECT id FROM ".$wpdb->prefix . 'myarcadegames'." WHERE uuid = '".$game->uuid."' OR game_tag = '".$game->game_tag."' OR name = '".esc_sql($game_obj->title)."'");
+      $add_game   = false;
 
-      if ( !$duplicate_game ) {
-        // Check game categories and add game if it's category has been selected
+      // Transform some categories
+      $categories = explode(',', $game_obj->category);
+      $categories_string = 'Other';
 
-        $add_game   = false;
+      foreach($categories as $gamecat) {
 
-        // Transform some categories
-        $categories = explode(',', $game_obj->category);
-        $categories_string = 'Other';
+        // Transform some feed categories
+        switch ( $gamecat ) {
+          case 'Classics': {
+            $gamecat = 'Other';
+          } break;
+        }
 
-        foreach($categories as $gamecat) {
-
-          // Transform some feed categories
-          switch ( $gamecat ) {
-            case 'Classics': {
-              $gamecat = 'Other';
-            } break;
+        foreach ($feedcategories as $feedcat) {
+          if ( ($feedcat['Name'] == $gamecat) && ($feedcat['Status'] == 'checked') ) {
+            $add_game = true;
+            $categories_string = $gamecat;
+            break 2;
           }
-
-          foreach ($feedcategories as $feedcat) {
-            if ( ($feedcat['Name'] == $gamecat) && ($feedcat['Status'] == 'checked') ) {
-              $add_game = true;
-              $categories_string = $gamecat;
-              break 2;
-            }
-          }
-        } // END - Category-Check
-
-        if ( ! $add_game ) {
-          continue;
         }
+      } // END - Category-Check
 
-        $game->type          = 'gamepix';
-        $game->name          = esc_sql($game_obj->title);
-        $game->slug          = myarcade_make_slug($game_obj->title);
-        $game->description   = esc_sql($game_obj->description);
-        $game->categs        = $categories_string;
-        $game->swf_url       = esc_sql( strtok( $game_obj->url, '?' ) );
-        $game->width         = esc_sql($game_obj->width);
-        $game->height        = esc_sql($game_obj->height);
+      if ( ! $add_game ) {
+        continue;
+      }
 
-        $thumb_size = $settings['thumbnail'];
+      $game->type          = 'gamepix';
+      $game->name          = esc_sql($game_obj->title);
+      $game->slug          = myarcade_make_slug($game_obj->title);
+      $game->description   = esc_sql($game_obj->description);
+      $game->categs        = $categories_string;
+      $game->swf_url       = esc_sql( strtok( myarcade_maybe_ssl( $game_obj->url ), '?' ) );
+      $game->width         = esc_sql($game_obj->width);
+      $game->height        = esc_sql($game_obj->height);
 
-        if ( ! empty( $game_obj->$thumb_size ) ) {
-          $game->thumbnail_url = esc_sql( $game_obj->$thumb_size);
-        }
-        else {
-          $game->thumbnail_url = esc_sql($game_obj->thumbnailUrl100);
-        }
+      $thumb_size = $settings['thumbnail'];
 
+      if ( ! empty( $game_obj->$thumb_size ) ) {
+        $game->thumbnail_url = esc_sql( myarcade_maybe_ssl( $game_obj->$thumb_size ) );
+      }
+      else {
+        $game->thumbnail_url = esc_sql( myarcade_maybe_ssl( $game_obj->thumbnailUrl100 ) );
+      }
+
+      // Add game to the database
+      if ( myarcade_add_fetched_game( $game, $args ) ) {
         $new_games++;
-
-        // Add game to the database
-        myarcade_add_fetched_game( $game, $echo );
       }
     }
   }

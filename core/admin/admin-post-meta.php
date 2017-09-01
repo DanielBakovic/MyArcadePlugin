@@ -32,6 +32,11 @@ function myarcade_add_meta_box_conditionally() {
   if ( is_game( $post_id ) || $general['post_type'] == get_post_type( $post_id ) ) {
     add_action('add_meta_boxes', 'myarcade_game_details_meta_box');
     add_action('save_post', 'myarcade_meta_box_save', 1, 2);
+
+    // Add scores meta box
+    if ( is_leaderboard_game( $post_id ) ) {
+      add_action('add_meta_boxes', 'myarcade_game_leaderboard_meta_box');
+    }
   }
 }
 add_action( 'admin_init', 'myarcade_add_meta_box_conditionally' );
@@ -56,11 +61,26 @@ function myarcade_game_details_meta_box() {
 
   add_meta_box('myarcade-game-data', __('MyArcadePlugin Game Details', 'myarcadeplugin'), 'myarcade_game_data_box', $type, 'normal', 'high');
 }
+//add_action('add_meta_boxes', 'myarcade_meta_boxes');
+
+function myarcade_game_leaderboard_meta_box() {
+
+  $general = get_option( 'myarcade_general' );
+
+  if ( $general['post_type'] != 'post' && post_type_exists($general['post_type']) ) {
+    $type = $general['post_type'];
+  }
+  else {
+    $type = 'post';
+  }
+
+  add_meta_box('myarcade-game-scores', __('MyArcadePlugin Game Scores', 'myarcadeplugin'), 'myarcade_game_scores_box', $type, 'normal', 'high');
+}
 
 /**
  * Displays the MyArcade Meta Box
  *
- * @version 5.14.0
+ * @version 5.27.1
  * @access  public
  * @return  void
  */
@@ -126,7 +146,7 @@ function myarcade_game_data_box() {
         myarcade_wp_select( array(
             'id' => 'mabp_leaderboard',
             'label' => __('Score Support', 'myarcadeplugin'),
-            'description' => __('Select if this game supports score submitting (Only Gamersafe or IBPArcade games).'),
+            'description' => __('Select if this game supports score submitting (Only IBPArcade games).'),
             'options' => array( '' => 'No', '1' => 'Yes')
         ));
 
@@ -135,13 +155,6 @@ function myarcade_game_data_box() {
             'label' => __('Score Order', 'myarcadeplugin'),
             'description' => __('How should MyArcadePlugin order scores for this game.'),
             'options' => array( 'DESC' => 'DESC (High to Low)', 'ASC' => 'ASC (Low to High)')
-        ));
-
-        myarcade_wp_checkbox( array(
-          'id'    => 'mabp_score_bridge',
-          'label' => __('GamerSafe Support', 'myarcadeplugin'),
-          'description' => __("Check this if the game has GamerSafe Data Bridge integrated.", 'myarcadeplugin' ),
-          'cbvalue' => 'gamersafe'
         ));
         ?>
       </div>
@@ -155,7 +168,9 @@ function myarcade_game_data_box() {
         $file_path = get_post_meta($post->ID, 'mabp_swf_url', true);
         $game_type = get_post_meta($post->ID, 'mabp_game_type', true);
 
-        if ( $game_type == 'embed' || $game_type == 'iframe') {
+        $embed_method = myarcade_get_embed_type( $game_type );
+
+        if ( $embed_method == 'embed' || $embed_method == 'iframe' ) {
           $field = array( 'id' => 'mabp_swf_url', 'label' => __('Embed Code', 'myarcadeplugin') );
                   echo '<p class="myarcade-form-field"><label for="'.$field['id'].'">'.$field['label'].':</label>
           <textarea name="'.$field['id'].'" id="'.$field['id'].'">'.$file_path.'</textarea>
@@ -290,9 +305,93 @@ function myarcade_game_data_box() {
 }
 
 /**
+ * Display the MyArcade Scores Meta Box
+ *
+ * @version 5.15.0
+ * @return  void
+ */
+function myarcade_game_scores_box() {
+  global $post, $wpdb;
+
+  if ( ! isset( $post->ID ) ) {
+    _e( "ERROR: Post ID not found!", 'myarcadeplugin' );
+    return;
+  }
+
+  $game_tag = get_post_meta( $post->ID, 'mabp_game_tag', true );
+  $order    = get_post_meta( $post->ID, 'mabp_score_order', true );
+
+  if ( ! $order ) {
+    $order = "DESC";
+  }
+
+  $scores = $wpdb->get_results( "SELECT * FROM " . $wpdb->prefix.'myarcadescores' . " WHERE game_tag = '{$game_tag}' ORDER BY score+0 " . $order );
+
+  if ( $scores ) {
+    ?>
+    <script type="text/javascript">
+      /* <![CDATA[ */
+      function myarcade_confirm_delete() {
+        if ( confirm( "<?php _e("Are you sure you want to delete all game scores?", 'myarcadeplugin'); ?>" ) ) {
+          jQuery('#delete_game_scores').css('display', 'inline');
+          jQuery.post('<?php echo admin_url('admin-ajax.php'); ?>', {
+            action:'myarcade_handler',
+            game_tag: <?php echo $game_tag; ?>,
+            func:'delete_game_scores'
+          },
+          function() {
+            jQuery('#game_scores').fadeOut('slow');
+            jQuery('#delete_game_scores').removeAttr('style');
+            jQuery('#myarcade-game-scores .inside').html( "<?php _e( "No scores available.", 'myarcadeplugin' ); ?>" );
+          });
+        }
+        return false;
+      }
+      /* ]]> */
+    </script>
+
+    <p>
+      <button class="button-primary" onclick="return myarcade_confirm_delete();"><?php _e("Delete All Scores", 'myarcadeplugin') ?></button><span id="delete_game_scores" class="spinner"></span>
+    </p>
+
+    <table id="game_scores" class="widefat fixed">
+      <thead>
+      <tr>
+        <th scope="col">User</th>
+        <th scope="col">Date</th>
+        <th scope="col">Score</th>
+        <th scope="col">Action</th>
+      </tr>
+      </thead>
+      <tbody>
+        <?php foreach ( $scores as $score ) : ?>
+          <?php
+          $user = get_user_by('id', $score->user_id);
+
+          $edit_url = MYARCADE_URL.'/core/editscore.php?scoreid='.$score->id;
+          $edit ='<a href="'.$edit_url.'&keepThis=true&TB_iframe=1&height=300&width=500" class="button-secondary thickbox edit" title="'.__("Edit Score", 'myarcadeplugin').'">'.__("Edit", 'myarcadeplugin').'</a>';
+          $delete = "<button class=\"button-secondary\" onclick = \"jQuery('#delete_game_scores').css('display', 'inline');jQuery.post('".admin_url('admin-ajax.php')."',{action:'myarcade_handler',gameid: false, scoreid: '$score->id',func:'delete_score'},function(){jQuery('#scorerow_$score->id').fadeOut('slow');jQuery('#delete_game_scores').removeAttr('style');});return false;\" >".__("Delete", 'myarcadeplugin')."</button>";
+          ?>
+          <tr id="scorerow_<?php echo $score->id; ?>">
+            <td><?php echo $user->display_name; ?></td>
+            <td><?php echo $score->date; ?></td>
+            <td id="scoreval_<?php echo $score->id; ?>"><?php echo $score->score; ?></td>
+            <td><?php echo $edit; ?> <?php echo $delete; ?><span id="score_<?php echo $score->id; ?>"></span></td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+    <?php
+  }
+  else {
+    _e( "No scores available.", 'myarcadeplugin' );
+  }
+}
+
+/**
  * Update MyArcade Meta Box values
  *
- * @version 5.3.2
+ * @version 5.14.0
  * @access  public
  * @param   int $post_id    Post ID
  * @param   mixed $post     Post Object
@@ -415,7 +514,8 @@ function myarcade_wp_textarea_input( $field ) {
     $field['value'] = get_post_meta($postID, $field['id'], true);
   }
 
-  echo '<p class="myarcade-form-field '.$field['id'].'_field"><label for="'.$field['id'].'">'.$field['label'].'</label><textarea class="'.$field['class'].'" name="'.$field['id'].'" id="'.$field['id'].'" placeholder="'.$field['placeholder'].'" rows="2" cols="20">'.esc_textarea( $field['value'] ).'</textarea> ';
+  echo '<p class="myarcade-form-field"><label for="'.$field['id'].'">'.$field['label'].'</label>';
+  wp_editor( $field['value'], $field['id'], array( 'editor_height' => 200, 'media_buttons' => false, 'teeny' => true, ) );
 
   if ( isset( $field['description'] ) && $field['description'] ) {
       echo '<span class="description">' . $field['description'] . '</span>';

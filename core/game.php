@@ -145,4 +145,26 @@ function myarcade_check_width( $postid ) {
 
   return $result;
 }
-?>
+
+
+/**
+ * Replace http with https if ssl is enabled
+ *
+ * @version 5.27.1
+ * @since   5.27.1
+ * @param   string $game_url Game URL / Embed Code
+ * @return  string Game URL
+ */
+function myarcade_replace_protocol( $game_url ) {
+
+  $general  = get_option('myarcade_general');
+
+  if ( $general['handle_ssl'] && is_ssl() ) {
+    $game_url = str_replace( "http://", "https://", $game_url );
+    // Maybe replace plinga
+    $game_url = str_replace( "plinga.com", "psgn.plinga.de", $game_url );
+  }
+
+  return $game_url;
+}
+add_filter( 'myarcade_swf_url', 'myarcade_replace_protocol' );

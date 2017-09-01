@@ -10,28 +10,6 @@ if( !defined( 'ABSPATH' ) ) {
   die();
 }
 
-if ( !function_exists('file_put_contents') ) {
-  /**
-   * Alternative file_put_contents function
-   *
-   * @version 5.13.0
-   * @access  public
-   * @param   string $filename File name
-   * @param   string $data Data that should be written into the file
-   * @return  int|bool Bytes written or FALSE on error
-   */
-  function file_put_contents( $filename, $data ) {
-    $f = @fopen($filename, 'w');
-    if (!$f) {
-      return false;
-    } else {
-      $bytes = fwrite($f, $data);
-      fclose($f);
-      return $bytes;
-    }
-  }
-}
-
 /**
  * Delete a given file from the hard drive
  *
@@ -47,43 +25,9 @@ function myarcade_del_file( $file_abs ) {
 }
 
 /**
- * Checks if a game is deleteable
- *
- * @version 5.13.0
- * @access  public
- * @param   string $gametype Game type / distributor ID
- * @return  bool TRUE if game type is deletable
- */
-function myarcade_is_game_deleteable( $gametype ) {
-  switch ($gametype) {
-    case 'mochi':
-    case 'heyzap':
-    case 'ibparcade':
-    case 'kongregate':
-    case 'playtomic':
-    case 'fgd':
-    case 'fog':
-    case 'spilgames':
-    case 'gamefeed':
-    case 'unityfeeds':
-    case 'myarcadefeed':
-    {
-      $result = true;
-    } break;
-
-    default:
-    {
-      $result = false;
-    } break;
-  }
-
-  return $result;
-}
-
-/**
  * Get the abspath of the given URL
  *
- * @version 5.15.0
+ * @version 5.28.1
  * @access  public
  * @param   string $url URL
  * @return  string|bool string if the absolute path has been found. Otherwise FALSE
@@ -93,14 +37,19 @@ function myarcade_get_abs_path( $url )  {
   // Get the content URL
   $content_url = content_url();
 
+  // Remove scheme from URL before comparision
+  $scheme = array( 'http://', 'https://' );
+  $clean_url = str_replace( $scheme, '', $url );
+  $clean_content_url = str_replace( $scheme, '', $content_url );
+
   // Check if the URL matches with our content URL
-  if ( strpos( $url, $content_url ) === FALSE ) {
+  if ( strpos( $clean_url, $clean_content_url ) === FALSE ) {
     // External site
     return false;
   }
 
   // Remove content URL
-  $link_part = str_replace( $content_url, "", $url );
+  $link_part = str_replace( $clean_content_url, "", $clean_url );
 
   // Generate the file abs path
   $file_path = WP_CONTENT_DIR . $link_part;
@@ -115,7 +64,7 @@ function myarcade_get_abs_path( $url )  {
 /**
  * Delete game files when deleting a post
  *
- * @version 5.15.0
+ * @version 5.30.0
  * @access  public
  * @param   int $post_ID Post ID
  * @return  bool
@@ -123,47 +72,51 @@ function myarcade_get_abs_path( $url )  {
 function myarcade_delete_game( $post_ID ) {
   global $wpdb;
 
-  // Get myarcadeplugin settings
-  $general = get_option('myarcade_general');
+  // Proceed only if this is a game
+  if ( ! is_game( $post_ID ) ) {
+    // do nothing
+    return;
+  }
 
-  // Should game files be deleted
-  if ( $general['delete'] ) {
-    // Delete game thumb if exists
-    $thumburl = get_post_meta($post_ID, "mabp_thumbnail_url", true);
+  // Delete featured image from the media library
+  $thumbnail_id = get_post_thumbnail_id( $post_ID );
 
-    if ($thumburl) {
-      $thumb_abs = myarcade_get_abs_path( $thumburl );
+  if ( $thumbnail_id ) {
+    wp_delete_attachment( $thumbnail_id );
+  }
 
-      if ($thumb_abs) {
-        myarcade_del_file($thumb_abs);
+  // For MyArcadePlugin version below 5.28.0
+  $thumbnail_url = get_post_meta( $post_ID, "mabp_thumbnail_url", true );
+
+  if ( $thumbnail_url ) {
+    // Try to determinate the file absolute path
+    $thumbnail_path = myarcade_get_abs_path( $thumbnail_url );
+
+    if ( $thumbnail_path ) {
+      // Delete local file
+      myarcade_del_file( $thumbnail_path );
+    }
+  }
+
+  // Delete game screenshots if exists
+  for ( $i = 1; $i <= 4; $i++ ) {
+    $screenshot_url = get_post_meta( $post_ID, "mabp_screen".$i."_url", true );
+
+    if ( $screenshot_url ) {
+      $screenshot_path = myarcade_get_abs_path( $screenshot_url );
+
+      if ( $screenshot_path ) {
+        myarcade_del_file( $screenshot_path );
       }
     }
+  }
 
-    // Delete game screenshots if exists
-    for ($i = 1; $i <= 4; $i++) {
-      $screenshot = get_post_meta($post_ID, "mabp_screen".$i."_url", true);
+  // Delete game file
+  $game_path = myarcade_get_abs_path( get_post_meta( $post_ID, "mabp_swf_url", true ) );
 
-      if ($screenshot) {
-        $screen_abs = myarcade_get_abs_path( $screenshot );
-
-        if ($screen_abs) {
-          myarcade_del_file($screen_abs);
-        }
-      }
-    } // END for screens
-
-    // Delete game swf if exists
-    $gameurl  = get_post_meta($post_ID, "mabp_swf_url", true);
-    $gametype = get_post_meta($post_ID, "mabp_game_type", true);
-
-    if ( myarcade_is_game_deleteable($gametype) && $gameurl ) {
-      $game_abs = myarcade_get_abs_path( $gameurl);
-
-      if ($game_abs) {
-        myarcade_del_file($game_abs);
-      }
-    }
-  } // END if delete files
+  if ( $game_path ) {
+    myarcade_del_file($game_path);
+  }
 
   // Delete game scores
     // Get game_tag
@@ -178,6 +131,9 @@ function myarcade_delete_game( $post_ID ) {
            WHERE `postid` = '$post_ID'";
 
   $wpdb->query($query);
+
+  // Delete game stats
+  $wpdb->query( "DELETE FROM {$wpdb->prefix}myarcade_plays WHERE `post_id` = '$post_ID'" );
 
   return true;
 }
@@ -382,4 +338,44 @@ function myarcade_get_filelist() {
   exit;
 }
 add_action('wp_ajax_myarcade_get_filelist', 'myarcade_get_filelist');
+
+/**
+ * Adds an image to WordPrss media base
+ *
+ * @version 5.28.0
+ * @since   5.28.0
+ * @param   string $file_url  File URL
+ * @param   string $file_path File absolute path
+ * @return  integer           WordPress attachment ID or 0/false on error
+ */
+function myarcade_add_attachment( $file_url, $file_path ) {
+
+  if ( is_multisite() ) {
+    delete_transient( 'dirsize_cache' );
+  }
+
+  // Check the type of file. We'll use this as the 'post_mime_type'.
+  $filetype = wp_check_filetype( basename( $file_path ), null );
+
+  $attachment = array(
+    'guid' => $file_url,
+    'post_mime_type' => $filetype['type'],
+    'post_title' => preg_replace('/\.[^.]+$/', '', basename( $file_path ) ),
+    'post_content' => '',
+    'post_status' => 'inherit'
+  );
+
+  $attachment_id = wp_insert_attachment( $attachment, $file_path );
+
+  if ( $attachment_id ) {
+    // Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
+    require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+    // Generate the metadata for the attachment, and update the database record.
+    $attachment_data = wp_generate_attachment_metadata( $attachment_id, $file_path );
+    wp_update_attachment_metadata( $attachment_id, $attachment_data );
+  }
+
+  return $attachment_id;
+}
 ?>

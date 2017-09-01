@@ -166,7 +166,7 @@ function myarcade_default_settings_famobi() {
 /**
  * Handle distributor settings update
  *
- * @version 5.3.2
+ * @version 5.19.0
  * @access  public
  * @return  void
  */
@@ -175,11 +175,11 @@ function myarcade_save_settings_famobi() {
   myarcade_check_settings_nonce();
 
   $settings = array();
-  $settings['feed'] = (isset($_POST['famobi_url'])) ? esc_url( $_POST['famobi_url'] ) : '';
   $settings['affiliate_id'] = 'A-MYARCADEPLUGIN';
-  $settings['category'] = (isset($_POST['famobi_category'])) ? sanitize_text_field( $_POST['famobi_category'] ) : 'all';
-  $settings['thumbsize'] = (isset($_POST['famobi_thumbsize'])) ? sanitize_text_field( $_POST['famobi_thumbsize'] ) : 'thumb_120';
-  $settings['language'] = (isset($_POST['famobi_language'])) ? sanitize_text_field( $_POST['famobi_language'] ) : 'en_EN';
+  $settings['feed'] = (isset($_POST['famobi_url'])) ? esc_sql($_POST['famobi_url']) : '';
+  $settings['category'] = (isset($_POST['famobi_category'])) ? $_POST['famobi_category'] : 'all';
+  $settings['thumbsize'] = (isset($_POST['famobi_thumbsize'])) ? $_POST['famobi_thumbsize'] : 'thumb_120';
+  $settings['language'] = (isset($_POST['famobi_language'])) ? $_POST['famobi_language'] : 'en_EN';
   $settings['cron_fetch'] = (isset($_POST['famobi_cron_fetch'])) ? true : false;
   $settings['cron_fetch_limit']    = (isset($_POST['famobi_cron_fetch_limit']) ) ? intval($_POST['famobi_cron_fetch_limit']) : 1;
   $settings['cron_publish'] = (isset($_POST['famobi_cron_publish']) ) ? true : false;
@@ -279,7 +279,7 @@ function myarcade_get_categories_famobi() {
 /**
  * Fetch games
  *
- * @version 5.19.0
+ * @version 5.27.0
  * @since   5.16.0
  * @access  public
  * @param   array  $args Fetching parameters
@@ -294,8 +294,8 @@ function myarcade_feed_famobi( $args = array() ) {
     'method'   => 'latest'
   );
 
-  $r = wp_parse_args( $args, $defaults );
-  extract($r);
+  $args = wp_parse_args( $args, $defaults );
+  extract($args);
 
   $new_games = 0;
   $add_game = false;
@@ -346,114 +346,99 @@ function myarcade_feed_famobi( $args = array() ) {
   if ( !empty($json_games->games) ) {
     foreach ($json_games->games as $game_obj) {
 
-      // Check the keyword filter before we do anything else
-      if ( ! empty( $settings['keyword_filter'] ) ) {
-        if ( ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->name ) ) && ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->description ) ) ) {
-          // Filter failed. Skip game
-          continue;
-        }
-      }
-
       $game = new stdClass();
       $game->uuid     = crc32( $game_obj->package_id ) . '_famobi';
       // Generate a game tag for this game
       $game->game_tag = md5( $game_obj->package_id . 'famobi' );
 
-      // Check, if this game is present in the games table
-      $duplicate_game = $wpdb->get_var("SELECT id FROM ".$wpdb->prefix . 'myarcadegames'." WHERE uuid = '".$game->uuid."' OR game_tag = '".$game->game_tag."' OR name = '".esc_sql($game_obj->name)."'");
+      $add_game = false;
 
-      if ( !$duplicate_game ) {
-        // Check game categories and add game if it's category has been selected
+      // Clean categories
+      $game_obj->categories = array_diff( $game_obj->categories,  array( 'new', 'best' ) );
+      $game_obj->categories = array_map( 'trim', $game_obj->categories );
 
-        $add_game = false;
+      $categories_string = 'Other';
 
-        // Clean categories
-        $game_obj->categories = array_diff( $game_obj->categories,  array( 'new', 'best' ) );
-        $game_obj->categories = array_map( 'trim', $game_obj->categories );
+      foreach( $game_obj->categories as $gamecat ) {
 
-        $categories_string = 'Other';
+        // Transform some feed categories
+        switch ( strtolower($gamecat) ) {
+          case 'puzzle': {
+            $gamecat = 'Puzzles';
+          } break;
+        }
 
-        foreach( $game_obj->categories as $gamecat ) {
+        foreach ( $feedcategories as $feedcat ) {
+          if ( $feedcat['Status'] == 'checked' ) {
+            if ( ! empty( $famobi_categories[ $feedcat['Name'] ] ) ) {
+              // Set category name to check
+              if ( $famobi_categories[ $feedcat['Name'] ] === true ) {
+                $cat_name = $feedcat['Name'];
+              }
+              else {
+                $cat_name = $famobi_categories[ $feedcat['Name'] ];
+              }
 
-          // Transform some feed categories
-          switch ( strtolower($gamecat) ) {
-            case 'puzzle': {
-              $gamecat = 'Puzzles';
-            } break;
-          }
-
-          foreach ( $feedcategories as $feedcat ) {
-            if ( $feedcat['Status'] == 'checked' ) {
-              if ( ! empty( $famobi_categories[ $feedcat['Name'] ] ) ) {
-                // Set category name to check
-                if ( $famobi_categories[ $feedcat['Name'] ] === true ) {
-                  $cat_name = $feedcat['Name'];
-                }
-                else {
-                  $cat_name = $famobi_categories[ $feedcat['Name'] ];
-                }
-
-                if ( strpos( strtolower($cat_name), strtolower($gamecat) ) !== false ) {
-                  $add_game = true;
-                  $categories_string = $feedcat['Name'];
-                  break 2;
-                }
+              if ( strpos( strtolower($cat_name), strtolower($gamecat) ) !== false ) {
+                $add_game = true;
+                $categories_string = $feedcat['Name'];
+                break 2;
               }
             }
           }
-        } // END - Category-Check
-
-        if ( ! $add_game ) {
-          continue;
         }
+      } // END - Category-Check
 
-        $thumb_size = $settings['thumbsize'];
-        $thumbnail = $game_obj->$thumb_size;
+      if ( ! $add_game ) {
+        continue;
+      }
 
-        // Fallback
-        if ( empty( $thumbnail ) ) {
-          $thumbnail = $game_obj->thumb;
-        }
+      $thumb_size = $settings['thumbsize'];
+      $thumbnail = $game_obj->$thumb_size;
 
-        $game->type          = 'famobi';
-        $game->name          = esc_sql($game_obj->name);
-        $game->slug          = myarcade_make_slug($game_obj->name);
-        $game->description   = esc_sql($game_obj->description);
-        $game->categs        = $categories_string;
-        $game->thumbnail_url = strtok( $thumbnail, '?' );
-        $game->swf_url       = $game_obj->link;
+      // Fallback
+      if ( empty( $thumbnail ) ) {
+        $thumbnail = $game_obj->thumb;
+      }
 
-        // Calculate game width
-        if ( intval( $general['max_width'] ) > 0 ) {
-          $max_width = $general['max_width'];
-        }
-        else {
-          $max_width = 800;
-        }
+      $game->type          = 'famobi';
+      $game->name          = esc_sql($game_obj->name);
+      $game->slug          = myarcade_make_slug($game_obj->name);
+      $game->description   = esc_sql($game_obj->description);
+      $game->categs        = $categories_string;
+      $game->thumbnail_url = myarcade_maybe_ssl( strtok( $thumbnail, '?' ) );
+      $game->swf_url       = myarcade_maybe_ssl( $game_obj->link );
 
-        if ( !isset( $game_obj->orientation ) ) {
-          // Orientation is missing. We need to determinate it manually
-          if ( $game_obj->aspect_ratio > 0 ) {
-            $game_obj->orientation = 'landscape';
-          }
-          else {
-            $game_obj->orientation = 'portrait';
-          }
-        }
+      // Calculate game width
+      if ( intval( $general['max_width'] ) > 0 ) {
+        $max_width = $general['max_width'];
+      }
+      else {
+        $max_width = 800;
+      }
 
-        if ( $game_obj->orientation == 'landscape' ) {
-          $game->width = $max_width;
-          $game->height = round($max_width / $game_obj->aspect_ratio, 2);
+      if ( !isset( $game_obj->orientation ) ) {
+        // Orientation is missing. We need to determinate it manually
+        if ( $game_obj->aspect_ratio > 0 ) {
+          $game_obj->orientation = 'landscape';
         }
         else {
-          $game->height = 700;
-          $game->width = round( $game->height * $game_obj->aspect_ratio, 2);
+          $game_obj->orientation = 'portrait';
         }
+      }
 
+      if ( $game_obj->orientation == 'landscape' ) {
+        $game->width = $max_width;
+        $game->height = round($max_width / $game_obj->aspect_ratio, 2);
+      }
+      else {
+        $game->height = 700;
+        $game->width = round( $game->height * $game_obj->aspect_ratio, 2);
+      }
+
+      // Add game to the database
+      if ( myarcade_add_fetched_game( $game, $args ) ) {
         $new_games++;
-
-        // Add game to the database
-        myarcade_add_fetched_game( $game, $echo );
       }
     }
   }

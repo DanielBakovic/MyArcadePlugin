@@ -16,7 +16,7 @@ require_once( MYARCADE_CORE_DIR . '/admin/admin-post-meta.php' );
 /**
  * Register MyArcade menus
  *
- * @version 5.13.0
+ * @version 5.30.0
  * @access  public
  * @return  void
  */
@@ -31,7 +31,7 @@ function myarcade_admin_menu() {
     $permisssion = 'manage_options';
   }
 
-  add_menu_page('MyArcade', 'MyArcade', $permisssion , basename(__FILE__), 'myarcade_show_stats_page', MYARCADE_CORE_URL . '/images/arcade.png', 55);
+  add_menu_page('MyArcade', 'MyArcade', $permisssion , basename(__FILE__), 'myarcade_show_stats_page', MYARCADE_URL . '/assets/images/arcade.png', 55);
   add_submenu_page(basename(__FILE__), __('Dashboard', 'myarcadeplugin'), __('Dashboard', 'myarcadeplugin'), $permisssion, basename(__FILE__), 'myarcade_show_stats_page');
 
     add_submenu_page( basename(__FILE__),
@@ -55,6 +55,16 @@ function myarcade_admin_menu() {
                       __("Manage Games", 'myarcadeplugin'),
                       __("Manage Games", 'myarcadeplugin'),
                       'manage_options', 'myarcade-manage-games', 'myarcade_manage_games_page');
+
+    add_submenu_page( basename(__FILE__),
+                      __("Manage Scores", 'myarcadeplugin'),
+                      __("Manage Scores", 'myarcadeplugin'),
+                      'manage_options', 'myarcade-manage-scores', 'myarcade_manage_scores_page');
+
+    add_submenu_page( basename(__FILE__),
+                      __("Statistics", 'myarcadeplugin'),
+                      __("Statistics", 'myarcadeplugin'),
+                      'manage_options', 'myarcade-stats', 'myarcade_stats_page');
 
   add_submenu_page( basename(__FILE__),
                     __("Settings"),
@@ -133,14 +143,51 @@ function myarcade_manage_games_page() {
 }
 
 /**
- * Load game import scripts
+ * [myarcade_manage_scores_page description]
  *
  * @version 5.13.0
+ * @access  public
+ * @return  [type] [description]
+ */
+function myarcade_manage_scores_page() {
+  include_once( MYARCADE_CORE_DIR . '/admin/admin-manage-scores.php' );
+  myarcade_manage_scores();
+}
+
+/**
+ * Display the stats page
+ *
+ * @version 5.30.0
+ * @return  void
+ */
+function myarcade_stats_page() {
+  include_once( MYARCADE_CORE_DIR . '/admin/admin-stats.php' );
+  myarcade_stats();
+}
+
+/**
+ * Load game import scripts
+ *
+ * @version 5.29.1
  * @access  public
  * @return  void
  */
 function myarcade_import_scripts() {
-  wp_enqueue_script('jquery-form');
+  wp_enqueue_script( 'myarcade-import', MYARCADE_URL . '/assets/js/import.js', array( 'jquery', 'jquery-form' ), false, true );
+
+  wp_localize_script( 'myarcade-import', 'MyArcadeImport', array(
+    'cannot_import' => __( "Error: Can not import that game!", 'myarcadeplugin' ),
+    'game_missing'  => __( "No game file added!", 'myarcadeplugin' ),
+    'thumb_missing' => __( "No thumbnail added!", 'myarcadeplugin' ),
+    'name_missing'        => __( "Game name not set!", 'myarcadeplugin' ),
+    'description_missing' => __( "There is no game description!", 'myarcadeplugin' ),
+    'category_missing'    => __( "Select at least one category!", 'myarcadeplugin' ),
+    'max_filesize_exceeded' => __( "ERROR: Max allowed file size exceeded!", 'myarcadeplugin' ),
+    'error_string' => __( "Error:", 'myarcadeplugin' ),
+    'rich_editing'  => get_user_option('rich_editing'),
+    'allowed_size'  => myarcade_get_max_post_size_bytes(),
+    )
+  );
 }
 
 /**
@@ -156,19 +203,19 @@ function myarcade_admin_scripts() {
   $screen = get_current_screen();
 
   if ($pagenow == 'post.php') {
-    wp_register_script( 'myarcade_writepanel', MYARCADE_JS_URL . '/writepanel.js', array('jquery') );
+    wp_register_script( 'myarcade_writepanel', MYARCADE_URL . '/assets/js/writepanel.js', array('jquery') );
     wp_enqueue_script('myarcade_writepanel');
   }
 
   if ( $pagenow == 'admin.php' ) {
     switch ( $screen->id ) {
       case 'myarcade_page_myarcade-publish-games': {
-        wp_enqueue_script( 'jquery-ui-progressbar', MYARCADE_JS_URL . '/jquery.ui.progressbar.min.js', array( 'jquery-ui-core', 'jquery-ui-widget' ), '1.8.6' );
-        wp_enqueue_style( 'jquery-ui-myarcadeplugin', MYARCADE_JS_URL . '/jquery-ui-1.7.2.custom.css', array(), '1.7.2' );
+        wp_enqueue_script( 'jquery-ui-progressbar', MYARCADE_URL . '/assets/js/jquery.ui.progressbar.min.js', array( 'jquery-ui-core', 'jquery-ui-widget' ), '1.8.6' );
+        wp_enqueue_style( 'jquery-ui-myarcadeplugin', MYARCADE_URL . '/assets/css/jquery-ui.css' );
       } break;
 
       case 'myarcade_page_myarcade-fetch': {
-        wp_enqueue_script( 'myarcadeplugin-script', MYARCADE_JS_URL . '/myarcadeplugin.js', array( 'jquery' ) );
+        wp_enqueue_script( 'myarcadeplugin-script', MYARCADE_URL . '/assets/js/myarcadeplugin.js', array( 'jquery' ) );
       } break;
     }
   }
@@ -176,38 +223,109 @@ function myarcade_admin_scripts() {
 add_action('admin_enqueue_scripts', 'myarcade_admin_scripts');
 
 /**
- * Modifies the WordPress upload folders
+ * Retrieve file location folders for the wp media uploader
  *
- * @version 5.3.2
- * @access  public
- * @param   array $upload
- * @return  array
+ * @version 5.29.0
+ * @since   5.29.0
+ * @return  array|bool Array of folder parts or false if not a game or error
  */
-function myarcade_downloads_upload_dir( $upload ) {
+function myarcade_get_post_upload_dirs() {
 
-  switch ( filter_input( INPUT_POST, 'type' ) ) {
-    case 'myarcade_image': {
-      $upload['subdir'] = '/thumbs';
-      $upload['path'] =  $upload['basedir'] . $upload['subdir'];
-      $upload['url'] = $upload['baseurl'] . $upload['subdir'];
-    } break;
+  // Check if we try to upload a new game image/file to existing post
+  $type = filter_input( INPUT_POST, 'type' );
+  $post_id = filter_input( INPUT_POST, 'post_id' );
 
-    case 'myarcade_game': {
-      $upload['subdir'] = '/games';
-      $upload['path'] =  $upload['basedir'] . $upload['subdir'];
-      $upload['url'] = $upload['baseurl'] . $upload['subdir'];
-    } break;
+  if ( false !== strpos( $type, 'myarcade_') && is_game( $post_id ) ) {
+    // Get game details
+    $game_type = get_post_meta( $post_id, 'mabp_game_type', true );
 
-    default:
-      // Do nothing
-    break;
+    if ( ! $game_type ) {
+      $game_type = 'custom';
+    }
+
+    $game_slug = get_post_field( 'post_name', $post_id );
+
+    remove_filter( 'wp_handle_upload_prefilter', 'myarcade_wp_handle_upload_prefilter' );
+    remove_filter('upload_dir', 'myarcade_game_post_upload_dir');
+
+    $upload_dir_specific = myarcade_get_folder_path( $game_slug, $game_type );
+
+    add_filter( 'wp_handle_upload_prefilter', 'myarcade_wp_handle_upload_prefilter' );
+    add_filter('upload_dir', 'myarcade_game_post_upload_dir');
+
+    return $upload_dir_specific;
   }
 
-  return $upload;
+  return false;
 }
-add_filter('upload_dir', 'myarcade_downloads_upload_dir');
-add_action('media_upload_myarcade_image', 'myarcade_media_upload_game_files');
-add_action('media_upload_myarcade_game', 'myarcade_media_upload_game_files');
+
+/**
+ * Raname game files uploaded with wp media uploader to fit into the MyArcade folder structure
+ *
+ * @version 5.29.0
+ * @since   5.29.0
+ * @param   array $file Array of (name, type, tmp_name). Like $_FILE
+ * @return  $file Array
+ */
+function myarcade_wp_handle_upload_prefilter( $file ) {
+
+  $upload_dir_specific = myarcade_get_post_upload_dirs();
+
+  if ( $upload_dir_specific ) {
+    $type = filter_input( INPUT_POST, 'type' );
+    $post_id = filter_input( INPUT_POST, 'post_id' );
+    $game_slug = get_post_field( 'post_name', $post_id );
+    $extension = pathinfo( $file['name'], PATHINFO_EXTENSION );
+
+    // Get the new unique file name
+    if ( 'myarcade_image' == $type ) {
+     $dir = 'thumbsdir';
+    }
+    else {
+      $dir = 'gamesdir';
+    }
+
+    // Overwrite the file name
+    $file['name'] = wp_unique_filename( $upload_dir_specific[ $dir ], $game_slug . '.' . $extension );
+  }
+
+  return $file;
+}
+add_filter( 'wp_handle_upload_prefilter', 'myarcade_wp_handle_upload_prefilter' );
+
+/**
+ * Modifies the WordPress upload folders
+ *
+ * @version 5.29.0
+ * @access  public
+ * @param   array $upload_dir
+ * @return  array
+ */
+function myarcade_game_post_upload_dir( $upload_dir ) {
+
+  $upload_dir_specific = myarcade_get_post_upload_dirs();
+
+  if ( $upload_dir_specific ) {
+    $type = filter_input( INPUT_POST, 'type' );
+
+    switch ( $type ) {
+      case 'myarcade_image': {
+        $upload_dir['path']   = untrailingslashit( $upload_dir_specific['thumbsdir'] );
+        $upload_dir['subdir'] = untrailingslashit( str_replace($upload_dir_specific['basedir'], '', $upload_dir_specific['thumbsdir'] ) );
+        $upload_dir['url']    = untrailingslashit( $upload_dir_specific['thumbsurl'] );
+      } break;
+
+      case 'myarcade_game': {
+        $upload_dir['path']   = untrailingslashit( $upload_dir_specific['gamesdir'] );
+        $upload_dir['subdir'] = untrailingslashit( str_replace($upload_dir_specific['basedir'], '', $upload_dir_specific['gamesdir'] ) );
+        $upload_dir['url']    = untrailingslashit( $upload_dir_specific['gamesurl'] );
+      }
+    }
+  }
+
+  return $upload_dir;
+}
+add_filter( 'upload_dir', 'myarcade_game_post_upload_dir' );
 
 /**
  * Trigger WordPress media_upload_file action
@@ -219,6 +337,8 @@ add_action('media_upload_myarcade_game', 'myarcade_media_upload_game_files');
 function myarcade_media_upload_game_files() {
   do_action('media_upload_file');
 }
+add_action('media_upload_myarcade_image', 'myarcade_media_upload_game_files');
+add_action('media_upload_myarcade_game', 'myarcade_media_upload_game_files');
 
 /**
  * Extend WordPress upload mimes
@@ -243,7 +363,7 @@ add_filter('upload_mimes', 'myarcade_upload_mimes');
 /**
  * Load requires scripts and styles
  *
- * @version 5.13.0
+ * @version 5.30.0
  * @access  public
  * @return  [type] [description]
  */
@@ -262,9 +382,11 @@ function myarcade_load_scriptstyle() {
     }
   }
 
-  if ( $pagenow == 'admin.php' || $pagenow == 'post.php' || ( isset($_GET['page']) && $_GET['page'] == 'myarcade_admin.php') ) {
+  $page = filter_input( INPUT_GET, 'page' );
+
+  if ( $pagenow == 'admin.php' || $pagenow == 'post.php' || 'myarcade_admin.php' == $page || 'myarcade-stats' == $page ) {
     // Add MyArcade CSS
-    $css = MYARCADE_CORE_URL."/myarcadeplugin.css";
+    $css = MYARCADE_URL . "/assets/css/myarcadeplugin.css";
     wp_enqueue_style('myarcade_css', $css, false, false, 'screen');
   }
 }
@@ -278,59 +400,7 @@ add_action('admin_menu', 'myarcade_load_scriptstyle', 99);
  * @return  void
  */
 function myarcade_notices() {
-  if ( get_option( 'myarcade_rating_div' ) == "no" ) {
-    $install_date = get_option( 'myarcade_install_date' );
-    $display_date = date('Y-m-d h:i:s');
-    $datetime1 = new DateTime($install_date);
-    $datetime2 = new DateTime($display_date);
-    $diff_intrval = round(($datetime2->format('U') - $datetime1->format('U')) / (60*60*24));
-
-    if ( $diff_intrval >= 7 ) {
-      echo '<div class="updated notice map_fivestar">
-        <p>Awesome, you\'ve been using <strong>MyArcadePlugin</strong> for a while. May we ask you to give it a <strong>5-star</strong> rating on Wordpress?
-          <br /><strong>Your MyArcadePlugin Team</strong>
-          <ul>
-            <li><a href="https://wordpress.org/support/view/plugin-reviews/myarcadeblog#postform" class="thankyou" target="_new" title="Ok, you deserved it" style="font-weight:bold;">Ok, you deserved it</a></li>
-              <li><a href="javascript:void(0);" class="mapHideRating" title="I already did" style="font-weight:bold;">I already did</a></li>
-              <li><a href="javascript:void(0);" class="mapHideRating" title="No, not good enough" style="font-weight:bold;">No, not good enough</a></li>
-          </ul>
-      </div>
-      <script>
-      jQuery( document ).ready(function( $ ) {
-      jQuery(\'.mapHideRating\').click(function(){
-          var data={\'action\':\'hide_rating\'}
-               jQuery.ajax({
-          url: "'.admin_url( 'admin-ajax.php' ).'",
-          type: "post",
-          data: data,
-          dataType: "json",
-          async: !0,
-          success: function(e) {
-              if (e=="success") {
-                 jQuery(\'.map_fivestar\').slideUp(\'slow\');
-              }
-          }
-           });
-          })
-      });
-      </script>
-      ';
-    }
-  }
 }
-
-/**
- * Hide MyArcadePlugin rating
- *
- * @version 5.13.0
- * @access  public
- * @return  void
- */
-function myarcade_hide_rating_div() {
-  update_option('myarcade_rating_div','yes');
-    echo json_encode(array("success")); exit;
-}
-add_action('wp_ajax_hide_rating','myarcade_hide_rating_div');
 
 /**
  * Show MyArcadePlugin header on plugin option pages
@@ -386,6 +456,108 @@ function myarcade_plugin_update() {
 add_action('wp_loaded', 'myarcade_plugin_update');
 
 /**
+ * Take over the update check
+ *
+ * @version 5.13.0
+ * @access  public
+ * @param   object $checked_data
+ * @return  object
+ */
+function myarcade_check_for_update( $checked_data ) {
+
+	if ( empty($checked_data->checked) ) {
+		return $checked_data;
+  }
+
+	$request_args = array(
+		'slug' => MYARCADE_PLUGIN_SLUG,
+		'version' => $checked_data->checked[MYARCADE_PLUGIN_SLUG .'/myarcadeplugin.php'],
+	);
+
+	$request_string = prepare_request('update_check', $request_args);
+
+	// Start checking for an update
+	$raw_response = wp_remote_post(MYARCADE_UPDATE_API, $request_string);
+
+	if (!is_wp_error($raw_response) && isset($raw_response['response']['code']) && ($raw_response['response']['code'] == 200)) {
+		$response = unserialize($raw_response['body']);
+  }
+
+	if (isset($response) && is_object($response) && !empty($response)) {
+    // Feed the update data into WP updater
+		$checked_data->response[MYARCADE_PLUGIN_SLUG .'/myarcadeplugin.php'] = $response;
+  }
+
+	return $checked_data;
+}
+if ( ! defined('WP_ENV') || WP_ENV != 'development' ) {
+  add_filter('pre_set_site_transient_update_plugins', 'myarcade_check_for_update');
+}
+
+/**
+ * Take over the plugin info screen
+ *
+ * @version 5.13.0
+ * @access  public
+ * @param   [type] $def
+ * @param   string $action
+ * @param   object $args
+ * @return  string         response
+ */
+function myarcade_api_call( $def, $action, $args ) {
+
+	if (!isset($args->slug)|| $args->slug != MYARCADE_PLUGIN_SLUG) {
+		return false;
+  }
+
+	// Get the current version
+	$plugin_info = get_site_transient('update_plugins');
+	$current_version = $plugin_info->checked[MYARCADE_PLUGIN_SLUG .'/myarcadeplugin.php'];
+
+  $args->version = $current_version;
+
+	$request_string = prepare_request($action, $args);
+
+	$request = wp_remote_post(MYARCADE_UPDATE_API, $request_string);
+
+	if (is_wp_error($request)) {
+		$res = new WP_Error('plugins_api_failed', __('An Unexpected HTTP Error occurred during the API request.</p> <p><a href="?" onclick="document.location.reload(); return false;">Try again</a>'), $request->get_error_message());
+	} else {
+		$res = unserialize($request['body']);
+
+		if ($res === false) {
+			$res = new WP_Error('plugins_api_failed', __('An unknown error occurred'), $request['body']);
+    }
+	}
+
+	return $res;
+}
+add_filter('plugins_api', 'myarcade_api_call', 10, 3);
+
+/**
+ * Create request query for the update check
+ *
+ * @version 5.13.0
+ * @access  public
+ * @param   string $action
+ * @param   array  $args
+ * @return  array
+ */
+function prepare_request( $action, $args ) {
+	global $wp_version;
+
+	return array (
+      'body' => array (
+      'action' => $action,
+      'request' => serialize($args),
+      'url' => get_bloginfo('url'),
+      'item' => 'myarcadeplugin-lite',
+    ),
+    'user-agent' => 'WordPress/' . $wp_version . '; ' . get_bloginfo('url')
+  );
+}
+
+/**
  * Show a game
  *
  * @version 5.13.0
@@ -404,13 +576,14 @@ function myarcade_show_game($game) {
     $leader = 'disabled';
   }
 
-  $play_url = MYARCADE_CORE_URL.'/playgame.php?gameid='.$game->id;
+  $play_url = MYARCADE_URL.'/core/playgame.php?gameid='.$game->id;
+  $edit_url = MYARCADE_URL.'/core/editgame.php?gameid='.$game->id;
 
   // Buttons
   $publish     = "<button class=\"button-secondary\" onclick = \"jQuery('#gstatus_$game->id').html('<div class=\'gload\'> </div>');jQuery.post('".admin_url('admin-ajax.php')."',{action:'myarcade_handler',gameid:'$game->id',func:'publish'},function(data){jQuery('#gstatus_$game->id').html(data);});\">".__("Publish", 'myarcadeplugin')."</button>&nbsp;";
   $draft     = "<button class=\"button-secondary\" onclick = \"jQuery('#gstatus_$game->id').html('<div class=\'gload\'> </div>');jQuery.post('".admin_url('admin-ajax.php')."',{action:'myarcade_handler',gameid:'$game->id',func:'draft'},function(data){jQuery('#gstatus_$game->id').html(data);});\">".__("Draft", 'myarcadeplugin')."</button>&nbsp;";
   $delete      = "<button class=\"button-secondary\" onclick = \"jQuery('#gstatus_$game->id').html('<div class=\'gload\'> </div>');jQuery.post('".admin_url('admin-ajax.php')."',{action:'myarcade_handler',gameid:'$game->id',func:'delete'},function(data){jQuery('#gstatus_$game->id').html(data);});\">".__("Delete", 'myarcadeplugin')."</button>&nbsp;";
-  $delgame     = "<div class=\"myhelp\"><img style=\"cursor: pointer;border:none;padding:0;\" src='".MYARCADE_CORE_URL."/images/delete.png' alt=\"Remove game from the database\" onclick = \"jQuery('#gstatus_$game->id').html('<div class=\'gload\'> </div>');jQuery.post('".admin_url('admin-ajax.php')."',{action:'myarcade_handler',gameid:'$game->id',func:'remove'},function(){jQuery('#gamebox_$game->id').fadeOut('slow');});\" />
+  $delgame     = "<div class=\"myhelp\"><img style=\"cursor: pointer;border:none;padding:0;\" src='".MYARCADE_URL."/assets/images/delete.png' alt=\"Remove game from the database\" onclick = \"jQuery('#gstatus_$game->id').html('<div class=\'gload\'> </div>');jQuery.post('".admin_url('admin-ajax.php')."',{action:'myarcade_handler',gameid:'$game->id',func:'remove'},function(){jQuery('#gamebox_$game->id').fadeOut('slow');});\" />
                 <span class=\"myinfo\">".__("Remove this game from the database", 'myarcadeplugin')."</span></div>
  ";
 
@@ -591,9 +764,9 @@ function myarcade_show_game($game) {
 /**
  * MyArcade AJAX handler
  *
- * @version 5.3.2
+ * @version 5.13.0
  * @access  public
- * @return  void
+ * @return  [type] [description]
  */
 function myarcade_handler() {
   global $wpdb;
@@ -603,21 +776,20 @@ function myarcade_handler() {
     wp_die('You do not have permissions access this site!');
   }
 
-  $gameID = intval( filter_input( INPUT_POST, 'gameid' ) );
-  $action = sanitize_text_field( filter_input( INPUT_POST, 'func' ) );
+  if ( isset( $_POST['gameid']) ) {
+    $gameID = $_POST['gameid'];
+  }
 
-
-  switch ( $action ) {
+  switch ($_POST['func']) {
     /* Manage Games */
     case "publish":
     case "draft": {
-      if ( ! $gameID ) {
-        echo "No Game ID!";
-        die();
+      if ( !isset($gameID) || empty($gameID) ) {
+        echo "No Game ID!"; die();
       }
 
       // Publish this game
-      myarcade_add_games_to_blog( array('game_id' => $gameID, 'echo' => false, 'post_status' => $action ) );
+      myarcade_add_games_to_blog( array('game_id' => $gameID, 'echo' => false, 'post_status' => $_POST['func'] ) );
 
       // Get game status
       $status = $wpdb->get_var("SELECT status FROM ".$wpdb->prefix . 'myarcadegames'." WHERE id = '$gameID'");
@@ -625,7 +797,7 @@ function myarcade_handler() {
     } break;
 
     case "delete": {
-      if ( ! $gameID ) {
+      if ( !isset($gameID) || empty($gameID) ) {
         echo "No Game ID!";
         die();
       }
@@ -656,48 +828,45 @@ function myarcade_handler() {
     } break;
 
     case "remove": {
-      if ( ! $gameID ) {
+      if ( !isset($gameID) || empty($gameID) ) {
         echo "No Game ID!";
         die();
       }
 
       // Remove this game from mysql database
-      $query = "DELETE FROM ".$wpdb->prefix . 'myarcadegames'." WHERE id = {$gameID} LIMIT 1";
-      $wpdb->query( $query );
+      $query = "DELETE FROM ".$wpdb->prefix . 'myarcadegames'." WHERE id = $gameID LIMIT 1";
+      $wpdb->query($query);
       echo "removed";
     } break;
 
     /* Category Mapping */
     case "addmap": {
-      $mapping = intval( filter_input( INPUT_POST, 'mapcat' ) );
-      $feedcat = sanitize_text_field( filter_input( INPUT_POST, 'feedcat' ) );
-
-      if ( $mapping ) {
+      if (intval($_POST['mapcat']) > 0) {
         // Init var for map processing
         $map_category = true;
 
-        $section = sanitize_text_field( filter_input( INPUT_POST, 'section' ) );
+        $section = filter_input( INPUT_POST, 'section' );
 
         if ( 'general' == $section ) {
           // Get game_categories as array
           $feedcategories = get_option('myarcade_categories');
 
           for ($i=0; $i<count($feedcategories); $i++) {
-            if ( $feedcategories[$i]['Slug'] == $feedcat ) {
+            if ($feedcategories[$i]['Slug'] == $_POST['feedcat']) {
               if ( empty($feedcategories[$i]['Mapping']) ) {
-                $feedcategories[$i]['Mapping'] = $mapping;
+                $feedcategories[$i]['Mapping'] = $_POST['mapcat'];
               }
               else {
                 // Check, if this category is already mapped
                 $mapped_cats = explode(',', $feedcategories[$i]['Mapping']);
                 foreach ($mapped_cats as $mapped_cat) {
-                  if ($mapped_cat == $mapping ) {
+                  if ($mapped_cat == $_POST['mapcat']) {
                     $map_category = false;
                     break;
                   }
                 }
 
-                $feedcategories[$i]['Mapping'] = $feedcategories[$i]['Mapping'] . "," . $mapping;
+                $feedcategories[$i]['Mapping'] = $feedcategories[$i]['Mapping'] . "," . $_POST['mapcat'];
               }
 
               break;
@@ -711,17 +880,17 @@ function myarcade_handler() {
             $general= get_option('myarcade_general');
 
             if ( $general['post_type'] == 'post' ) {
-              $cat_name = get_cat_name( $mapping );
+              $cat_name = get_cat_name($_POST['mapcat']);
             } else {
               if (taxonomy_exists($general['custom_category'])) {
-                $cat_name_tax = get_term_by('id', $mapping, $general['custom_category']);
+                $cat_name_tax = get_term_by('id', $_POST['mapcat'], $general['custom_category']);
                 $cat_name = $cat_name_tax->name;
               }
             }
 
             ?>
-            <span id="general_delmap_<?php echo $mapping; ?>_<?php echo $feedcategories[$i]['Slug']; ?>" class="remove_map">
-              <img style="flaot:left;top:4px;position:relative;" src="<?php echo MYARCADE_CORE_URL; ?>/images/remove.png" alt="UnMap" onclick="myabp_del_map('<?php echo $mapping; ?>', '<?php echo $feedcategories[$i]['Slug']; ?>', 'general')" />&nbsp;<?php echo $cat_name; ?>
+            <span id="general_delmap_<?php echo $_POST['mapcat']; ?>_<?php echo $feedcategories[$i]['Slug']; ?>" class="remove_map">
+              <img style="flaot:left;top:4px;position:relative;" src="<?php echo MYARCADE_URL; ?>/assets/images/remove.png" alt="UnMap" onclick="myabp_del_map('<?php echo $_POST['mapcat']; ?>', '<?php echo $feedcategories[$i]['Slug']; ?>', 'general')" />&nbsp;<?php echo $cat_name; ?>
             </span>
             <?php
           }
@@ -730,10 +899,7 @@ function myarcade_handler() {
     } break;
 
     case "delmap": {
-      $mapcat = intval( filter_input( INPUT_POST, 'mapcat' ) );
-      $feedcat = sanitize_text_field( filter_input( INPUT_POST, 'feedcat' ) );
-
-      if ( $mapcat ) {
+      if ( intval($_POST['mapcat']) > 0 ) {
         $update_mapping = false;
 
         $section = filter_input( INPUT_POST, 'section' );
@@ -743,11 +909,11 @@ function myarcade_handler() {
           $feedcategories = get_option('myarcade_categories');
 
           for ($i=0; $i<count($feedcategories); $i++) {
-            if ( $feedcategories[$i]['Slug'] == $feedcat ) {
+            if ($feedcategories[$i]['Slug'] == $_POST['feedcat']) {
               $mapped_cats = explode(',', $feedcategories[$i]['Mapping']);
 
               for($j=0; $j<count($mapped_cats); $j++) {
-                if ( $mapped_cats[$j] == $mapcat ) {
+                if ($mapped_cats[$j] == $_POST['mapcat']) {
                   unset($mapped_cats[$j]);
                   $feedcategories[$i]['Mapping'] = implode(',', $mapped_cats);
                   $update_mapping = true;
@@ -805,12 +971,10 @@ function myarcade_handler() {
     } break;
 
     case "delete_score": {
-      $scoreid = intval( filter_input( INPUT_POST, 'scoreid' ) );
-
-      if ( $scoreid ) {
+      if ( isset( $_POST['scoreid'] ) ) {
 
         // get score
-        $old_score = $wpdb->get_row("SELECT * FROM ".$wpdb->prefix.'myarcadescores'." WHERE id = '{$scoreid}'");
+        $old_score = $wpdb->get_row("SELECT * FROM ".$wpdb->prefix.'myarcadescores'." WHERE id = '{$_POST['scoreid']}'");
         // Get highscore
         $highscore = $wpdb->get_row("SELECT * FROM ".$wpdb->prefix.'myarcadehighscores'." WHERE game_tag = '{$old_score->game_tag}' AND user_id = '{$old_score->user_id}' AND score = '{$old_score->score}'");
 
@@ -821,12 +985,12 @@ function myarcade_handler() {
         }
 
 
-        $wpdb->query("DELETE FROM ".$wpdb->prefix.'myarcadescores'." WHERE id = '".$scoreid."'");
+        $wpdb->query("DELETE FROM ".$wpdb->prefix.'myarcadescores'." WHERE id = '".$_POST['scoreid']."'");
       }
     } break;
 
     case "delete_game_scores": {
-      $game_tag = sanitize_text_field( filter_input( INPUT_POST, 'game_tag' ) );
+      $game_tag = filter_input( INPUT_POST, 'game_tag' );
 
       if ( $game_tag ) {
         $wpdb->query( "DELETE FROM " . $wpdb->prefix.'myarcadescores' . " WHERE game_tag = '{$game_tag}'" );
@@ -835,13 +999,11 @@ function myarcade_handler() {
     } break;
 
     case "dircheck": {
-      $directory = sanitize_text_field( filter_input( INPUT_POST, 'directory' ) );
-
-      if ( $directory ) {
+      if ( isset( $_POST['directory'] ) ) {
 
         $upload_dir = myarcade_upload_dir();
 
-        if ( $directory == 'games' ) {
+        if ( $_POST['directory'] == 'games' ) {
           if ( !is_writable( $upload_dir['gamesdir'] ) ) {
             echo '<p class="mabp_error mabp_680">'.sprintf(__("The games directory '%s' must be writeable (chmod 777) in order to download games.", 'myarcadeplugin'), $upload_dir['gamesdir']).'</p>';
           }
@@ -852,10 +1014,6 @@ function myarcade_handler() {
         }
       }
     } break;
-
-    default:
-      // Do nothing
-    break;
   }
 
   wp_die();
@@ -951,4 +1109,49 @@ function myarcade_create_directories() {
   @wp_mkdir_p( $upload_dir['gamesdir'] . '/uploads/phpbb' );
   @wp_mkdir_p( $upload_dir['gamesdir'] . '/uploads/unity' );
 }
+
+/**
+ * Display the tracking message notification
+ *
+ * @version 5.30.0
+ * @return  void
+ */
+function myarcade_tracking_message( $show_skip_button = true ) {
+  ?>
+  <div class="myarcade_message myarcade_notice">
+    <h3><?php _e("MyArcadePlugin Stats", 'myarcadeplugin'); ?></h3>
+    <p>
+      <?php printf( __( 'Enable site statistics to collect <strong>game plays and play duration</strong> for each game. This will help you to optimize your site and to get a better overview of your visitors. By enabling this feature MyArcadePlugin will collect and send us non-sensitive diagnostic data and usage information. Those data will help us to make MyArcadePlugin even better. %1$sFind out more%2$s.', 'myarcadeplugin' ), '<a href="https://myarcadeplugin.com/usage-tracking/" target="_blank">', '</a>' ); ?></p>
+    <p class="submit">
+      <a class="button-primary button button-large" href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'myarcade_tracker_optin', 'true' ), 'myarcade_tracker_optin', 'myarcade_tracker_nonce' ) ); ?>"><?php esc_html_e( 'Enable', 'myarcadeplugin' ); ?></a>
+      <?php if ( $show_skip_button ) : ?>
+      <a class="button-secondary button button-large skip"  href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'myarcade_tracker_optout', 'true' ), 'myarcade_tracker_optout', 'myarcade_tracker_nonce' ) ); ?>"><?php esc_html_e( 'No thanks', 'myarcadeplugin' ); ?></a>
+      <?php endif; ?>
+    </p>
+  </div>
+<?php
+}
+
+/**
+ * Handles tracker opt in/out
+ *
+ * @version 5.30.0
+ * @return  void
+ */
+function myarcade_tracker_optin() {
+
+  $optin  = filter_input( INPUT_GET, 'myarcade_tracker_optin' );
+  $optout = filter_input( INPUT_GET, 'myarcade_tracker_optout' );
+  $nonce  = filter_input( INPUT_GET, 'myarcade_tracker_nonce' );
+
+  if ( $optin && wp_verify_nonce( $nonce, 'myarcade_tracker_optin' ) ) {
+    update_option( 'myarcade_allow_tracking', 'yes' );
+    MyArcade_Tracker::send_tracking_data();
+  }
+  elseif ( $optout && wp_verify_nonce( $nonce, 'myarcade_tracker_optout' ) ) {
+    update_option( 'myarcade_allow_tracking', 'no' );
+    delete_option( 'myarcade_tracker_last_send' );
+  }
+}
+add_action( 'admin_init', 'myarcade_tracker_optin' );
 ?>

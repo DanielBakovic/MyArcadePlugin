@@ -22,7 +22,7 @@ function myarcade_save_settings_softgames() {
   $settings['category'] = filter_input( INPUT_POST, 'softgames_category' );
   $settings['publisher_id'] = filter_input( INPUT_POST, 'softgames_publisher_id' );
   $settings['thumbnail'] = filter_input( INPUT_POST, 'softgames_thumbnail' );
-  $settings['language'] = 'en'; //filter_input( INPUT_POST, 'softgames_language' );
+  $settings['language'] = filter_input( INPUT_POST, 'softgames_language' );
   $settings['cron_publish'] = filter_input( INPUT_POST, 'softgames_cron_publish', FILTER_VALIDATE_BOOLEAN );
   $settings['cron_publish_limit'] = filter_input( INPUT_POST, 'softgames_cron_publish_limit', FILTER_VALIDATE_INT, array( "options" => array( "default" => 1) ) );
 
@@ -33,7 +33,7 @@ function myarcade_save_settings_softgames() {
 /**
  * Display distributor settings on admin page
  *
- * @version 5.19.0
+ * @version 5.28.0
  * @since   5.19.0
  * @access  public
  * @return  void
@@ -116,13 +116,11 @@ function myarcade_settings_softgames() {
           <td><i><?php _e("Select a thumbnail size.", 'myarcadeplugin'); ?></i></td>
         </tr>
 
-        <?php /*
         <tr><td colspan="2"><h3><?php _e("Language", 'myarcadeplugin'); ?></h3></td></tr>
 
         <tr>
           <td>
             <select size="1" name="softgames_language" id="softgames_language">
-              <option value="nl" <?php myarcade_selected($softgames['language'], 'nl'); ?> ><?php _e("Dutch", 'myarcadeplugin'); ?></option>
               <option value="en" <?php myarcade_selected($softgames['language'], 'en'); ?> ><?php _e("English", 'myarcadeplugin'); ?></option>
               <option value="fr" <?php myarcade_selected($softgames['language'], 'fr'); ?> ><?php _e("French", 'myarcadeplugin'); ?></option>
               <option value="de" <?php myarcade_selected($softgames['language'], 'de'); ?> ><?php _e("German", 'myarcadeplugin'); ?></option>
@@ -132,12 +130,11 @@ function myarcade_settings_softgames() {
               <option value="ru" <?php myarcade_selected($softgames['language'], 'ru'); ?> ><?php _e("Russian", 'myarcadeplugin'); ?></option>
               <option value="es" <?php myarcade_selected($softgames['language'], 'es'); ?> ><?php _e("Spanish", 'myarcadeplugin'); ?></option>
               <option value="tr" <?php myarcade_selected($softgames['language'], 'tr'); ?> ><?php _e("Turkish", 'myarcadeplugin'); ?></option>
+              <option value="th" <?php myarcade_selected($softgames['language'], 'th'); ?> ><?php _e("Thai", 'myarcadeplugin'); ?></option>
             </select>
           </td>
           <td><i><?php _e("Select a game language.", 'myarcadeplugin'); ?></i></td>
         </tr>
-        */
-        ?>
 
         <tr><td colspan="2"><h3><?php _e("Automated Game Publishing", 'myarcadeplugin'); ?></h3></td></tr>
 
@@ -187,7 +184,7 @@ function myarcade_default_settings_softgames() {
 /**
  * Fetch games
  *
- * @version 5.19.0
+ * @version 5.27.1
  * @since   5.19.0
  * @access  public
  * @param   array  $args Fetching parameters
@@ -201,8 +198,8 @@ function myarcade_feed_softgames( $args = array() ) {
     'settings' => array(),
   );
 
-  $r = wp_parse_args( $args, $defaults );
-  extract($r);
+  $args = wp_parse_args( $args, $defaults );
+  extract($args);
 
   $new_games = 0;
   $add_game = false;
@@ -238,118 +235,104 @@ function myarcade_feed_softgames( $args = array() ) {
   if ( !empty($json_games->channel->games ) ) {
     foreach ( $json_games->channel->games as $game_obj ) {
 
-      // Check the keyword filter before we do anything else
-      if ( ! empty( $settings['keyword_filter'] ) ) {
-        if ( ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->title ) ) && ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->description ) ) ) {
-          // Filter failed. Skip game
-          continue;
-        }
-      }
-
       $game = new stdClass();
       $game->uuid     = crc32( $game_obj->title ) . '_softgames';
       // Generate a game tag for this game
       $game->game_tag = md5( $game_obj->title . 'softgames' );
 
-      // Check, if this game is present in the games table
-      $duplicate_game = $wpdb->get_var("SELECT id FROM ".$wpdb->prefix . 'myarcadegames'." WHERE uuid = '".$game->uuid."' OR game_tag = '".$game->game_tag."' OR name = '".esc_sql($game_obj->title)."'");
+      $add_game   = false;
 
-      if ( !$duplicate_game ) {
-        // Check game categories and add game if it's category has been selected
-        $add_game   = false;
+      // Transform some categories
+      $categories_string = 'Other';
 
-        // Transform some categories
+      if ( preg_match('[Action|Jump]', $game_obj->type ) ) {
+        $categories_string = 'Action';
+      }
+      elseif ( preg_match('[Arcade]',  $game_obj->type ) ) {
+        $categories_string = 'Arcade';
+      }
+      elseif ( preg_match('[Board|Card|Classic]', $game_obj->type ) ) {
+        $categories_string = 'Board Game';
+      }
+      elseif ( preg_match('[Girls]', $game_obj->type ) ) {
+        $categories_string = 'Customize';
+      }
+      elseif ( preg_match('[Puzzles|Word]', $game_obj->type ) ) {
+        $categories_string = 'Puzzles';
+      }
+      elseif ( preg_match('[Sports]', $game_obj->type ) ) {
+        $categories_string = 'Sports';
+      }
+      elseif ( preg_match('[Racing]', $game_obj->type ) ) {
+        $categories_string = 'Driving';
+      }
+      else {
         $categories_string = 'Other';
+      }
 
-        if ( preg_match('[Action|Jump]', $game_obj->type ) ) {
-          $categories_string = 'Action';
+      foreach ( $feedcategories as $feedcat ) {
+        if ( ($feedcat['Name'] == $categories_string) && ($feedcat['Status'] == 'checked') ) {
+          $add_game = true;
+          break;
         }
-        elseif ( preg_match('[Arcade]',  $game_obj->type ) ) {
-          $categories_string = 'Arcade';
-        }
-        elseif ( preg_match('[Board|Card|Classic]', $game_obj->type ) ) {
-          $categories_string = 'Board Game';
-        }
-        elseif ( preg_match('[Girls]', $game_obj->type ) ) {
-          $categories_string = 'Customize';
-        }
-        elseif ( preg_match('[Puzzles|Word]', $game_obj->type ) ) {
-          $categories_string = 'Puzzles';
-        }
-        elseif ( preg_match('[Sports]', $game_obj->type ) ) {
-          $categories_string = 'Sports';
-        }
-        elseif ( preg_match('[Racing]', $game_obj->type ) ) {
-          $categories_string = 'Driving';
-        }
-        else {
-          $categories_string = 'Other';
-        }
+      }
 
-        foreach ( $feedcategories as $feedcat ) {
-          if ( ($feedcat['Name'] == $categories_string) && ($feedcat['Status'] == 'checked') ) {
-            $add_game = true;
-            break;
-          }
+      if ( ! $add_game ) {
+        continue;
+      }
+
+      // We need valid game dimensions
+      // Init dimensions for a portrait game
+      $game->width = 588;
+      $game->height = 800;
+
+      // Now check game dimensions and overwrite values if required
+      if ( isset( $game_obj->iframeMaxResolution ) ) {
+        $dimensions = explode( 'x', $game_obj->iframeMaxResolution );
+
+        if ( ! empty($dimensions) ) {
+          $game->width = esc_sql( $dimensions[0] );
+          $game->height = esc_sql( $dimensions[1] );
         }
+      }
+      elseif ( isset( $game_obj->landscape) && $game_obj->landscape ) {
+        $game->width = 800;
+        $game->height = 588;
+      }
 
-        if ( ! $add_game ) {
-          continue;
-        }
+      $game_url_parts = explode( '?p', $game_obj->link );
 
-        // We need valid game dimensions
-        // Init dimensions for a portrait game
-        $game->width = 588;
-        $game->height = 800;
+      $game_url = $game_url_parts[0];
 
-        // Now check game dimensions and overwrite values if required
-        if ( isset( $game_obj->iframeMaxResolution ) ) {
-          $dimensions = explode( 'x', $game_obj->iframeMaxResolution );
+      $language = $settings['language'];
+      if ( isset( $game_obj->descriptions[0]->$language ) ) {
+        $description = $game_obj->descriptions[0]->$language;
+      }
+      else {
+        $description = '';
+      }
 
-          if ( ! empty($dimensions) ) {
-            $game->width = esc_sql( $dimensions[0] );
-            $game->height = esc_sql( $dimensions[1] );
-          }
-        }
-        elseif ( isset( $game_obj->landscape) && $game_obj->landscape ) {
-          $game->width = 800;
-          $game->height = 588;
-        }
+      $game->type        = 'softgames';
+      $game->name        = esc_sql($game_obj->title);
+      $game->slug        = myarcade_make_slug($game_obj->title);
+      $game->description = esc_sql($description);
+      $game->categs      = $categories_string;
+      $game->swf_url     = esc_sql( myarcade_maybe_ssl( $game_url ) );
+      $game->screen1_url = ! empty($game_obj->screenshots->screenshoturl_1) ? myarcade_maybe_ssl( $game_obj->screenshots->screenshoturl_1 ) : '';
+      $game->screen2_url = ! empty($game_obj->screenshots->screenshoturl_2) ? myarcade_maybe_ssl( $game_obj->screenshots->screenshoturl_2 ) : '';
+      $game->screen3_url = ! empty($game_obj->screenshots->screenshoturl_3) ? myarcade_maybe_ssl( $game_obj->screenshots->screenshoturl_3 ) : '';
 
-        $game_url_parts = explode( '?p', $game_obj->link );
+      $thumb_size = $settings['thumbnail'];
+      if ( ! empty( $game_obj->$thumb_size ) ) {
+        $game->thumbnail_url = esc_sql( myarcade_maybe_ssl( $game_obj->$thumb_size ) );
+      }
+      else {
+        $game->thumbnail_url = esc_sql( myarcade_maybe_ssl( $game_obj->thumbBig ) );
+      }
 
-        $game_url = $game_url_parts[0];
-
-        $language = $settings['language'];
-        if ( isset( $game_obj->descriptions[0]->$language ) ) {
-          $description = $game_obj->descriptions[0]->$language;
-        }
-        else {
-          $description = '';
-        }
-
-        $game->type        = 'softgames';
-        $game->name        = esc_sql($game_obj->title);
-        $game->slug        = myarcade_make_slug($game_obj->title);
-        $game->description = esc_sql($description);
-        $game->categs      = $categories_string;
-        $game->swf_url     = esc_sql( $game_url );
-        $game->screen1_url = ! empty($game_obj->screenshots->screenshoturl_1) ? $game_obj->screenshots->screenshoturl_1 : '';
-        $game->screen2_url = ! empty($game_obj->screenshots->screenshoturl_2) ? $game_obj->screenshots->screenshoturl_2 : '';
-        $game->screen3_url = ! empty($game_obj->screenshots->screenshoturl_3) ? $game_obj->screenshots->screenshoturl_3 : '';
-
-        $thumb_size = $settings['thumbnail'];
-        if ( ! empty( $game_obj->$thumb_size ) ) {
-          $game->thumbnail_url = esc_sql( $game_obj->$thumb_size );
-        }
-        else {
-          $game->thumbnail_url = esc_sql( $game_obj->thumbBig );
-        }
-
+      // Add game to the database
+      if ( myarcade_add_fetched_game( $game, $args ) ) {
         $new_games++;
-
-        // Add game to the database
-        myarcade_add_fetched_game( $game, $echo );
       }
     }
   }

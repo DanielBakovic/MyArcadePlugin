@@ -13,12 +13,14 @@ if( !defined( 'ABSPATH' ) ) {
 /**
  * Installation function
  *
- * @version 5.19.0
+ * @version 5.30.0
  * @access  public
  * @return  void
  */
 function myarcade_install() {
   global $wpdb, $wp_version;
+
+  require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
   $collate = '';
 
@@ -66,7 +68,6 @@ function myarcade_install() {
       PRIMARY KEY  (`id`)
     ) $collate;";
 
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
   }
 
@@ -83,7 +84,7 @@ function myarcade_install() {
   myarcade_update_categories();
 
   // Check for upgrade to the new settings structure
-  if ( !get_option('myarcade_version') ) {
+  if ( ! get_option('myarcade_version') ) {
     update_option('myarcade_version', MYARCADE_VERSION);
   }
   else {
@@ -109,7 +110,6 @@ function myarcade_install() {
       PRIMARY KEY  (`id`)
     ) $collate;";
 
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
   }
   else {
@@ -128,7 +128,6 @@ function myarcade_install() {
       PRIMARY KEY  (`id`)
     ) $collate;";
 
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
   }
 
@@ -147,7 +146,6 @@ function myarcade_install() {
       PRIMARY KEY  (`id`)
     ) $collate;";
 
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
   }
 
@@ -162,15 +160,32 @@ function myarcade_install() {
       PRIMARY KEY  (`id`)
     ) $collate;";
 
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
   }
+
+  // Create the stats table
+  $sql = "CREATE TABLE {$wpdb->prefix}myarcade_plays (
+    ID bigint(20) NOT NULL auto_increment,
+    post_id bigint(20) NOT NULL,
+    user_id bigint(20) default NULL,
+    date datetime NOT NULL default '0000-00-00 00:00:00',
+    duration bigint(20) default NULL,
+    PRIMARY KEY  (ID),
+    KEY post_id (post_id),
+    KEY user_id (user_id)
+  ) $collate;";
+
+  dbDelta( $sql );
 
   myarcade_create_directories();
 
   // Add plugin installation date and variable for rating div
   add_option( 'myarcade_install_date', date('Y-m-d h:i:s') );
-  add_option( 'myarcade_rating_div', 'no' );
+
+  // Add plugin tracking optin option
+  add_option( 'myarcade_allow_tracking', 'unknown' );
+  // Register tracker send event
+  wp_schedule_event( time(), 'daily', 'myarcade_tracker_send_event' );
 }
 
 /**
@@ -505,10 +520,11 @@ function myarcade_update_categories() {
 /**
  * Uninstall MyArcadePlugin
  *
- * @version 5.13.0
+ * @version 5.30.0
  * @access  public
  * @return  void
  */
 function myarcade_uninstall() {
+  wp_clear_scheduled_hook( 'myarcade_tracker_send_event' );
 }
 ?>

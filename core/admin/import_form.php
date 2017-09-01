@@ -1,5 +1,6 @@
 <?php defined('MYARCADE_VERSION') or die(); ?>
 <?php // UPLOAD Game  ?>
+<?php $loading_image = MYARCADE_URL . '/assets/images/loading.gif'; ?>
 <div id="importswfdcr">
  <h2><?php _e("Add SWF or DCR Game", 'myarcadeplugin'); ?></h2>
  <h2 class="box"><?php _e("Game Files", 'myarcadeplugin'); ?></h2>
@@ -26,7 +27,7 @@
           <td>
              <p style="font-style:italic;margin:5px 0;"><?php _e("<strong>OR</strong> select an already uploaded file to (games/uploads/swf).", 'myarcadeplugin'); ?></p>
             <div id="swf" style="min-height:30px">
-              <img class="loadimg" src="<?php echo MYARCADE_CORE_URL?>/images/loading.gif" style="display:none" />
+              <img class="loadimg" src="<?php echo $loading_image; ?>" style="display:none" />
               <input type="button" id="folderswf" class="button-secondary fileselection" value="<?php _e("Select from folder", 'myarcadeplugin'); ?>" />
               <input type="button" class="button-secondary cancelselection" value="<?php _e("Cancel", 'myarcadeplugin'); ?>" style="display:none" />
             </div>
@@ -43,7 +44,7 @@
           <p>
             <input type="submit" class="button button-primary" class="button button-primary" id="swfupload" name="swfupload" value="<?php _e('Add File', 'myarcadeplugin'); ?>" />
           </p>
-          <img id="loadimgswf" src="<?php echo MYARCADE_CORE_URL?>/images/loading.gif" style="display:none;" />
+          <img id="loadimgswf" src="<?php echo $loading_image; ?>" style="display:none;" />
           <div id="filename"></div>
         </td>
         </tr>
@@ -52,6 +53,32 @@
   </div>
 </form>
 </div>
+
+<?php
+/**
+ * TAR IMPORT
+ */
+ ?>
+<div id="importibparcade">
+  <?php // UPLOAD TAR Game  ?>
+     <h2><?php _e("Add IBPArcade Game", 'myarcadeplugin'); ?></h2>
+     <div class="container">
+     <?php myarcade_premium_message(); ?>
+     </div>
+  </div>
+
+<?php
+/**
+ * PHPBB IMPORT
+ */
+ ?>
+<div id="importphpbb">
+  <?php // UPLOAD TAR Game  ?>
+     <h2><?php _e("Add ZIP Game (PHPBB, Mochi) ", 'myarcadeplugin'); ?></h2>
+     <div class="container">
+     <?php myarcade_premium_message(); ?>
+     </div>
+  </div>
 
 
 <?php // IMPORT EMBED / IFRAME GAME ?>
@@ -79,7 +106,7 @@
           <p>
             <input type="submit" id="emifupload" name="emifupload" value="<?php _e('Add Code', 'myarcadeplugin'); ?>" />
           </p>
-          <img id="loadimgemif" src="<?php echo MYARCADE_CORE_URL?>/images/loading.gif" style="display:none;" />
+          <img id="loadimgemif" src="<?php echo $loading_image; ?>" style="display:none;" />
           <div id="filenameemif"></div>
         </td>
         </tr>
@@ -89,6 +116,20 @@
   </div>
 </form>
 </div>
+
+<?php
+/**
+ * UNITY IMPORT
+ */
+ ?>
+<div id="importunity">
+  <?php // UPLOAD Unity Game  ?>
+     <h2><?php _e("Add Unity3D Game", 'myarcadeplugin'); ?></h2>
+     <div class="container">
+     <?php myarcade_premium_message(); ?>
+     </div>
+  </div>
+
 
 <?php // UPLOAD THUMB ?>
 <div id="thumbform">
@@ -118,7 +159,7 @@
           <p>
             <input type="submit" class="button button-primary" id="thumbupload" name="thumbupload" value="<?php _e('Add File', 'myarcadeplugin'); ?>" />
           </p>
-          <img id="loadimgthumb" src="<?php echo MYARCADE_CORE_URL?>/images/loading.gif" style="display:none;" />
+          <img id="loadimgthumb" src="<?php echo $loading_image; ?>" style="display:none;" />
           <div id="filenamethumb"></div>
         </td>
         </tr>
@@ -199,7 +240,7 @@
               <p>
                 <input type="submit" class="button button-primary" id="screenupload" name="screenupload" value="<?php _e('Add File(s)', 'myarcadeplugin'); ?>" />
               </p>
-               <img id="loadimgscreen" src="<?php echo MYARCADE_CORE_URL?>/images/loading.gif" style="display:none;" />
+               <img id="loadimgscreen" src="<?php echo $loading_image; ?>" style="display:none;" />
               <div id="filenamescreen"></div>
             </td>
           </tr>
@@ -272,7 +313,7 @@
           </tr>
           <tr>
             <td>
-              <textarea rows="6" cols="80" name="gamedescr" id="gamedescr"></textarea>
+              <?php wp_editor( '', 'gamedescr', array( 'editor_height' => 200, 'media_buttons' => false, 'teeny' => true, ) ); ?>
               <br />
               <i><?php _e("Enter description of the game (a unique description can help improve search engine ranking).", 'myarcadeplugin'); ?></i>
             </td>
@@ -289,7 +330,7 @@
           </tr>
           <tr>
             <td>
-              <textarea rows="6" cols="80" name="gameinstr" id="gameinstr"></textarea>
+              <?php wp_editor( '', 'gameinstr', array( 'editor_height' => 200, 'media_buttons' => false, 'teeny' => true, ) ); ?>
               <br />
               <i><?php _e("Write brief instructions on how to play the game.", 'myarcadeplugin'); ?></i>
             </td>
@@ -399,8 +440,6 @@
                 <option value="high"><?php _e("DESC (High to Low)", 'myarcadeplugin'); ?></option>
                 <option value="low"><?php _e("ASC (Low to High)", 'myarcadeplugin'); ?></option>
               </select>
-              <br /><br />
-              <input type="checkbox" name="score_bridge" value="gamersafe" />&nbsp;<i><?php _e("GamerSafe Support - Check this if the game has GamerSafe Data Bridge integrated.", 'myarcadeplugin'); ?></i>
             </td>
           </tr>
         </table>

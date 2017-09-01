@@ -19,6 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function myarcade_settings_spilgames() {
   $spilgames = myarcade_get_settings( 'spilgames' );
+  $defaults = myarcade_default_settings_spilgames();
+  $spilgames = wp_parse_args( $spilgames, $defaults );
   ?>
   <h2 class="trigger"><?php _e("Spil Games", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -29,10 +31,6 @@ function myarcade_settings_spilgames() {
             <i>
               <?php printf( __( "%s distributes Flash and HTML5 games.", 'myarcadeplugin' ), '<a href="http://publishers.spilgames.com/" target="_blank">Spil Games</a>' ); ?>
             </i>
-            <br /><br />
-            <p class="mabp_info" style="padding:10px">
-              <?php _e("Some 'Spil Games' games have a domain lock. That means that they will not work if you host game files on your server. Therby it is recommended to deactivate Game Download Feature when publishing these games.", 'myarcadeplugin'); ?>
-            </p>
           </td>
         </tr>
 
@@ -50,6 +48,18 @@ function myarcade_settings_spilgames() {
             <input type="text" size="40"  name="spilgameslimit" value="<?php echo $spilgames['limit']; ?>" />
           </td>
           <td><i><?php _e("How many games should be fetched at once. Enter 'all' (without quotes) if you want to fetch all games. Otherwise enter an integer.", 'myarcadeplugin'); ?></i></td>
+        </tr>
+
+        <tr><td colspan="2"><h3><?php _e("Platform", 'myarcadeplugin'); ?></h3></td></tr>
+
+        <tr>
+          <td>
+            <select size="1" name="spilgames_platform" id="spilgames_platform">
+              <option value="Crossplatform" <?php myarcade_selected( $spilgames['platform'], 'Crossplatform'); ?> ><?php _e( "Cross platform", 'myarcadeplugin'); ?></option>
+              <option value="Desktop" <?php myarcade_selected($spilgames['platform'], 'Desktop'); ?> ><?php _e("Desktop", 'myarcadeplugin'); ?></option>
+            </select>
+          </td>
+          <td><i><?php _e("Select the game compatibility. Cross platform games can be played on mobile and desktop devices.", 'myarcadeplugin'); ?></i></td>
         </tr>
 
         <tr><td colspan="2"><h3><?php _e("Thumbnail Size", 'myarcadeplugin'); ?></h3></td></tr>
@@ -127,6 +137,7 @@ function myarcade_default_settings_spilgames() {
   return array(
     'feed'          => 'http://publishers.spilgames.com/rss-3',
     'limit'         => '20',
+    'platform'      => 'Crossplatform',
     'thumbsize'     => '1',
     'player_api'    => false,
     'cron_fetch'    => false,
@@ -140,25 +151,27 @@ function myarcade_default_settings_spilgames() {
 /**
  * Handle distributor settings update
  *
- * @version 5.19.0
+ * @version 5.26.0
  * @access  public
  * @return  void
  */
 function myarcade_save_settings_spilgames() {
 
   myarcade_check_settings_nonce();
+  $defaults = myarcade_default_settings_spilgames();
 
   // Spil Games Settings
   $spilgames = array();
-  if ( isset($_POST['spilgamesurl'])) $spilgames['feed'] = esc_url_raw($_POST['spilgamesurl']); else $spilgames['feed'] = '';
-  if ( isset($_POST['spilgameslimit'])) $spilgames['limit'] = sanitize_text_field($_POST['spilgameslimit']); else $spilgames['limit'] = '20';
-  if ( isset($_POST['spilgamesthumbsize'])) $spilgames['thumbsize'] = trim($_POST['spilgamesthumbsize']); else $spilgames['thumbsize'] = 'small';
+  $spilgames['feed'] = esc_url_raw( filter_input( INPUT_POST, 'spilgamesurl', FILTER_DEFAULT, array( "options" => array( "default" => $defaults['feed'] ) ) ) );
+  $spilgames['limit'] = intval( filter_input( INPUT_POST, 'spilgameslimit', FILTER_DEFAULT, array( "options" => array( "default" => $defaults['limit'] ) ) ) );
+  $spilgames['thumbsize'] = esc_sql( filter_input( INPUT_POST, 'spilgamesthumbsize', FILTER_DEFAULT, array( "options" => array( "default" => $defaults['thumbsize'] ) ) ) );
 
   $spilgames['cron_fetch']          = (isset($_POST['spilgames_cron_fetch'])) ? true : false;
   $spilgames['cron_fetch_limit']    = (isset($_POST['spilgames_cron_fetch_limit']) ) ? intval($_POST['spilgames_cron_fetch_limit']) : 1;
   $spilgames['cron_publish']        = (isset($_POST['spilgames_cron_publish']) ) ? true : false;
   $spilgames['cron_publish_limit']  = (isset($_POST['spilgames_cron_publish_limit']) ) ? intval($_POST['spilgames_cron_publish_limit']) : 1;
   $spilgames['player_api'] = (isset($_POST['spilgames_player_api'])) ? true : false;
+  $spilgames['platform'] = esc_sql( filter_input( INPUT_POST, 'spilgames_platform' ) );
 
   // Update Settings
   update_option('myarcade_spilgames', $spilgames);
@@ -208,6 +221,8 @@ function myarcade_get_fetch_options_spilgames() {
 
   // Get distributor settings
   $settings = myarcade_get_settings( 'spilgames' );
+  $defaults = myarcade_default_settings_spilgames();
+  $settings = wp_parse_args( $settings, $defaults );
 
   $settings['search'] = '';
   $settings['method'] = 'latest';
@@ -258,7 +273,7 @@ function myarcade_get_categories_spilgames() {
 /**
  * Fetch SpilGames games
  *
- * @version 5.15.0
+ * @version 5.26.0
  * @access  public
  * @param   array  $args Fetching parameters
  * @return  void
@@ -271,9 +286,8 @@ function myarcade_feed_spilgames( $args = array() ) {
     'settings' => array()
   );
 
-  $r = wp_parse_args( $args, $defaults );
-
-  extract($r);
+  $args = wp_parse_args( $args, $defaults );
+  extract($args);
 
   $new_games = 0;
   $add_game = false;
@@ -302,6 +316,9 @@ function myarcade_feed_spilgames( $args = array() ) {
     $feed = add_query_arg( array("limit" => $settings['limit'] ), $feed );
   }
 
+  // Add platform query
+  $feed = add_query_arg( array( "platform" => $settings['platform'] ), $feed );
+
   if ( $settings['method'] == 'offset' ) {
     $feed = add_query_arg( array("page" => $settings['offset'] ), $feed );
   }
@@ -327,126 +344,120 @@ function myarcade_feed_spilgames( $args = array() ) {
 
     foreach ($json_games->entries as $game_obj) {
 
-      // Check the keyword filter before we do anything else
-      if ( ! empty( $settings['keyword_filter'] ) ) {
-        if ( ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->title ) ) && ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->description ) ) ) {
-          // Filter failed. Skip game
-          continue;
-        }
-      }
-
       $game = new stdClass();
-
       $game->uuid = $game_obj->id . '_spilgames';
       // Generate a game tag for this game
       $game->game_tag = md5($game_obj->id . 'spilgames');
 
-      // Check, if this game is present in the games table
-      $duplicate_game = $wpdb->get_var("SELECT id FROM ".$wpdb->prefix . 'myarcadegames'." WHERE uuid = '".$game->uuid."' OR game_tag = '".$game->game_tag."' OR name = '".esc_sql( $game_obj->title )."'");
+      $add_game   = false;
 
-      if ( !$duplicate_game ) {
-        // Check game categories and add game if it's category has been selected
+      // Map ategories
+      if ( ! empty($game_obj->category) ) {
+        $categories = explode(',', $game_obj->category);
+        $categories = array_map( 'trim', $categories );
+      }
+      else {
+        $categories = array( 'Other' );
+      }
 
-        $add_game   = false;
+      // Initialize the category string
+      $categories_string = 'Other';
 
-        // Map ategories
-        if ( ! empty($game_obj->category) ) {
-          $categories = explode(',', $game_obj->category);
-          $categories = array_map( 'trim', $categories );
-        }
-        else {
-          $categories = array( 'Other' );
-        }
+      foreach($categories as $gamecat) {
+        $gamecat = htmlspecialchars_decode ( trim($gamecat) );
 
-        // Initialize the category string
-        $categories_string = 'Other';
-
-        foreach($categories as $gamecat) {
-          $gamecat = htmlspecialchars_decode ( trim($gamecat) );
-
-          foreach ( $feedcategories as $feedcat ) {
-            if ( $feedcat['Status'] == 'checked' ) {
-              if ( ! empty( $spilgames_categories[ $feedcat['Name'] ] ) ) {
-                // Set category name to check
-                if ( $spilgames_categories[ $feedcat['Name'] ] === true ) {
-                  $cat_name = $feedcat['Name'];
-                }
-                else {
-                  $cat_name = $spilgames_categories[ $feedcat['Name'] ];
-                }
+        foreach ( $feedcategories as $feedcat ) {
+          if ( $feedcat['Status'] == 'checked' ) {
+            if ( ! empty( $spilgames_categories[ $feedcat['Name'] ] ) ) {
+              // Set category name to check
+              if ( $spilgames_categories[ $feedcat['Name'] ] === true ) {
+                $cat_name = $feedcat['Name'];
               }
-
-              if ( strpos( $cat_name, $gamecat ) !== false ) {
-                $add_game = true;
-                $categories_string = $feedcat['Name'];
-                break 2;
+              else {
+                $cat_name = $spilgames_categories[ $feedcat['Name'] ];
               }
             }
-          }
-        } // END - Category-Check
 
-        if (!$add_game) {
-          continue;
-        }
-
-        switch ( $spilgames['thumbsize'] ) {
-          case '1': {
-            $thumbnail_url = $game_obj->thumbnails->small;
-            $ext = pathinfo( $thumbnail_url, PATHINFO_EXTENSION);
-            if ( in_array( $ext, $images ) ) {
-              break;
+            if ( strpos( $cat_name, $gamecat ) !== false ) {
+              $add_game = true;
+              $categories_string = $feedcat['Name'];
+              break 2;
             }
           }
-          case '2': {
-            $thumbnail_url = $game_obj->thumbnails->medium;
-            $ext = pathinfo( $thumbnail_url, PATHINFO_EXTENSION);
-            if ( in_array( $ext, $images ) ) {
-              break;
-            }
-          }
-          case '3': {
-            $thumbnail_url = $game_obj->thumbnails->large;
-            $ext = pathinfo( $thumbnail_url, PATHINFO_EXTENSION);
-            if ( in_array( $ext, $images ) ) {
-              break;
-            }
-          }
-          default : {
-            // We did not find a valid thumbnail image
-            // Use default image
-            $thumbnail_url = MYARCADE_URL . "/images/noimage.png";
+        }
+      } // END - Category-Check
+
+      if (!$add_game) {
+        continue;
+      }
+
+      switch ( $spilgames['thumbsize'] ) {
+        case '1': {
+          $thumbnail_url = $game_obj->thumbnails->small;
+          $ext = pathinfo( $thumbnail_url, PATHINFO_EXTENSION);
+          if ( in_array( $ext, $images ) ) {
+            break;
           }
         }
-
-        // Check if this is a HTML5 game. If so, then change game type and generate an iframe code
-        $extension = pathinfo( $game_obj->gameUrl , PATHINFO_EXTENSION );
-        if ( 'html' == $extension ) {
-          $game->type          = 'iframe';
+        case '2': {
+          $thumbnail_url = $game_obj->thumbnails->medium;
+          $ext = pathinfo( $thumbnail_url, PATHINFO_EXTENSION);
+          if ( in_array( $ext, $images ) ) {
+            break;
+          }
         }
-        else {
-          $game->type          = 'spilgames';
+        case '3': {
+          $thumbnail_url = $game_obj->thumbnails->large;
+          $ext = pathinfo( $thumbnail_url, PATHINFO_EXTENSION);
+          if ( in_array( $ext, $images ) ) {
+            break;
+          }
         }
+        default : {
+          // We did not find a valid thumbnail image
+          // Use default image
+          $thumbnail_url = MYARCADE_URL . "/images/noimage.png";
+        }
+      }
 
-        $game->name          = esc_sql($game_obj->title);
-        $game->slug          = myarcade_make_slug($game_obj->title);
-        $game->created       = date( 'Y-m-d h:i:s', time() );
-        $game->description   = esc_sql($game_obj->description);
-        $game->categs        = esc_sql($categories_string);
-        $game->swf_url       = esc_sql($game_obj->gameUrl);
-        $game->thumbnail_url = esc_sql($thumbnail_url);
-        $game->leaderboard_enabled =  esc_sql( $game_obj->properties->highscore );
-        $game->width         = $game_obj->width;
-        $game->height        = $game_obj->height;
+      // Check if this is a HTML5 game. If so, then change game type and generate an iframe code
+      $extension = pathinfo( $game_obj->gameUrl , PATHINFO_EXTENSION );
+      if ( strpos( $extension, 'htm' ) !== false ) {
+        $game->type          = 'iframe';
+      }
+      else {
+        $game->type          = 'spilgames';
+      }
 
+      $game->name          = esc_sql($game_obj->title);
+      $game->slug          = myarcade_make_slug($game_obj->title);
+      $game->description   = esc_sql($game_obj->description);
+      $game->categs        = esc_sql($categories_string);
+      $game->swf_url       = esc_sql($game_obj->gameUrl);
+      $game->thumbnail_url = esc_sql($thumbnail_url);
+      $game->width         = $game_obj->width;
+      $game->height        = $game_obj->height;
+
+      // Add game to the database
+      if ( myarcade_add_fetched_game( $game, $args ) ) {
         $new_games++;
-
-        // Add game to the database
-        myarcade_add_fetched_game( $game, $echo );
       }
     }
   }
 
   // Show, how many games have been fetched
   myarcade_fetched_message( $new_games, $echo );
+}
+
+/**
+ * Return if games can be downloaded by this distirbutor
+ *
+ * @version 5.26.0
+ * @since   5.26.0
+ * @access  public
+ * @return  bool True if games can be downloaded
+ */
+function myarcade_can_download_spilgames() {
+  return false;
 }
 ?>

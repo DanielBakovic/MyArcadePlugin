@@ -13,7 +13,7 @@ if( !defined( 'ABSPATH' ) ) {
 /**
  * Import games page
  *
- * @version 5.3.2
+ * @version 5.28.0
  * @access  public
  * @return  void
  */
@@ -115,7 +115,6 @@ function myarcade_import_games() {
   $selected_method = filter_input( INPUT_POST, 'importmethod', FILTER_SANITIZE_STRING, array( "options" => array( "default" => 'importswfdcr') ) );
   ?>
 
-  <?php require_once( MYARCADE_JS_DIR . '/admin-import-js.php'); ?>
   <div id="myabp_import">
     <h2><?php _e("Import Individual Games", 'myarcadeplugin'); ?></h2>
 
@@ -130,6 +129,9 @@ function myarcade_import_games() {
               <select size="1" name="importmethod" id="importmethod">
                 <option value="importswfdcr" <?php selected( "importswfdcr", $selected_method ); ?>><?php _e("Upload / Grab SWF game", 'myarcadeplugin'); ?>&nbsp;</option>
                 <option value="importembedif" <?php selected( "importembedif", $selected_method ); ?>><?php _e("Import Embed / Iframe game", 'myarcadeplugin'); ?></option>
+                <option value="importibparcade" <?php selected( "importibparcade", $selected_method ); ?>><?php _e("Upload IBPArcade game (PRO)", 'myarcadeplugin'); ?></option>
+                <option value="importphpbb" <?php selected( "importphpbb", $selected_method ); ?>><?php _e("Upload ZIP File / PHPBB / Mochi (PRO)", 'myarcadeplugin'); ?></option>
+                <option value="importunity" <?php selected( "importunity", $selected_method ); ?>><?php _e("Import Unity game (PRO)", 'myarcadeplugin'); ?></option>
               </select>
               <br />
               <i><?php _e("Choose a desired import method.", 'myarcadeplugin'); ?></i>

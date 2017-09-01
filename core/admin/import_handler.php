@@ -42,7 +42,7 @@ $game->error = '';
 $result = false;
 
 // Check the submission
-switch ( filter_input( INPUT_POST, 'upload' ) ) ) {
+switch ( $_POST['upload'] ) {
 
   // Upload SWF / DCR File
   case 'swf':
@@ -175,8 +175,8 @@ switch ( filter_input( INPUT_POST, 'upload' ) ) ) {
     if ( empty($game->error) ) {
       if ($result == true) {
         $game->thumb_name = $file_name;
-        $game->thumb_abs  = $upload_dir_specific['thumbsdir'] . $file_name;
         $game->thumb_url  = $upload_dir_specific['thumbsurl'] . $file_name;
+        $game->thumb_id   = myarcade_add_attachment( $game->thumb_url, $upload_dir_specific['thumbsdir'] . $file_name );
       }
       else {
         $game->error = 'Can not upload thumbnail!';

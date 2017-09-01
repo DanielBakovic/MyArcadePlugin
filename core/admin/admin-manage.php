@@ -13,7 +13,7 @@ if( !defined( 'ABSPATH' ) ) {
 /**
  * Manage Games
  *
- * @version 5.3.2
+ * @version 5.13.0
  * @access  public
  * @return  void
  */
@@ -52,7 +52,7 @@ function myarcade_manage_games() {
   $enable_delete = filter_input( INPUT_POST, 'enable_delete' );
   $bulk_delete_button = filter_input( INPUT_POST, 'bulk_delete_button' );
 
-  $action = sanitize_text_field( filter_input( INPUT_POST, 'action' );
+  $action = sanitize_text_field( filter_input( INPUT_POST, 'action' ) );
   $results = false;
 
   if ( 'search' == $action ) {

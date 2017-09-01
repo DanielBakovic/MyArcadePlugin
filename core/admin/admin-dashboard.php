@@ -13,7 +13,7 @@ if( !defined( 'ABSPATH' ) ) {
 /**
  * Dashboard
  *
- * @version 5.13.0
+ * @version 5.30.0
  * @access  public
  * @return  void
  */
@@ -26,6 +26,10 @@ function myarcade_show_stats() {
   <h2><?php _e("Dashboard"); ?></h2>
 
   <?php
+  if ( "unknown" == get_option( 'myarcade_allow_tracking' ) ) {
+    myarcade_tracking_message();
+  }
+
   // Get Settings
   $general = get_option('myarcade_general');
 
@@ -58,7 +62,6 @@ function myarcade_show_stats() {
             <li>&nbsp;</li>
 
             <li><?php _e('Download Games', 'myarcadeplugin'); ?>: <strong><?php if ($general['down_games']) { _e('Yes', 'myarcadeplugin'); } else { _e('No', 'myarcadeplugin'); } ?></strong></li>
-            <li><?php _e('Download Thumbnails', 'myarcadeplugin'); ?>: <strong><?php if ($general['down_thumbs']) { _e('Yes', 'myarcadeplugin'); } else { _e('No', 'myarcadeplugin'); } ?></strong></li>
             <li><?php _e('Download Screenshots', 'myarcadeplugin'); ?>: <strong><?php if ($general['down_screens']) { _e('Yes', 'myarcadeplugin'); } else { _e('No', 'myarcadeplugin'); } ?></strong></li>
 
             <li>&nbsp;</li>

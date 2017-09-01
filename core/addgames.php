@@ -13,11 +13,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Inserts a fetched game to the games table
  *
- * @version 5.15.2
+ * @version 5.26.0
  * @param   object $game Game object
- * @return  void
+ * @return  int|false The number of rows inserted, or false on error.
  */
-function myarcade_insert_game($game) {
+function myarcade_insert_game( $game ) {
   global $wpdb;
 
   $game_data = array(
@@ -56,7 +56,7 @@ function myarcade_insert_game($game) {
 /**
  * Creates a wordpress post with the given game and returns the post id
  *
- * @version 5.21.0
+ * @version 5.27.1
  * @param   object $game Game object
  * @return  int $post_id
  */
@@ -72,8 +72,25 @@ function myarcade_add_game_post($game) {
     $game->categories = array();
     $game->categories[0] = $general['singlecat'];
   }
+
+  // Proceed with translations if activated
+  if ( ( ($general['translation'] == 'microsoft') && ( !empty($general['bingid']) && !empty($general['bingsecret']) ) )
+    || ( ($general['translation'] == 'google') && ( !empty($general['google_id']) ) )
+    || ( ($general['translation'] == 'yandex') && ( !empty($general['yandex_key']) ) ) )
+  {
+    foreach ($general['translate_fields'] as $field) {
+      if ( isset($game->$field) && !empty($game->$field) ) {
+        $translated_content = myarcade_translate($game->$field);
+        if ( $translated_content != false ) {
+          // Overwrite content with the translation
+          $game->$field = $translated_content;
+        }
+      }
+    }
+  }
+
   // Check if mobile game
-  if ( strpos( $game->file, '.html' ) !== false ) {
+  if ( myarcade_is_mobile( $game->file ) ) {
     if ( $game->tags ) {
       $game->tags .= ',mobile';
     }
@@ -178,9 +195,7 @@ function myarcade_add_game_post($game) {
   }
 
   // Generate Featured Image id activated
-  if ( $general['featured_image'] ) {
-    myaracade_set_featured_image( $post_id, $game->thumb );
-  }
+  myaracade_set_featured_image( $post_id, $game->thumb );
 
   // Add custom taxonomies
   if ( $general['post_type'] != 'post' && post_type_exists($general['post_type']) ) {
@@ -195,7 +210,6 @@ function myarcade_add_game_post($game) {
       }
     }
   }
-
 
   // Update postID
   $wpdb->query( "UPDATE " . $wpdb->prefix . 'myarcadegames' . " SET postid = '{$post_id}' WHERE id = '{$game->id}'" );
@@ -212,7 +226,7 @@ function myarcade_add_game_post($game) {
  * - Category mapping
  * - File downloads
  *
- * @version 5.21.1
+ * @version 5.28.1
  * @param   array  $args
  * @return  int|bool Post ID on success or FALSE on error
  */
@@ -225,7 +239,7 @@ function myarcade_add_games_to_blog( $args = array() ) {
     'game_id'          => false,
     'post_status'      => 'publish',
     'post_date'        => gmdate('Y-m-d H:i:s', ( time() + (get_option('gmt_offset') * 3600 ))),
-    'download_thumbs'  => $general['down_thumbs'],
+    'download_games'   => $general['down_games'],
     'download_screens' => $general['down_screens'],
     'echo'             => true
   );
@@ -277,11 +291,38 @@ function myarcade_add_games_to_blog( $args = array() ) {
     return false;
   }
 
+  $download_thumbnail = true;
+
   // Check if this is an imported game..
   // If so, then don't download the files again...
   if ( md5($game->name . 'import') == $game->uuid ) {
-    $download_thumbs  = false;
+    $download_thumbnail = false;
+    $download_games   = false;
     $download_screens = false;
+  }
+  elseif ( $download_games == true ) {
+    // Get distributor integration
+    myarcade_distributor_integration( $game->game_type );
+
+    // Generate download check function name
+    $download_check_function = 'myarcade_can_download_' . $game->game_type;
+
+    if ( function_exists( $download_check_function ) ) {
+      $download_games = $download_check_function();
+    }
+    else {
+      switch ( $game->game_type ) {
+        case 'iframe':
+        case 'embed':
+          $download_games = false;
+        break;
+
+        default:
+          // try to download game
+          $download_games = true;
+        break;
+      }
+    }
   }
 
   // Initialise category array
@@ -296,31 +337,26 @@ function myarcade_add_games_to_blog( $args = array() ) {
     $categs[0] = $tempcateg;
   }
 
-  if ( 'bigfish' == $game->game_type ) {
-    $bigfish = get_option( 'myarcade_bigfish' );
-    $feedcategories = $bigfish['categories'];
-  }
-
   foreach ($categs as $game_cat) {
     $cat_found = false;
     foreach ($feedcategories as $feedcat) {
       if ($feedcat['Name'] == $game_cat) {
         $cat_found = true;
-        // Check for custom taxonomies
-        if ($use_custom_tax) {
-          $term = get_term_by( 'name', $game_cat, $general['custom_category'] );
+          // Check for custom taxonomies
+          if ($use_custom_tax) {
+            $term = get_term_by( 'name', $game_cat, $general['custom_category'] );
 
-          if ( ! empty( $term->term_id ) ) {
-            array_push( $cat_id, $term->term_id );
+            if ( ! empty( $term->term_id ) ) {
+              array_push( $cat_id, $term->term_id );
+            }
+            else {
+              // Term doesn't exist!!
+             array_push($cat_id, htmlspecialchars( $game_cat ) );
+            }
+          } else {
+            // post_type = post
+            array_push( $cat_id, get_cat_id( htmlspecialchars($game_cat ) ) );
           }
-          else {
-            // Term doesn't exist!!
-           array_push($cat_id, htmlspecialchars( $game_cat ) );
-          }
-        } else {
-          // post_type = post
-          array_push( $cat_id, get_cat_id( htmlspecialchars($game_cat ) ) );
-        }
 
         break;
       }
@@ -358,31 +394,29 @@ function myarcade_add_games_to_blog( $args = array() ) {
   // ----------------------------------------------
   // Download Thumbs?
   // ----------------------------------------------
-  if ($download_thumbs == true) {
+  if ( $download_thumbnail ) {
 
-    $file = myarcade_get_file( strtok( $game->thumbnail_url, '?' ), true);
+    $file = myarcade_get_file( strtok( $game->thumbnail_url, '?' ), true );
 
-    if ( empty($file['error']) ) {
-      $path_parts = pathinfo($game->thumbnail_url);
-      $extension = $path_parts['extension'];
-      $file_name = $game->slug . '.' . $extension;
-
+    if ( empty( $file['error'] ) ) {
       // Check, if we got a Error-Page
-      if (!strncmp($file['response'], "<!DOCTYPE", 9)) {
+      if ( ! strncmp( $file['response'], "<!DOCTYPE", 9 ) ) {
         $result = false;
       }
       else {
         // Save the thumbnail to the thumbs folder
-        $result = file_put_contents( $upload_dir['thumbsdir'] . $file_name, $file['response']);
+        $extension = pathinfo( $game->thumbnail_url, PATHINFO_EXTENSION );
+        $file_name = wp_unique_filename( $upload_dir['thumbsdir'], $game->slug . '.' . $extension );
+        $result = file_put_contents( $upload_dir['thumbsdir'] . $file_name, $file['response'] );
       }
 
       // Error-Check
-      if ($result == false) {
+      if ( $result == false ) {
         $myarcade_feedback->add_message( $download_message['thumbnail'] . ': ' . $download_message['failed'] . ' - ' . $download_message['url'] );
       }
       else {
         $game->thumbnail_url = $upload_dir['thumbsurl'] . $file_name;
-        $myarcade_feedback->add_message( $download_message['thumbnail'] . ': ' . $download_message['ok'] );
+        myarcade_add_attachment( $game->thumbnail_url, $upload_dir['thumbsdir'] . $file_name );
       }
     }
     else {
@@ -496,71 +530,118 @@ function myarcade_add_games_to_blog( $args = array() ) {
 /**
  * Set featured image on a post
  *
- * @version 5.13.0
+ * @version 5.28.2
  * @param int $post_id Post ID
  * @param string $filename File URL
  * @return int|bool File ID on success or FALSE on error
  */
 function myaracade_set_featured_image ($post_id, $filename) {
+  global $wpdb;
 
-  $wp_filetype = wp_check_filetype( basename($filename), null );
+  // Check if the image is already a WordPress attachment
+  $attachment = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE guid='%s';", $filename ) );
 
-  // included required WordPress files
-  require_once(ABSPATH . 'wp-admin/includes/image.php');
-  require_once(ABSPATH . 'wp-admin/includes/file.php');
-  require_once(ABSPATH . 'wp-admin/includes/media.php');
+  if ( empty( $attachment[0] ) ) {
+    $wp_filetype = wp_check_filetype( basename($filename), null );
 
-  // Download file to temp location
-  $tmp = download_url( $filename );
+    // included required WordPress files
+    require_once(ABSPATH . 'wp-admin/includes/image.php');
+    require_once(ABSPATH . 'wp-admin/includes/file.php');
+    require_once(ABSPATH . 'wp-admin/includes/media.php');
 
-  // Set variables for storage
-  // fix file filename for query strings
-  preg_match('/[^\?]+\.(jpg|JPG|jpe|JPE|jpeg|JPEG|gif|GIF|png|PNG)/', $filename, $matches);
+    // Download file to temp location
+    $tmp = download_url( $filename );
 
-  //if ( empty($slug) ) $slug = basename($matches[0]);
-  $file_array['name'] = basename($filename);
-  $file_array['tmp_name'] = $tmp;
-  $file_array['type'] = $wp_filetype['type'];
+    // Set variables for storage
+    // fix file filename for query strings
+    preg_match('/[^\?]+\.(jpg|JPG|jpe|JPE|jpeg|JPEG|gif|GIF|png|PNG)/', $filename, $matches);
 
-  // If error storing temporarily, unlink
-  if ( is_wp_error( $tmp ) ) {
-    @unlink($file_array['tmp_name']);
-    $file_array['tmp_name'] = '';
-    return false;
+    //if ( empty($slug) ) $slug = basename($matches[0]);
+    $file_array['name'] = basename($filename);
+    $file_array['tmp_name'] = $tmp;
+    $file_array['type'] = $wp_filetype['type'];
+
+    // If error storing temporarily, unlink
+    if ( is_wp_error( $tmp ) ) {
+      @unlink($file_array['tmp_name']);
+      $file_array['tmp_name'] = '';
+      return false;
+    }
+
+    // do the validation and storage stuff
+    $thumbid = media_handle_sideload($file_array, $post_id);
+
+    // If error storing permanently, unlink
+    if ( is_wp_error($thumbid) ) {
+      @unlink($file_array['tmp_name']);
+      return $thumbid;
+    }
   }
-
-  // do the validation and storage stuff
-  $thumbid = media_handle_sideload($file_array, $post_id);
-
-  // If error storing permanently, unlink
-  if ( is_wp_error($thumbid) ) {
-    @unlink($file_array['tmp_name']);
-    return $thumbid;
+  else {
+    $thumbid = $attachment[0];
   }
 
   set_post_thumbnail($post_id, $thumbid);
+
+  // Attach image to post
+  wp_update_post( array( 'ID' => $thumbid, 'post_parent' => $post_id ) );
 }
 
 /**
  * Inserts a fetched game to the database
  *
- * @version 5.15.0
+ * @version 5.26.0
  * @access  public
  * @param   object  $game Game object
- * @param   boolean $echo TRUE if the game should be displayed
- * @return  void
+ * @param   array   $args Array of arguments
+ * @return  int|false The number of rows inserted, or false on error.
  */
-function myarcade_add_fetched_game( $game , $echo = false ) {
+function myarcade_add_fetched_game( $game, $args = array() ) {
   global $wpdb;
 
-  // Insert  game into the table
-  myarcade_insert_game( $game );
+  // Set required vars
+  $general = get_option( 'myarcade_general' );
+  $echo = ! empty( $args['echo'] ) ? $args['echo'] : false;
+  $filter = ! empty( $args['settings']['keyword_filter'] ) ? esc_sql( $args['settings']['keyword_filter'] ) : '';
 
-  // Show game
-  if ( $echo ) {
-    $new_game = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . 'myarcadegames' . " WHERE uuid = '$game->uuid' LIMIT 1");
-    myarcade_show_game( $new_game );
+  // Check for duplicates
+  $duplicate_game = $wpdb->get_var( "SELECT id FROM {$wpdb->prefix}myarcadegames WHERE uuid = '". esc_sql( $game->uuid ) ."' OR game_tag = '". esc_sql( $game->game_tag ) ."' OR name = '". esc_sql( $game->name ) ."'" );
+
+  if ( $duplicate_game ) {
+    // It is an duplicate game... Skip it
+    return false;
   }
+
+  if ( $filter ) {
+    if ( ! preg_match( $filter, strtolower( $game->name ) ) && ! preg_match( $filter, strtolower( $game->description ) ) ) {
+      // Filter failed. Skip game
+      return false;
+    }
+  }
+
+  // Check if we should only fetch mobile games
+  if ( ! empty( $general['types'] ) && 'mobile' == $general['types'] && ! myarcade_is_mobile( $game->swf_url ) ) {
+    // Doesn't seem to be a mobile game
+    return false;
+  }
+
+  // Do a final check and decide if we really want this game in our database
+  if ( ! apply_filters( 'myarcade_add_fetched_game', true, $game ) || myarcade_schluessel() === FALSE ) {
+    return false;
+  }
+
+  $result = myarcade_insert_game( $game );
+
+  // Insert  game into the table
+  if ( $result  ) {
+    // Show game
+    if ( $echo ) {
+      $new_game = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . 'myarcadegames' . " WHERE uuid = '$game->uuid' LIMIT 1");
+      myarcade_show_game( $new_game );
+    }
+  }
+
+  return $result;
 }
 
 /**
@@ -599,6 +680,26 @@ function myarcade_make_slug( $string ) {
   $slug = preg_replace('/-+/', '-', $slug);
   $slug = preg_replace("/[^\dA-Za-z0-9-]/i", "", $slug);
   return $slug;
+}
+
+/**
+ * Replaces http with https in URLs
+ *
+ * @version 5.27.1
+ * @since   5.27.0
+ * @static
+ * @access  public
+ * @param   string $url URL
+ * @return  string
+ */
+function myarcade_maybe_ssl( $url ) {
+  if ( is_ssl() ) {
+    $url = str_replace( "http://", "https://", $url );
+    // Maybe replace plinga
+    $url = str_replace( "plinga.com", "psgn.plinga.de", $url );
+  }
+
+  return $url;
 }
 
 /**
@@ -649,9 +750,28 @@ function myarcade_prepare_environment($echo = true) {
 }
 
 /**
+ * Check if the current game is a mobile game
+ *
+ * @version 5.26.0
+ * @since   5.26.0
+ * @static
+ * @access  public
+ * @param   string $game Game URL, embed code
+ * @return  bolean True on mobile ready games
+ */
+function myarcade_is_mobile( $game ) {
+
+  if ( preg_match( '[.swf|.dcr|.unity]', $game ) ) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * Ajax publish handler. Publishes a given game by ID
  *
- * @version 5.13.0
+ * @version 5.28.0
  * @return  void
  */
 function myarcade_ajax_publish() {
@@ -666,8 +786,8 @@ function myarcade_ajax_publish() {
   $status   = $_REQUEST['status'];
   $schedule = (int) $_REQUEST['schedule'];
   $count    = (int) $_REQUEST['count'];
-  $download_thumbs = ($_REQUEST['download_thumbs'] == '1') ? true : false;
   $download_screens = ($_REQUEST['download_screens'] == '1') ? true : false;
+  $download_games = ($_REQUEST['download_games'] == '1') ? true : false;
 
   if ( $status == 'future') {
     $post_interval = ($count - 1) * $schedule;
@@ -680,7 +800,7 @@ function myarcade_ajax_publish() {
     'game_id'          => $id,
     'post_status'      => $status,
     'post_date'        => gmdate('Y-m-d H:i:s', ( time() + ($post_interval * 60) + (get_option('gmt_offset') * 3600 ))),
-    'download_thumbs'  => $download_thumbs,
+    'download_games'   => $download_games,
     'download_screens' => $download_screens,
     'echo'             => false
   );

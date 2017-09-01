@@ -141,7 +141,7 @@ function myarcade_default_settings_coolgames() {
 /**
  * Fetch games
  *
- * @version 5.24.0
+ * @version 5.26.0
  * @since   5.24.0
  * @access  public
  * @param   array  $args Fetching parameters
@@ -155,8 +155,8 @@ function myarcade_feed_coolgames( $args = array() ) {
     'settings' => array(),
   );
 
-  $r = wp_parse_args( $args, $defaults );
-  extract($r);
+  $args = wp_parse_args( $args, $defaults );
+  extract($args);
 
   $new_games = 0;
   $add_game = false;
@@ -183,94 +183,81 @@ function myarcade_feed_coolgames( $args = array() ) {
   if ( !empty($json_games ) ) {
     foreach ( $json_games as $game_obj ) {
 
-      // Check the keyword filter before we do anything else
-      if ( ! empty( $settings['keyword_filter'] ) ) {
-        if ( ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->name ) ) && ! preg_match( $settings['keyword_filter'], strtolower( $game_obj->description ) ) ) {
-          // Filter failed. Skip game
-          continue;
-        }
-      }
-
       $game = new stdClass();
       $game->uuid     = crc32( $game_obj->name ) . '_coolgames';
       // Generate a game tag for this game
       $game->game_tag = md5( $game_obj->name . 'coolgames' );
 
-      // Check, if this game is present in the games table
-      $duplicate_game = $wpdb->get_var("SELECT id FROM ".$wpdb->prefix . 'myarcadegames'." WHERE uuid = '".$game->uuid."' OR game_tag = '".$game->game_tag."' OR name = '".esc_sql($game_obj->name )."'");
+      // Check game categories and add game if it's category has been selected
+      $add_game   = false;
 
-      if ( !$duplicate_game ) {
-        // Check game categories and add game if it's category has been selected
-        $add_game   = false;
+      switch ( $game_obj->category ) {
+        case 'acade':
+        case 'sports' : {
+          $categories_string = ucfirst( $game_obj->category );
+        } break;
 
-        switch ( $game_obj->category ) {
-          case 'acade':
-          case 'sports' : {
-            $categories_string = ucfirst( $game_obj->category );
-          } break;
+        case 'board': {
+          $categories_string = 'Board Game';
+        } break;
 
-          case 'board': {
-            $categories_string = 'Board Game';
-          } break;
+        case 'girl': {
+          $categories_string = 'Customize';
+        } break;
 
-          case 'girl': {
-            $categories_string = 'Customize';
-          } break;
-
-          case 'puzzle' : {
-            $categories_string = 'Puzzles';
-          }
-
-          default : {
-            $categories_string = 'Other';
-          } break;
+        case 'puzzle' : {
+          $categories_string = 'Puzzles';
         }
 
-        foreach ( $feedcategories as $feedcat ) {
-          if ( ($feedcat['Name'] == $categories_string) && ($feedcat['Status'] == 'checked') ) {
-            $add_game = true;
-            break;
-          }
+        default : {
+          $categories_string = 'Other';
+        } break;
+      }
+
+      foreach ( $feedcategories as $feedcat ) {
+        if ( ($feedcat['Name'] == $categories_string) && ($feedcat['Status'] == 'checked') ) {
+          $add_game = true;
+          break;
         }
+      }
 
-        if ( ! $add_game ) {
-          continue;
+      if ( ! $add_game ) {
+        continue;
+      }
+
+      $game->type        = 'coolgames';
+      $game->name        = esc_sql( $game_obj->name );
+      $game->slug        = myarcade_make_slug( $game_obj->name );
+      $game->description = esc_sql( $game_obj->description );
+      $game->categs      = $categories_string;
+      $game->swf_url     = esc_sql( $game_obj->url );
+
+      if ( isset( $game_obj->orientation ) && 'p' == $game_obj->orientation ) {
+        $game->width = 600;
+        $game->height = 800;
+      }
+      else {
+        $game->width = 800;
+        $game->height = 600;
+      }
+
+      $thumb_size = $settings['thumbnail'];
+
+      if ( ! empty( $game_obj->square->{$thumb_size}[0] ) ) {
+        $game->thumbnail_url = esc_sql( $game_obj->square->{$thumb_size}[0] );
+      }
+
+      for( $i = 0; $i <= 3; $i++ ) {
+        if ( ! empty( $game_obj->screenshot->m[ $i ] ) ) {
+          $nr = $i + 1;
+          $screen_nr = 'screen'. $nr . '_url';
+          $game->$screen_nr = $game_obj->screenshot->m[ $i ];
         }
+      }
 
-        $game->type        = 'coolgames';
-        $game->name        = esc_sql( $game_obj->name );
-        $game->slug        = myarcade_make_slug( $game_obj->name );
-        $game->description = esc_sql( $game_obj->description );
-        $game->categs      = $categories_string;
-        $game->swf_url     = esc_sql( $game_obj->url );
-
-        if ( isset( $game_obj->orientation ) && 'p' == $game_obj->orientation ) {
-          $game->width = 600;
-          $game->height = 800;
-        }
-        else {
-          $game->width = 800;
-          $game->height = 600;
-        }
-
-        $thumb_size = $settings['thumbnail'];
-
-        if ( ! empty( $game_obj->square->{$thumb_size}[0] ) ) {
-          $game->thumbnail_url = esc_sql( $game_obj->square->{$thumb_size}[0] );
-        }
-
-        for( $i = 0; $i <= 3; $i++ ) {
-          if ( ! empty( $game_obj->screenshot->m[ $i ] ) ) {
-            $nr = $i + 1;
-            $screen_nr = 'screen'. $nr . '_url';
-            $game->$screen_nr = $game_obj->screenshot->m[ $i ];
-          }
-        }
-
+      // Add game to the database
+      if ( myarcade_add_fetched_game( $game, $args ) ) {
         $new_games++;
-
-        // Add game to the database
-        myarcade_add_fetched_game( $game, $echo );
       }
     }
   }
