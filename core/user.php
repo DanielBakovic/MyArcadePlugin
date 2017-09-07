@@ -144,7 +144,7 @@ function myarcade_play_check() {
 /**
  * Get Avatar URL
  *
- * @version 5.13.0
+ * @version 5.21.1
  * @access  public
  * @return  string
  */

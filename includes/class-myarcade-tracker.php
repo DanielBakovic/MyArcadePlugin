@@ -13,7 +13,7 @@ if( ! defined( 'ABSPATH' ) ) {
 
 class MyArcade_Tracker {
 
-  static $api_url = 'https://api.myarcadeplugin.com/v1/';
+  static $api_url =  MYARCADE_UPDATE_API . 'stats/';
 
   /**
    * Init function

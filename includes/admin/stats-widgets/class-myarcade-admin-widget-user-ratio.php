@@ -11,7 +11,7 @@ class MyArcade_Admin_Widget_User_Ratio {
     $all = (float) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) >= '".MyArcade_Stats::get_date( '-30')."'");
     $visitors = (float) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) >= '".MyArcade_Stats::get_date( '-30')."' AND `user_id` IS NULL");
 
-    $percent_visitor = round( ( $visitors * 100 ) / $all );
+    $percent_visitor = ( $all ) ? round( ( $visitors * 100 ) / $all ) : 0;
     $percent_users   = 100 - $percent_visitor;
 
     $data = "['" . __('Registered Users') . "'," . $percent_users . "],";

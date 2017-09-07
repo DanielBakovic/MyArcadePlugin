@@ -458,37 +458,37 @@ add_action('wp_loaded', 'myarcade_plugin_update');
 /**
  * Take over the update check
  *
- * @version 5.13.0
+ * @version 5.30.0
  * @access  public
  * @param   object $checked_data
  * @return  object
  */
 function myarcade_check_for_update( $checked_data ) {
 
-	if ( empty($checked_data->checked) ) {
-		return $checked_data;
+  if ( empty($checked_data->checked) ) {
+    return $checked_data;
   }
 
-	$request_args = array(
-		'slug' => MYARCADE_PLUGIN_SLUG,
-		'version' => $checked_data->checked[MYARCADE_PLUGIN_SLUG .'/myarcadeplugin.php'],
-	);
+  $request_args = array(
+    'slug' => 'myarcadeplugin-lite',
+    'version' => $checked_data->checked[ MYARCADE_PLUGIN_FOLDER_NAME . '/myarcadeplugin.php' ],
+  );
 
-	$request_string = prepare_request('update_check', $request_args);
+  $request_string = prepare_request('update_check', $request_args);
 
-	// Start checking for an update
-	$raw_response = wp_remote_post(MYARCADE_UPDATE_API, $request_string);
+  // Start checking for an update
+  $raw_response = wp_remote_post( MYARCADE_UPDATE_API . 'check.php', $request_string );
 
-	if (!is_wp_error($raw_response) && isset($raw_response['response']['code']) && ($raw_response['response']['code'] == 200)) {
-		$response = unserialize($raw_response['body']);
+  if (!is_wp_error($raw_response) && isset($raw_response['response']['code']) && ($raw_response['response']['code'] == 200)) {
+    $response = unserialize($raw_response['body']);
   }
 
-	if (isset($response) && is_object($response) && !empty($response)) {
+  if (isset($response) && is_object($response) && !empty($response)) {
     // Feed the update data into WP updater
-		$checked_data->response[MYARCADE_PLUGIN_SLUG .'/myarcadeplugin.php'] = $response;
+    $checked_data->response[ MYARCADE_PLUGIN_FOLDER_NAME .'/myarcadeplugin.php' ] = $response;
   }
 
-	return $checked_data;
+  return $checked_data;
 }
 if ( ! defined('WP_ENV') || WP_ENV != 'development' ) {
   add_filter('pre_set_site_transient_update_plugins', 'myarcade_check_for_update');
@@ -497,42 +497,45 @@ if ( ! defined('WP_ENV') || WP_ENV != 'development' ) {
 /**
  * Take over the plugin info screen
  *
- * @version 5.13.0
+ * @version 5.30.0
  * @access  public
- * @param   [type] $def
+ * @param   bolean $unused
  * @param   string $action
  * @param   object $args
- * @return  string         response
+ * @return  stdClass
  */
-function myarcade_api_call( $def, $action, $args ) {
+function myarcade_api_call( $unused, $action, $args ) {
 
-	if (!isset($args->slug)|| $args->slug != MYARCADE_PLUGIN_SLUG) {
-		return false;
+  if ( ! isset( $args->slug ) || $args->slug != 'myarcadeplugin' ) {
+    // Proceed only if this is request for our own plugin
+    return false;
   }
 
-	// Get the current version
-	$plugin_info = get_site_transient('update_plugins');
-	$current_version = $plugin_info->checked[MYARCADE_PLUGIN_SLUG .'/myarcadeplugin.php'];
+  // Get the current version
+  $plugin_info = get_site_transient('update_plugins');
+  $current_version = $plugin_info->checked[ MYARCADE_PLUGIN_FOLDER_NAME .'/myarcadeplugin.php'];
 
   $args->version = $current_version;
 
-	$request_string = prepare_request($action, $args);
+  $request_string = prepare_request($action, $args);
 
-	$request = wp_remote_post(MYARCADE_UPDATE_API, $request_string);
+  $request = wp_remote_post( MYARCADE_UPDATE_API . 'check.php', $request_string );
 
-	if (is_wp_error($request)) {
-		$res = new WP_Error('plugins_api_failed', __('An Unexpected HTTP Error occurred during the API request.</p> <p><a href="?" onclick="document.location.reload(); return false;">Try again</a>'), $request->get_error_message());
-	} else {
-		$res = unserialize($request['body']);
+  if ( is_wp_error( $request ) ) {
+    $response = new WP_Error( 'plugins_api_failed', __( 'An Unexpected HTTP Error occurred during the API request.</p> <p><a href="?" onclick="document.location.reload(); return false;">Try again</a>' ), $request->get_error_message() );
+  }
+  else {
+    $response = unserialize( $request['body'] );
 
-		if ($res === false) {
-			$res = new WP_Error('plugins_api_failed', __('An unknown error occurred'), $request['body']);
+    if ( $response === false ) {
+      $response = new WP_Error('plugins_api_failed', __('An unknown error occurred'), $request['body']);
     }
-	}
+  }
 
-	return $res;
+  return $response;
 }
 add_filter('plugins_api', 'myarcade_api_call', 10, 3);
+//set_site_transient( 'update_plugins', null );
 
 /**
  * Create request query for the update check
@@ -544,9 +547,9 @@ add_filter('plugins_api', 'myarcade_api_call', 10, 3);
  * @return  array
  */
 function prepare_request( $action, $args ) {
-	global $wp_version;
+  global $wp_version;
 
-	return array (
+  return array (
       'body' => array (
       'action' => $action,
       'request' => serialize($args),

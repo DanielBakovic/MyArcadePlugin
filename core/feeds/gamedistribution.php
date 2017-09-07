@@ -342,7 +342,7 @@ function myarcade_feed_gamedistribution( $args = array() ) {
 
   $feed = add_query_arg( array("offset" => $settings['offset'] ), $feed );
 
-  if ( $settings['category'] !== 'all' ) {
+  if ( $settings['category'] != 'all' ) {
     $feed = add_query_arg( array("category" => rawurlencode( $settings['category'] ) ), $feed );
   }
 
@@ -353,19 +353,19 @@ function myarcade_feed_gamedistribution( $args = array() ) {
   $json_games = myarcade_fetch_games( array( 'url' => trim( $feed ), 'service' => 'json', 'echo' => $echo ) );
 
   //====================================
-  if ( !empty($json_games->games ) ) {
-    foreach ( $json_games->games as $game_obj ) {
+  if ( !empty($json_games ) ) {
+    foreach ( $json_games as $game_obj ) {
 
       $game = new stdClass();
-      $game->uuid     = crc32( $game_obj->name ) . '_gamedistribution';
+      $game->uuid     = crc32( $game_obj->Title ) . '_gamedistribution';
       // Generate a game tag for this game
-      $game->game_tag = md5( $game_obj->name . 'gamedistribution' );
+      $game->game_tag = md5( $game_obj->Title . 'gamedistribution' );
 
       $add_game   = false;
 
       // Map categories
-      if ( ! empty( $game_obj->category ) ) {
-        $categories = explode( ',', $game_obj->category );
+      if ( ! empty( $game_obj->CatTitle ) ) {
+        $categories = explode( ',', $game_obj->CatTitle );
         $categories = array_map( 'trim', $categories );
       }
       else {
@@ -404,22 +404,22 @@ function myarcade_feed_gamedistribution( $args = array() ) {
         continue;
       }
 
-      if ( "swf" == $game_obj->gametype ) {
-        $game->type = "custom";
-      }
-      else {
+      if ( "5" == $game_obj->GameType ) {
         $game->type = 'gamedistribution';
       }
+      else {
+        $game->type = "custom";
+      }
 
-      $game->name           = esc_sql( $game_obj->name );
-      $game->slug           = myarcade_make_slug( $game_obj->name );
-      $game->description    = esc_sql( $game_obj->description );
+      $game->name           = esc_sql( $game_obj->Title );
+      $game->slug           = myarcade_make_slug( $game_obj->Title );
+      $game->description    = esc_sql( $game_obj->Description );
       $game->categs         = $categories_string;
-      $game->width          = intval( $game_obj->width );
-      $game->height         = intval( $game_obj->height );
-      $game->swf_url        = esc_sql( $game_obj->content_url );
-      $game->thumbnail_url  = esc_sql( $game_obj->thumbnail_url );
-      $game->tags           = esc_sql( implode(',', $game_obj->tags ) );
+      $game->width          = intval( $game_obj->Width );
+      $game->height         = intval( $game_obj->Height );
+      $game->swf_url        = esc_sql( $game_obj->ExternalURL );
+      $game->thumbnail_url  = esc_sql( $game_obj->ExternalThumbURL );
+      $game->tags           = esc_sql( $game_obj->Tags );
 
       // Add game to the database
       if ( myarcade_add_fetched_game( $game, $args ) ) {

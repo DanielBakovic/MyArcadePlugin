@@ -61,7 +61,7 @@ add_action( 'init', 'myarcade_init' );
 /**
  * Defines initial constants
  *
- * @version 5.29.0
+ * @version 5.30.0
  * @return  void
  */
 function myarcade_initial_constants() {
@@ -95,8 +95,9 @@ function myarcade_initial_constants() {
   define('MYARCADE_CORE_DIR',   MYARCADE_DIR      . '/core');
   define('MYARCADE_URL',        WP_PLUGIN_URL     . '/' . $dirname );
 
-  define('MYARCADE_UPDATE_API', 'https://api.myarcadeplugin.com/');
-  define('MYARCADE_PLUGIN_SLUG', basename( dirname( __FILE__ ) ) );
+  define('MYARCADE_UPDATE_API', 'http://api.myarcadeplugin.com/');
+
+  define('MYARCADE_PLUGIN_FOLDER_NAME', basename( dirname( __FILE__ ) ) );
 }
 
 /**
