@@ -50,7 +50,7 @@ function myarcade_insert_game( $game ) {
     "status"      => "new",
   );
 
-  $wpdb->insert( $wpdb->prefix . 'myarcadegames', $game_data );
+  return $wpdb->insert( $wpdb->prefix . 'myarcadegames', $game_data );
 }
 
 /**
@@ -626,7 +626,7 @@ function myarcade_add_fetched_game( $game, $args = array() ) {
   }
 
   // Do a final check and decide if we really want this game in our database
-  if ( ! apply_filters( 'myarcade_add_fetched_game', true, $game ) || myarcade_schluessel() === FALSE ) {
+  if ( ! apply_filters( 'myarcade_add_fetched_game', true, $game ) ) {
     return false;
   }
 
