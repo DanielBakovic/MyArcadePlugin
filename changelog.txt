@@ -20,7 +20,6 @@ v5.4.0 - 2017-09-08 - Based on MyArcadePlugin Pro 5.30.0
   * New - Softgames - Language selection
   * New - Save thumbnails only at a single location
   * New - Add game thumbnails automatically to WordPress media library
-  * New - Plinga - SSL suppport added
   * New - Softgames - SSL suppport added
   * New - Option to handle SSL for already published games (Enable on the options page)
   * New - Rich text editors for game description and instructions
@@ -33,7 +32,6 @@ v5.4.0 - 2017-09-08 - Based on MyArcadePlugin Pro 5.30.0
   * Fix - Images are not removed from media library on game delete
   * Fix - Post content thumbnail URL when using the %THUMB% placeholder
   * Fix - 2PG Feed URL
-  * Fix - Displaying of PlayToMax games
   * Fix - Display embed code on custom post meta
   * Tweak - Create required folders on access if they not exist
   * Tweak - Optimized import handler JS code to avoid conflicts if TinyMCE is disabled
