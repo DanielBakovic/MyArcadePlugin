@@ -470,7 +470,7 @@ function myarcade_check_for_update( $checked_data ) {
   }
 
   $request_args = array(
-    'slug' => 'myarcadeplugin-lite',
+    'slug' => MYARCADE_PLUGIN_SLUG,
     'version' => $checked_data->checked[ MYARCADE_PLUGIN_FOLDER_NAME . '/myarcadeplugin.php' ],
   );
 
@@ -506,7 +506,7 @@ if ( ! defined('WP_ENV') || WP_ENV != 'development' ) {
  */
 function myarcade_api_call( $unused, $action, $args ) {
 
-  if ( ! isset( $args->slug ) || $args->slug != 'myarcadeplugin' ) {
+  if ( ! isset( $args->slug ) || $args->slug != MYARCADE_PLUGIN_SLUG ) {
     // Proceed only if this is request for our own plugin
     return false;
   }
@@ -554,7 +554,7 @@ function prepare_request( $action, $args ) {
       'action' => $action,
       'request' => serialize($args),
       'url' => get_bloginfo('url'),
-      'item' => 'myarcadeplugin-lite',
+      'item' => MYARCADE_PLUGIN_SLUG,
     ),
     'user-agent' => 'WordPress/' . $wp_version . '; ' . get_bloginfo('url')
   );

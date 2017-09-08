@@ -98,6 +98,7 @@ function myarcade_initial_constants() {
   define('MYARCADE_UPDATE_API', 'http://api.myarcadeplugin.com/');
 
   define('MYARCADE_PLUGIN_FOLDER_NAME', basename( dirname( __FILE__ ) ) );
+  define('MYARCADE_PLUGIN_SLUG', 'myarcadeplugin-lite' );
 }
 
 /**
