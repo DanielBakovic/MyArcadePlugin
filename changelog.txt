@@ -1,6 +1,6 @@
 - MyArcadePlugin Lite -
 
-v5.4.0 - 2017-01-01 - Based on MyArcadePlugin Pro 5.30.0
+v5.4.0 - 2017-09-08 - Based on MyArcadePlugin Pro 5.30.0
   * New - GameDistribution feed integration (http://www.gamedistribution.com/games/)
   * New - Auto update for Lite version
   * New - Stats page with useful statistics:
