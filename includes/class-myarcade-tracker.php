@@ -13,8 +13,6 @@ if( ! defined( 'ABSPATH' ) ) {
 
 class MyArcade_Tracker {
 
-  static $api_url =  MYARCADE_UPDATE_API . 'stats/';
-
   /**
    * Init function
    *
@@ -47,7 +45,7 @@ class MyArcade_Tracker {
 
     $params = self::get_tracking_data();
 
-    wp_safe_remote_post( self::$api_url, array(
+    wp_safe_remote_post( MYARCADE_UPDATE_API . 'stats/', array(
         'method'      => 'POST',
         'timeout'     => 45,
         'blocking'    => false,
