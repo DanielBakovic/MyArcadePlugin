@@ -84,8 +84,6 @@ class MyArcade_Tracker {
     // General site info
     $data['url']      = home_url();
 
-    echo "last time: " . self::get_last_send_time() . " strtotime -1 week: " . strtotime( '-1 week' ) . "<br>";
-
     // Send other data only once per week
     if ( self::get_last_send_time() <= strtotime( '-1 week' ) ) {
 
