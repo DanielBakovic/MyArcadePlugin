@@ -12,46 +12,60 @@ class MyArcade_Stats {
   /**
    * Get the play count for a time period
    *
-   * @version 5.30.0
+   * @version 5.31.0
    * @since   5.30.0
    * @static
    * @access  public
-   * @param   string  $time_period Number of days or 'total'
-   * @param   boolean $daily       True if daily stats over the given period should be returned
-   * @return  integer              Play count
+   * @param   string  $time_period  Number of days or 'total'
+   * @param   integer $min_duration It allows to count games by minimal play duration in seconds
+   * @return  integer               Play count
    */
-  public static function get_plays( $time_period ) {
+  public static function get_plays( $time_period, $min_duration = 0 ) {
     global $wpdb;
+
+    $result = 0;
+    $query  = '';
+
+    if ( $min_duration ) {
+      $duration_query = "AND WHERE duration >= '".intval( $min_duration )."'";
+    }
+    else {
+      $duration_query = "";
+    }
 
     switch ( $time_period ) {
 
       case 'today': {
-        $result = $wpdb->get_var( "SELECT COUNT(1) FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) = '".self::get_date()."'" );
+        $query = "SELECT COUNT(1) FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) = '".self::get_date()."' {$duration_query}";
       } break;
 
       case 'yesterday': {
-        $result = $wpdb->get_var( "SELECT COUNT(1) FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) = '".self::get_date( '-1' )."'" );
+        $query = "SELECT COUNT(1) FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) = '".self::get_date( '-1' )."' {$duration_query}";
       } break;
 
       case 'week': {
-        $result = $wpdb->get_var( "SELECT COUNT(1) FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) BETWEEN '".self::get_date( '-7' )."' AND '".self::get_date()."'" );
+        $query = "SELECT COUNT(1) FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) BETWEEN '".self::get_date( '-7' )."' AND '".self::get_date()."' {$duration_query}";
       } break;
 
       case 'month': {
-        $result = $wpdb->get_var( "SELECT COUNT(1) FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) BETWEEN '".self::get_date( '-30' )."' AND '".self::get_date()."'" );
+        $query = "SELECT COUNT(1) FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) BETWEEN '".self::get_date( '-30' )."' AND '".self::get_date()."' {$duration_query}";
       } break;
 
       case 'year': {
-        $result = $wpdb->get_var( "SELECT COUNT(1) FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) BETWEEN '".self::get_date( '-365' )."' AND '".self::get_date()."'" );
+        $query = "SELECT COUNT(1) FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) BETWEEN '".self::get_date( '-365' )."' AND '".self::get_date()."' {$duration_query}";
       } break;
 
       case 'total': {
-        $result = get_option( 'myarcade_site_plays' );
+        return intval( get_option( 'myarcade_site_plays' ) );
       } break;
 
       default: {
-        $result = $wpdb->get_var( "SELECT COUNT(1) FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) = '".self::get_date( $time_period )."'" );
+        $query = "SELECT COUNT(1) FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) = '".self::get_date( $time_period )."' {$duration_query}";
       } break;
+    }
+
+    if ( $query ) {
+      $result = $wpdb->get_var( $query );
     }
 
     return intval( $result );

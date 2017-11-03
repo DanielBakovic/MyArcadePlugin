@@ -71,13 +71,13 @@ class MyArcade_Tracker {
   /**
    * Get all the tracking data
    *
-   * @version 5.30.0
+   * @version 5.31.0
    * @since   5.30.0
    * @static
-   * @access  private
+   * @access  protected
    * @return  array Array of tracking data
    */
-  private static function get_tracking_data() {
+  protected static function get_tracking_data() {
 
     $data = array();
 
@@ -106,7 +106,11 @@ class MyArcade_Tracker {
     // Get game plays so we can show a top list of MyArcadePlugin sites
     $data['total_plays'] = self::get_total_plays();
 
+    // All game plays
     $data['plays'] = self::get_plays();
+
+    // Games with minium play duration of 30 seconds
+    $data['plays_duration'] = self::get_plays(30);
 
     return $data;
   }
@@ -140,7 +144,7 @@ class MyArcade_Tracker {
    * MyArcadePlugin memory usage and to know which older WP versions
    * we still need to support.
    *
-   * @version 5.30.0
+   * @version 5.31.0
    * @since   5.30.0
    * @static
    * @access  private
@@ -148,10 +152,12 @@ class MyArcade_Tracker {
    */
   private static function get_wordpress_info() {
 
-    $wp_data = array();
-    $wp_data['locale']    = get_locale();
-    $wp_data['version']   = get_bloginfo( 'version' );
-    $wp_data['multisite'] = is_multisite() ? 'Yes' : 'No';
+    $wp_data = array(
+      'name'      => get_bloginfo( 'name' ),
+      'locale'    => get_locale(),
+      'version'   => get_bloginfo( 'version' ),
+      'multisite' => is_multisite() ? 'Yes' : 'No',
+    );
 
     return $wp_data;
   }
@@ -255,18 +261,19 @@ class MyArcade_Tracker {
   /**
    * Get plays by date
    *
-   * @version 5.30.0
+   * @version 5.31.0
    * @since   5.30.0
    * @static
    * @access  private
+   * @param   int $min_duration Time in seconds (minimal play duration)
    * @return  array Array of dates and play count
    */
-  private static function get_plays() {
+  private static function get_plays( $min_duration = 0 ) {
 
     // We only want to collect plays history to be able to create a top list of myarcadeplugin sites
     $plays = array(
       'date'        => MyArcade_Stats::get_date( '-1' ),
-      'impressions' => MyArcade_Stats::get_plays( 'yesterday' )
+      'impressions' => MyArcade_Stats::get_plays( 'yesterday', $min_duration )
     );
 
     return $plays;
