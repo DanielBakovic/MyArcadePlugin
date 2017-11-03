@@ -1,4 +1,5 @@
 - MyArcadePlugin Lite -
+  * Tweak - Use plugins_url function instead of WP_PLUGIN_URL constant
   * Tweak - Improved stats tracking
 
 v5.4.0 - 2017-09-08 - Based on MyArcadePlugin Pro 5.30.0

@@ -93,7 +93,7 @@ function myarcade_initial_constants() {
   $dirname = basename( dirname( __FILE__ ) );
   define('MYARCADE_DIR',        WP_PLUGIN_DIR     . '/' . $dirname );
   define('MYARCADE_CORE_DIR',   MYARCADE_DIR      . '/core');
-  define('MYARCADE_URL',        WP_PLUGIN_URL     . '/' . $dirname );
+  define('MYARCADE_URL',        plugins_url() . '/' . $dirname );
 
   define('MYARCADE_UPDATE_API', 'http://api.myarcadeplugin.com/');
 
