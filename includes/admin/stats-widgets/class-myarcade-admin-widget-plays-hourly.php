@@ -7,7 +7,7 @@ class MyArcade_Admin_Widget_Plays_Hourly {
 
   public static function output() {
 
-    $hourly_plays = MyArcade_Stats::get_houry_plays( '-24' );
+    $hourly_plays = MyArcade_Stats::get_houry_plays( '-1' );
 
     $data = implode(",", $hourly_plays );
     $hours = "'" . implode( "','", array_keys( $hourly_plays ) ) . "'";

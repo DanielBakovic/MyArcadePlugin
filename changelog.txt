@@ -1,3 +1,7 @@
+v5.5.1 - 2017-11-09 - Based on MyArcadePlugin Pro 5.31.1
+  * Fix - Hourly game plays graph
+  * Fix - Query error in counting game plays
+
 v5.5.0 - 2017-11-03 - Based on MyArcadePlugin Pro 5.31.0
   * Tweak - Use plugins_url function instead of WP_PLUGIN_URL constant
   * Tweak - Improved stats tracking

@@ -12,7 +12,7 @@ class MyArcade_Stats {
   /**
    * Get the play count for a time period
    *
-   * @version 5.31.0
+   * @version 5.31.1
    * @since   5.30.0
    * @static
    * @access  public
@@ -27,7 +27,7 @@ class MyArcade_Stats {
     $query  = '';
 
     if ( $min_duration ) {
-      $duration_query = "AND WHERE duration >= '".intval( $min_duration )."'";
+      $duration_query = "AND duration >= '".intval( $min_duration )."'";
     }
     else {
       $duration_query = "";
