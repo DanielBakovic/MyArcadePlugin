@@ -695,8 +695,6 @@ function myarcade_make_slug( $string ) {
 function myarcade_maybe_ssl( $url ) {
   if ( is_ssl() ) {
     $url = str_replace( "http://", "https://", $url );
-    // Maybe replace plinga
-    $url = str_replace( "plinga.com", "psgn.plinga.de", $url );
   }
 
   return $url;

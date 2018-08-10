@@ -1,3 +1,9 @@
+v5.5.2 - 2018-08-10 - Based on MyArcadePlugin Pro 5.32.1
+x  * Fix - Plinga - SSL URL
+x  * Removed Coolgames and Spilgames - Services have been discontinued
+x  * Tweak - Optimized distributors settings
+x  * Fix - GameDistribution fetching
+
 v5.5.1 - 2017-11-09 - Based on MyArcadePlugin Pro 5.31.1
   * Fix - Hourly game plays graph
   * Fix - Query error in counting game plays

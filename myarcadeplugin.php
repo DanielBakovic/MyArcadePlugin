@@ -3,7 +3,7 @@
  * Plugin Name:  MyArcadePlugin Lite
  * Plugin URI:   https://myarcadeplugin.com
  * Description:  WordPress Arcade Plugin
- * Version:      5.5.1
+ * Version:      5.5.2
  * Author:       Daniel Bakovic
  * Author URI:   http://myarcadeplugin.com
  * License:      GPLv2 or later (license.txt)
@@ -11,7 +11,7 @@
  * Text Domain:  myarcadeplugin
  * Domain Path:  /lang
  * Requires at least: 4.4
- * Tested up to: 4.8
+ * Tested up to: 4.9
  */
 
 /*
@@ -67,7 +67,7 @@ add_action( 'init', 'myarcade_init' );
 function myarcade_initial_constants() {
 
   // Define MyArcadePlugin version
-  define('MYARCADE_VERSION', '5.5.1');
+  define('MYARCADE_VERSION', '5.5.2');
 
   // You need at least PHP Version 5.3.0+ to run this plugin
   define('MYARCADE_PHP_VERSION', '5.3.0');

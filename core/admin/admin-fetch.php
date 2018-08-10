@@ -165,6 +165,9 @@ function myarcade_distributors_can_fetch( $distributors = array() ) {
 
   unset( $distributors['gamefeed'] );
   unset( $distributors['fgd'] );
+  unset( $distributors['twopg'] );
+  unset( $distributors['coolgames'] );
+  unset( $distributors['spilgames'] );
 
   return $distributors;
 }

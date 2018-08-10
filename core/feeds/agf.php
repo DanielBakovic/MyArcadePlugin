@@ -51,15 +51,6 @@ function myarcade_settings_agf() {
           <td><i><?php _e("Edit this field only if Feed URL has been changed!", 'myarcadeplugin'); ?></i></td>
         </tr>
 
-        <tr><td colspan="2"><h3><?php _e("Fetch Games", 'myarcadeplugin'); ?></h3></td></tr>
-
-        <tr>
-          <td>
-            <input type="text" size="40"  name="agf_limit" value="<?php echo $agf['limit']; ?>" />
-          </td>
-          <td><i><?php _e("How many games should be fetched at once.", 'myarcadeplugin'); ?></i></td>
-        </tr>
-
         <tr><td colspan="2"><h3><?php _e("Thumbnail Size", 'myarcadeplugin'); ?></h3></td></tr>
 
         <tr>
@@ -148,7 +139,7 @@ function myarcade_save_settings_agf() {
 
   $agf = array();
   $agf['feed'] = (isset($_POST['agf_url'])) ? esc_sql($_POST['agf_url']) : '';
-  $agf['limit'] = (isset($_POST['agf_limit'])) ? intval( $_POST['agf_limit']) : '';
+  $agf['limit'] = 50;
   $agf['thumbnail'] = filter_input( INPUT_POST, 'agf_thumbnail' );
   $agf['cron_fetch'] = (isset($_POST['agf_cron_fetch']) ) ? true : false;
   $agf['cron_fetch_limit'] = (isset($_POST['agf_cron_fetch_limit']) ) ? intval($_POST['agf_cron_fetch_limit']) : 1;

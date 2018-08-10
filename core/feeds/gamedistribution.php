@@ -319,7 +319,8 @@ function myarcade_feed_gamedistribution( $args = array() ) {
 
   $gamedistribution = myarcade_get_fetch_options_gamedistribution();
   $gamedistribution_categories = myarcade_get_categories_gamedistribution();
-  $feedcategories = get_option( 'myarcade_categories' );
+  $feedcategories = myarcade_get_settings( 'categories' );
+  $general = myarcade_get_settings( 'general' );
 
   // Init settings var's
   if ( ! empty($settings) ) {
@@ -344,6 +345,13 @@ function myarcade_feed_gamedistribution( $args = array() ) {
 
   if ( $settings['category'] != 'all' ) {
     $feed = add_query_arg( array("category" => rawurlencode( $settings['category'] ) ), $feed );
+  }
+
+  if ( isset( $general['type'] ) && 'mobile' == $general['type'] ) {
+    $feed = add_query_arg( array( "Type"  => "Html5" ), $feed );
+  }
+  else {
+    $feed = add_query_arg( array( "Type"  => "All" ), $feed );
   }
 
   // Include required fetch functions

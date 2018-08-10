@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Display distributor settings on admin page
  *
- * @version 5.15.0
+ * @version 5.32.0
  * @access  public
  * @return  void
  */
@@ -49,14 +49,6 @@ function myarcade_settings_fog() {
             <input type="text" size="40"  name="fogurl" value="<?php echo $fog['feed']; ?>" />
           </td>
           <td><i><?php _e("Edit this field only if Feed URL has been changed!", 'myarcadeplugin'); ?></i></td>
-        </tr>
-
-        <tr><td colspan="2"><h3><?php _e("Fetch Games", 'myarcadeplugin'); ?></h3></td></tr>
-        <tr>
-          <td>
-            <input type="text" size="40"  name="foglimit" value="<?php echo $fog['limit']; ?>" />
-          </td>
-          <td><i><?php _e("How many games should be fetched at once. Enter 'all' (without quotes) if you want to fetch all games. Otherwise enter an integer.", 'myarcadeplugin'); ?></i></td>
         </tr>
 
         <tr><td colspan="2"><h3><?php _e("Thumbnail Size", 'myarcadeplugin'); ?></h3></td></tr>
@@ -188,7 +180,7 @@ function myarcade_default_settings_fog() {
 /**
  * Handle distributor settings update
  *
- * @version 5.19.0
+ * @version 5.32.0
  * @access  public
  * @return  void
  */
@@ -199,7 +191,7 @@ function myarcade_save_settings_fog() {
   // FreeGamesForYourSite Settings
   $fog = array();
   if ( isset($_POST['fogurl'])) $fog['feed'] = esc_url_raw($_POST['fogurl']); else $fog['feed'] = '';
-  if ( isset($_POST['foglimit'])) $fog['limit'] = sanitize_text_field($_POST['foglimit']); else $fog['limit'] = '20';
+  $fog['limit'] = 20;
   if ( isset($_POST['fogthumbsize'])) $fog['thumbsize'] = trim($_POST['fogthumbsize']); else $fog['thumbsize'] = 'small';
   if ( isset($_POST['fogscreen'])) $fog['screenshot'] = true; else $fog['screenshot'] = false;
   if ( isset($_POST['fogtag'])) $fog['tag'] = sanitize_text_field($_POST['fogtag']); else $fog['tag'] = 'all';
