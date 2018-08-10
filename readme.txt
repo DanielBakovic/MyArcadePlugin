@@ -2,8 +2,8 @@
 Contributors: NetReview.de
 Tags: WP Arcade, WPArcade, Flash Games, Unity3D, Unity, HTML5, Autoblog, Auto post, Arcade Script, Arcade Plugin, Game Script
 Requires at least: 4.4
-Tested up to: 4.8
-Stable tag: 5.4.0
+Tested up to: 4.9
+Stable tag: 5.5.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,13 +32,10 @@ FunGames Theme in Action
 [youtube http://www.youtube.com/watch?v=iZ9BkbVoC8c]
 
 = MyArcadePlugin Lite Features =
-* Fetch Games from 2 Player Games
-* Fetch Games from CoolGames
 * Fetch Games from Famobi
 * Fetch Games from GamePix
 * Fetch Games from MyArcadeFeed
 * Fetch Games from Softgames
-* Fetch Games from Spilgames
 * Import Flash Games (SWF)
 * Import Iframe Games
 * Import Embed Code Games
@@ -58,13 +55,10 @@ FunGames Theme in Action
 = MyArcadePlugin Pro Features =
 MyArcadePlugin Lite is a fully functional but limited version of <a href='https://myarcadeplugin.com/' title='WordPress Arcade Plugin'>MyArcadePlugin Pro</a>. Here are some of the features you will get with the premium version:
 
-* Fetch Games from 2 Player Games
 * Fetch Games from Arcade Game Feed
-* Fetch Games from CoolGames
 * Fetch Games from Famobi
 * Fetch Games from FreeOnlineGames
 * Fetch Games from GameDistribution
-* Fetch Games from GameFeed by TalkArcades
 * Fetch Games from GamePix
 * Fetch Games from HTML Games
 * Fetch Games from Kongregate
@@ -73,7 +67,6 @@ MyArcadePlugin Lite is a fully functional but limited version of <a href='https:
 * Fetch Games from Plinga
 * Fetch Games from Scirra
 * Fetch Games from Softgames
-* Fetch Games from Spil Games
 * Import Flash Games (SWF)
 * Import HTML5 Games
 * Import Shockwave Games (DCR)
