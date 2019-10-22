@@ -36,7 +36,6 @@ function myarcade_publish_games() {
     $cat              = $_POST['category'];
     $posts            = (isset($_POST['games'])) ? intval($_POST['games']) : false;
     $download_screens = (isset($_POST['downloadscreens'])) ? true : false;
-    $download_games   = (isset($_POST['downloadgames'])) ? true : false;
 
     // Generate the query
     $query_array = array();
@@ -227,12 +226,6 @@ function myarcade_publish_games() {
     }
     ?>
   </div>
-  <div id="down_games">
-    <?php if ($download_games && ( ! is_writable( $upload_dir['gamesdir'] ) ) ) {
-      echo '<p class="mabp_error mabp_680">'.sprintf(__("The games directory '%s' must be writeable (chmod 777) in order to download games.", 'myarcadeplugin'), $upload_dir['gamesdir'] ).'</p>';
-    }
-    ?>
-  </div>
 
   <?php if ( $start_publishing == 'yes' ) : ?>
 
@@ -342,7 +335,7 @@ function myarcade_publish_games() {
             schedule: '<?php echo $schedule; ?>',
             count: myarcade_count,
             download_screens: '<?php echo $download_screens; ?>',
-            download_games: '<?php echo $download_games; ?>'
+            download_games: 'false'
           },
           success: function( response ) {
             if ( response !== Object( response ) || ( typeof response.success === "undefined" && typeof response.error === "undefined" ) ) {
