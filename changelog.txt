@@ -1,8 +1,21 @@
+v5.6.0 - 2019-10-22 - Based on MyArcadePlugin Pro 5.36.0
+  * New - GameMonetize Integration (HTML5 and Mobile Games)
+  * New - Updated GameDistribution API
+  * Fix - PHP Fatal error if cron fetching is enabled for Scirra games
+  * Fix - Import form - Import method not handled correctly
+  * Fix - Feed URLs on MyArcade Dashboard
+  * Fix - GameDistribution offset fetching
+  * Fix - GamePix - Use SSL feed URL
+  * Fix - Plinga - SSL URL - Part 2
+  * Tweak - Improved file inclusion
+  * Tweak - Optimized game data displaying on posts
+  * Tweak - Removed deprecated file mochi_autopost.php
+
 v5.5.2 - 2018-08-10 - Based on MyArcadePlugin Pro 5.32.1
-x  * Fix - Plinga - SSL URL
-x  * Removed Coolgames and Spilgames - Services have been discontinued
-x  * Tweak - Optimized distributors settings
-x  * Fix - GameDistribution fetching
+  * Fix - Plinga - SSL URL
+  * Removed Coolgames and Spilgames - Services have been discontinued
+  * Tweak - Optimized distributors settings
+  * Fix - GameDistribution fetching
 
 v5.5.1 - 2017-11-09 - Based on MyArcadePlugin Pro 5.31.1
   * Fix - Hourly game plays graph

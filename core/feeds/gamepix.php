@@ -20,6 +20,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 function myarcade_settings_gamepix() {
 
   $gamepix = myarcade_get_settings( 'gamepix' );
+
+  /**
+   * since 5.34.1
+   * Update distributor URL
+   */
+  if ( strpos( $gamepix['feed'], 'http://' ) !== FALSE ) {
+    $default_settings = myarcade_default_settings_gamepix();
+    $gamepix['feed'] = $default_settings['feed'];
+  }
   ?>
   <h2 class="trigger"><?php _e("GamePix", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -99,14 +108,11 @@ function myarcade_settings_gamepix() {
 /**
  * Retrieve distributor's default settings
  *
- * @version 5.19.0
- * @since   5.19.0
- * @access  public
  * @return  array Default settings
  */
 function myarcade_default_settings_gamepix() {
   return array(
-    'feed'          => 'http://games.gamepix.com/games',
+    'feed'          => 'https://games.gamepix.com/games',
     'publisher_id'  => '10013',
     'site_id'       => '20015',
     'category'      => 'all',
@@ -119,8 +125,6 @@ function myarcade_default_settings_gamepix() {
 /**
  * Handle distributor settings update
  *
- * @version 5.19.0
- * @access  public
  * @return  void
  */
 function myarcade_save_settings_gamepix() {
@@ -143,8 +147,6 @@ function myarcade_save_settings_gamepix() {
 /**
  * Fetch FlashGameDistribution games
  *
- * @version 5.15.0
- * @access  public
  * @param   array  $args Fetching parameters
  * @return  void
  */
@@ -262,9 +264,6 @@ function myarcade_feed_gamepix( $args = array() ) {
 /**
  * Return game embed method
  *
- * @version 5.18.0
- * @since   5.18.0
- * @access  public
  * @return  string Embed Method
  */
 function myarcade_embedtype_gamepix() {
@@ -274,12 +273,8 @@ function myarcade_embedtype_gamepix() {
 /**
  * Return if games can be downloaded by this distirbutor
  *
- * @version 5.19.0
- * @since   5.19.0
- * @access  public
  * @return  bool True if games can be downloaded
  */
 function myarcade_can_download_gamepix() {
   return false;
 }
-?>

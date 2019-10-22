@@ -458,7 +458,7 @@ add_action('wp_loaded', 'myarcade_plugin_update');
 /**
  * Take over the update check
  *
- * @version 5.30.0
+ * @version 5.13.0
  * @access  public
  * @param   object $checked_data
  * @return  object
@@ -470,7 +470,7 @@ function myarcade_check_for_update( $checked_data ) {
   }
 
   $request_args = array(
-    'slug' => MYARCADE_PLUGIN_SLUG,
+    'slug'    => MYARCADE_PLUGIN_SLUG,
     'version' => $checked_data->checked[ MYARCADE_PLUGIN_FOLDER_NAME . '/myarcadeplugin.php' ],
   );
 

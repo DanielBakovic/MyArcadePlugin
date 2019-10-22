@@ -81,7 +81,7 @@ function myarcade_show_stats() {
         <div class="insider" id="boxy">
           <p>
           <?php
-          $rss = fetch_feed('http://exells.com/special-offer/feed/?withoutcomments=1');
+          $rss = fetch_feed('https://exells.com/special-offer/feed/?withoutcomments=1');
           if ( is_wp_error( $rss ) ) {
             echo '<p>'; _e('Sorry, can not download the feed', 'myarcadeplugin'); echo '</p>';
           }
@@ -95,30 +95,9 @@ function myarcade_show_stats() {
         </div> <!-- inside end -->
       </div>
     </div> <!-- postbox end -->
-
-    <div class="postbox">
-      <div class="statsico"></div>
-        <!-- <a target="_new" href="#"><div class="joystickico"></div></a> -->
-        <h3 class="hndle" id="poststuff"><span><?php _e('MyArcade Traffic Exchange Network', 'myarcadeplugin') ?></span></h3>
-        <div class="preloader-container">
-          <div class="insider" id="boxy">
-            <p>Join our Banner / Traffic Exchange Network to boost your traffic and to increase the popularity of your site. You will receive 10.000 banner impressions on register for FREE!</p>
-             <center><a href="http://exchange.myarcadeplugin.com" target="_blank" title="MyArcade Traffic Exchange Network"> MyArcade Traffic / Banner Exchange Network</a></center>
-          </div> <!-- inside end -->
-        </div>
-      </div> <!-- postbox end -->
   </div><!-- end dash-left -->
 
   <div class="dash-right metabox-holder">
-    <div class="postbox">
-      <div class="dollarico"></div>
-        <h3 class="hndle" id="poststuff"><span><?php _e('Make Extra Money', 'myarcadeplugin') ?></span></h3>
-        <div class="preloader-container">
-          <div class="insider" id="boxy">
-             <p>With MyArcadePlugin affiliate program you can be a part of our success.</p><p>You will earn up to <strong>30%</strong> commission on any sale you refer! <a href="http://myarcadeplugin.com/affiliate-program/" title="MyArcadePlugin Affiliate Programm">Join our affiliate program</a>, promote MyArcadePlugin and earn extra money!</p>
-          </div> <!-- inside end -->
-        </div>
-      </div> <!-- postbox end -->
 
     <div class="postbox">
       <div class="newsico"></div>
@@ -126,7 +105,7 @@ function myarcade_show_stats() {
         <div class="preloader-container">
           <div class="insider" id="boxy">
           <?php
-             wp_widget_rss_output('http://myarcadeplugin.com/feed', array('items' => 5, 'show_author' => 0, 'show_date' => 1, 'show_summary' => 0));
+             wp_widget_rss_output('https://myarcadeplugin.com/feed', array('items' => 5, 'show_author' => 0, 'show_date' => 1, 'show_summary' => 0));
           ?>
           </div> <!-- inside end -->
         </div>
@@ -138,7 +117,7 @@ function myarcade_show_stats() {
         <div class="preloader-container">
           <div class="insider" id="boxy">
           <?php
-             wp_widget_rss_output('http://exells.com/feed/', array('items' => 5, 'show_author' => 0, 'show_date' => 1, 'show_summary' => 0));
+             wp_widget_rss_output('https://exells.com/feed', array('items' => 5, 'show_author' => 0, 'show_date' => 1, 'show_summary' => 0));
           ?>
           </div> <!-- inside end -->
         </div>
@@ -151,7 +130,7 @@ function myarcade_show_stats() {
           <div class="insider" id="boxy">
             <p style="text-align:center"><strong><?php _e('If you like MyArcadePlugin, become our friend on Facebook', 'myarcadeplugin'); ?></strong></p>
             <p style="text-align:center;">
-              <iframe src="http://www.facebook.com/plugins/likebox.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FMyArcadePlugin%2F178161832232562&amp;width=300&amp;colorscheme=light&amp;show_faces=true&amp;stream=false&amp;header=false&amp;height=400" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:300px; height:400px;" allowTransparency="true"></iframe>
+              <iframe src="https://www.facebook.com/plugins/likebox.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FMyArcadePlugin%2F178161832232562&amp;width=300&amp;colorscheme=light&amp;show_faces=true&amp;stream=false&amp;header=false&amp;height=400" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:300px; height:400px;" allowTransparency="true"></iframe>
             </p>
           </div> <!-- inside end -->
         </div>

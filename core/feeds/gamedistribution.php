@@ -24,6 +24,8 @@ function myarcade_save_settings_gamedistribution() {
   $settings = array();
   $settings['feed'] = esc_sql( filter_input( INPUT_POST, 'gamedistribution_url' ) );
   $settings['category'] = filter_input( INPUT_POST, 'gamedistribution_category' );
+  $settings['collection'] = filter_input( INPUT_POST, 'gamedistribution_collection' );
+  $settings['type'] = filter_input( INPUT_POST, 'gamedistribution_type' );
 
   $settings['cron_fetch'] = filter_input( INPUT_POST, 'gamedistribution_cron_fetch', FILTER_VALIDATE_BOOLEAN );
   $settings['cron_fetch_limit'] = filter_input( INPUT_POST, 'gamedistribution_cron_fetch_limit', FILTER_VALIDATE_INT, array( "options" => array( "default" => 1) ) );
@@ -42,6 +44,15 @@ function myarcade_save_settings_gamedistribution() {
  */
 function myarcade_settings_gamedistribution() {
   $gamedistribution = myarcade_get_settings( 'gamedistribution' );
+
+  /**
+   * since 5.33.0
+   * Update distributor URL
+   */
+  if ( strpos( $gamedistribution['feed'], 'games.gamedistribution.com/All/' ) !== FALSE ) {
+    $default_settings = myarcade_default_settings_gamedistribution();
+    $gamedistribution['feed'] = $default_settings['feed'];
+  }
   ?>
   <h2 class="trigger"><?php _e( "GameDistribution", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -63,40 +74,47 @@ function myarcade_settings_gamedistribution() {
           <td><i><?php _e("Edit this field only if Feed URL has been changed!", 'myarcadeplugin'); ?></i></td>
         </tr>
 
+        <tr><td colspan="2"><h3><?php _e("Collection", 'myarcadeplugin'); ?></h3></td></tr>
+
+        <tr>
+          <td>
+            <select size="1" name="gamedistribution_collection" id="gamedistribution_collection">
+              <option value="all" <?php myarcade_selected( $gamedistribution['collection'], 'all' ); ?>><?php _e( 'All games', 'myarcadeplugin' ); ?></option>
+              <option value="best" <?php myarcade_selected( $gamedistribution['collection'], 'best' ); ?>><?php _e( 'Best new games', 'myarcadeplugin' ); ?></option>
+              <option value="featured" <?php myarcade_selected( $gamedistribution['collection'], 'featured' ); ?>><?php _e( 'Hot Games', 'myarcadeplugin' ); ?></option>
+            </select>
+          </td>
+          <td><i><?php _e("Select game collections.", 'myarcadeplugin'); ?></i></td>
+        </tr>
+
         <tr><td colspan="2"><h3><?php _e("Category", 'myarcadeplugin'); ?></h3></td></tr>
 
         <?php
         $gamedistribution_categories = array(
-          'all' => __( "All games", 'myarcadeplugin' ),
+          'All' => __( "All games", 'myarcadeplugin' ),
           "1 Player" => "1 Player",
           "2 Player" => "2 Player",
           "3D" => "3D",
           "Action" => "Action",
           "Addicting" => "Addicting",
           "Adventure" => "Adventure",
+          "Android" => "Android",
           "Animal" => "Animal",
           "Arcade" => "Arcade",
           "Basketball" => "Basketball",
-          "Bejeweled" => "Bejeweled",
-          "Bike" => "Bike",
-          "Board" => "Board",
           "Bubble Shooter" => "Bubble Shooter",
           "Car" => "Car",
           "Card" => "Card",
-          "Cars" => "Cars",
+          "Cartoon" => "Cartoon",
+          "Catching" => "Catching",
           "Celebrity" => "Celebrity",
+          "Clicker" => "Clicker",
           "Cooking" => "Cooking",
-          "Creation" => "Creation",
-          "Dating" => "Dating",
           "Decoration" => "Decoration",
-          "Defense" => "Defense",
-          "Difference" => "Difference",
           "Drawing" => "Drawing",
           "Dress Up" => "Dress Up",
           "Educational" => "Educational",
           "Escape" => "Escape",
-          "Fashion" => "Fashion",
-          "Flight" => "Flight",
           "Flying" => "Flying",
           "Football" => "Football",
           "Fun" => "Fun",
@@ -105,46 +123,32 @@ function myarcade_settings_gamedistribution() {
           "Halloween" => "Halloween",
           "Hidden Objects" => "Hidden Objects",
           "HTML5" => "HTML5",
-          "Jigsaw Puzzle" => "Jigsaw Puzzle",
           "Kids" => "Kids",
           "Mahjong" => "Mahjong",
           "Make Over" => "Make Over",
           "Make up" => "Make up",
-          "Management" => "Management",
-          "Manicure &amp; Pedicure" => "Manicure &amp; Pedicure",
           "Match-3" => "Match-3",
           "Mathematical" => "Mathematical",
           "Memory" => "Memory",
           "Motorbike" => "Motorbike",
           "Multiplayer" => "Multiplayer",
-          "Nail" => "Nail",
+          "Music" => "Music",
           "Parking" => "Parking",
           "Physics" => "Physics",
           "Platform" => "Platform",
-          "Point And Click" => "Point And Click",
-          "Princess" => "Princess",
           "Puzzle" => "Puzzle",
           "Quiz" => "Quiz",
           "Racing" => "Racing",
+          "Rpg" => "Rpg",
           "Running" => "Running",
-          "Seasonal" => "Seasonal",
           "Shoot 'Em Up" => "Shoot 'Em Up",
           "Shooter" => "Shooter",
           "Shooting" => "Shooting",
-          "Shopping" => "Shopping",
           "Simulation" => "Simulation",
           "Skill" => "Skill",
           "Soccer" => "Soccer",
           "Sports" => "Sports",
-          "Strategy" => "Strategy",
-          "Sudoku" => "Sudoku",
-          "Super Hero" => "Super Hero",
-          "Time Management" => "Time Management",
           "Tower Defense" => "Tower Defense",
-          "Truck" => "Truck",
-          "Uphill Racing" => "Uphill Racing",
-          "War" => "War",
-          "Wedding" => "Wedding",
         );
         ?>
         <tr>
@@ -207,9 +211,11 @@ function myarcade_settings_gamedistribution() {
  */
 function myarcade_default_settings_gamedistribution() {
   return array(
-    'feed'          => 'http://games.gamedistribution.com/All/',
+    'feed'          => 'https://catalog.api.gamedistribution.com/api/v1.0/rss/All/',
     'limit'         => '40',
-    'category'      => 'all',
+    'type'          => 'all',
+    'collection'    => 'all',
+    'category'      => 'All',
     'cron_fetch'    => false,
     'cron_fetch_limit' => '1',
     'cron_publish'  => false,
@@ -277,23 +283,22 @@ function myarcade_get_categories_gamedistribution() {
     "Action"      => true,
     "Adventure"   => true,
     "Arcade"      => true,
-    "Board Game"  => "Board,Card,Bejeweled,Mahjong",
+    "Board Game"  => "Card,Clicker,Mahjong",
     "Casino"      => false,
-    "Defense"     => true,
-    "Customize"   => "Fashion,Creation,Make Over,Make up,Manicure &amp; Pedicure,Nail",
-    "Dress-Up"    => "Celebrity,Dress Up,Girls,Princess",
-    "Driving"     => "Bike,Car,Cars,Motorbike,Parking,Racing,Truck,Uphill Racing",
+    "Defense"     => "Defense,Tower Defense",
+    "Customize"   => "Make Over,Make up",
+    "Dress-Up"    => "Celebrity,Dress Up,Girls",
+    "Driving"     => "Car,Motorbike,Parking,Racing",
     "Education"   => "Educational,Kids,Mathematical",
     "Fighting"    => false,
-    "Jigsaw"      => "Jigsaw Puzzle",
+    "Jigsaw"      => false,
     "Multiplayer" => "2 Player,Multiplayer",
-    "Other"       => "3D,Addicting,Animal,Cooking,Dating,Decoration,1 Player,Drawing,Fun,Funny,Halloween,HTML5,Running,Seasonal,Shopping,Skill,Super Hero,Wedding",
-    "Puzzles"     => "Difference,Hidden Objects,Match-3,Memory,Point And Click,Puzzle,Sudoku",
-    "Rhythm"      => false,
-    "Shooting"    => "Shoot 'Em Up,Shooter,Shooting,War",
+    "Other"       => "3D,Addicting,Android,Animal,Cartoon,Catching,Cooking,Decoration,1 Player,Drawing,Fun,Funny,Halloween,HTML5,Running,Skill",
+    "Puzzles"     => "Hidden Objects,Match-3,Memory,Puzzle",
+    "Rhythm"      => "Music",
+    "Shooting"    => "Shoot 'Em Up,Shooter,Shooting",
     "Sports"      => "Basketball,Football,Soccer,Sports",
-    "Strategy"    => "Bubble Shooter,Escape,Flight,Flying,Management,Physics,Platform,Quiz,Simulation,Strategy,Time Management,Tower Defense
-",
+    "Strategy"    => "Bubble Shooter,Escape,Flying,Physics,Platform,Quiz,Rpg,Simulation",
   );
 }
 
@@ -334,24 +339,34 @@ function myarcade_feed_gamedistribution( $args = array() ) {
     $settings['method'] = 'latest';
   }
 
-  $feed = add_query_arg( array( "format" => "json" ), trim( $settings['feed'] ) );
+  /**
+   * since 5.33.0
+   * Update distributor URL
+   */
+  if ( strpos( $settings['feed'], 'games.gamedistribution.com/All/' ) !== FALSE ) {
+    $default_settings = myarcade_default_settings_gamedistribution();
+    $settings['feed'] = $default_settings['feed'];
+  }
+
+  // Generate the feed URL
+  $feed = add_query_arg( array( "format" => "json", "collection" => $settings['collection'] ), trim( $settings['feed'] ) );
 
   // Check if there is a feed limit. If not, feed all games
   if ( ! empty( $settings['limit'] ) ) {
-    $feed = add_query_arg( array( "limit" => $settings['limit'] ), $feed );
+    $feed = add_query_arg( array( "amount" => $settings['limit'] ), $feed );
   }
 
-  $feed = add_query_arg( array("offset" => $settings['offset'] ), $feed );
+  $feed = add_query_arg( array("page" => $settings['offset'] ), $feed );
 
   if ( $settings['category'] != 'all' ) {
     $feed = add_query_arg( array("category" => rawurlencode( $settings['category'] ) ), $feed );
   }
 
   if ( isset( $general['type'] ) && 'mobile' == $general['type'] ) {
-    $feed = add_query_arg( array( "Type"  => "Html5" ), $feed );
+    $feed = add_query_arg( array( "type"  => "html5" ), $feed );
   }
   else {
-    $feed = add_query_arg( array( "Type"  => "All" ), $feed );
+    $feed = add_query_arg( array( "type"  => "all" ), $feed );
   }
 
   // Include required fetch functions
@@ -365,22 +380,27 @@ function myarcade_feed_gamedistribution( $args = array() ) {
     foreach ( $json_games as $game_obj ) {
 
       $game = new stdClass();
-      $game->uuid     = crc32( $game_obj->Title ) . '_gamedistribution';
+      $game->uuid     = crc32( $game_obj->title ) . '_gamedistribution';
       // Generate a game tag for this game
-      $game->game_tag = md5( $game_obj->Title . 'gamedistribution' );
+      $game->game_tag = md5( $game_obj->title . 'gamedistribution' );
 
       $add_game   = false;
 
+      $categories = array();
+
       // Map categories
-      if ( ! empty( $game_obj->CatTitle ) ) {
-        $categories = explode( ',', $game_obj->CatTitle );
-        $categories = array_map( 'trim', $categories );
+      if ( is_array( $game_obj->categoryList ) ) {
+        foreach ( $game_obj->categoryList as $category ) {
+          if ( isset( $category->name ) ) {
+            $categories[] = $category->name;
+          }
+        }
       }
       else {
-        $categories = array( 'Other' );
+        $categories[] = 'Other';
       }
 
-      // Initialize the category string
+
       $categories_string = 'Other';
 
       foreach( $categories as $gamecat ) {
@@ -412,22 +432,58 @@ function myarcade_feed_gamedistribution( $args = array() ) {
         continue;
       }
 
-      if ( "5" == $game_obj->GameType ) {
+      if ( "html5" == $game_obj->gameType ) {
         $game->type = 'gamedistribution';
       }
       else {
         $game->type = "custom";
       }
 
-      $game->name           = esc_sql( $game_obj->Title );
-      $game->slug           = myarcade_make_slug( $game_obj->Title );
-      $game->description    = esc_sql( $game_obj->Description );
+      $game->name           = esc_sql( $game_obj->title );
+      $game->slug           = myarcade_make_slug( $game_obj->title );
+      $game->description    = esc_sql( $game_obj->description );
+      $game->instructions   = esc_sql( $game_obj->instructions );
       $game->categs         = $categories_string;
-      $game->width          = intval( $game_obj->Width );
-      $game->height         = intval( $game_obj->Height );
-      $game->swf_url        = esc_sql( $game_obj->ExternalURL );
-      $game->thumbnail_url  = esc_sql( $game_obj->ExternalThumbURL );
-      $game->tags           = esc_sql( $game_obj->Tags );
+      $game->width          = intval( $game_obj->width );
+      $game->height         = intval( $game_obj->height );
+      $game->swf_url        = esc_sql( $game_obj->url );
+
+      // Get the thumbnail
+      if ( is_array( $game_obj->assetList ) ) {
+        $assets = array();
+
+        foreach ( $game_obj->assetList as $asset ) {
+          if ( isset( $asset->name ) ) {
+            $assets[] = $asset->name;
+          }
+        }
+
+        // Try to use 512x512 image as featured image. If not available use the last image (usually the last image is the smallest one)
+        $game->thumbnail_url = end ( $assets );
+
+        $needle = '512x512';
+        $results = array_keys( array_filter( $assets, function($var) use ($needle) {
+          return strpos($var, $needle) !== false;
+        }));
+
+        if ( ! empty( $results[0] ) ) {
+          // We found the 512x512 image. Overwrite the thumbnail url
+          $game->thumbnail_url = $assets[ $results[0] ];
+        }
+      }
+
+      // Get game tags
+      if ( is_array( $game_obj->tagList ) ) {
+        $game->tags = '';
+
+        foreach ( $game_obj->tagList as $tag ) {
+          if ( isset( $tag->name ) ) {
+            $game->tags .= $tag->name . ',';
+          }
+        }
+
+        $game->tags = rtrim( $game->tags, ',' );
+      }
 
       // Add game to the database
       if ( myarcade_add_fetched_game( $game, $args ) ) {

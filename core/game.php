@@ -161,8 +161,6 @@ function myarcade_replace_protocol( $game_url ) {
 
   if ( $general['handle_ssl'] && is_ssl() ) {
     $game_url = str_replace( "http://", "https://", $game_url );
-    // Maybe replace plinga
-    $game_url = str_replace( "plinga.com", "psgn.plinga.de", $game_url );
   }
 
   return $game_url;

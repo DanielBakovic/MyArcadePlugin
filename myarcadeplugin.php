@@ -3,7 +3,7 @@
  * Plugin Name:  MyArcadePlugin Lite
  * Plugin URI:   https://myarcadeplugin.com
  * Description:  WordPress Arcade Plugin
- * Version:      5.5.2
+ * Version:      5.6.0
  * Author:       Daniel Bakovic
  * Author URI:   http://myarcadeplugin.com
  * License:      GPLv2 or later (license.txt)
@@ -11,7 +11,7 @@
  * Text Domain:  myarcadeplugin
  * Domain Path:  /lang
  * Requires at least: 4.4
- * Tested up to: 4.9
+ * Tested up to: 5.2.4
  */
 
 /*
@@ -91,7 +91,7 @@ function myarcade_initial_constants() {
 
   // Define the plugins abs path
   $dirname = basename( dirname( __FILE__ ) );
-  define('MYARCADE_DIR',        WP_PLUGIN_DIR     . '/' . $dirname );
+  define('MYARCADE_DIR',        dirname( __FILE__ ) );
   define('MYARCADE_CORE_DIR',   MYARCADE_DIR      . '/core');
   define('MYARCADE_URL',        plugins_url() . '/' . $dirname );
 
@@ -111,24 +111,24 @@ function myarcade_includes() {
 
   include_once( MYARCADE_DIR . '/includes/class-myarcade-autoloader.php' );
 
-  require_once 'core/session.php';
-  require_once 'core/debug.php';
-  require_once 'core/template.php';
-  require_once 'core/game.php';
-  require_once 'core/output.php';
-  require_once 'core/user.php';
+  require_once( MYARCADE_DIR . '/core/session.php' );
+  require_once( MYARCADE_DIR . '/core/debug.php' );
+  require_once( MYARCADE_DIR . '/core/template.php' );
+  require_once( MYARCADE_DIR . '/core/game.php' );
+  require_once( MYARCADE_DIR . '/core/output.php' );
+  require_once( MYARCADE_DIR . '/core/user.php' );
 
   // DO THIS ONLY ON BACKEND
   if ( is_admin() ) {
     //set_site_transient('update_plugins', null);
-    require_once 'core/myarcade_admin.php';
+    require_once( MYARCADE_DIR . '/core/myarcade_admin.php' );
   }
 
   // Do this on the backend and on cron triggers
   if ( is_admin() ||  defined('MYARCADE_DOING_ACTION') || defined('DOING_CRON') ) {
-    require_once 'core/feedback.php';
-    require_once 'core/addgames.php';
-    require_once 'core/file.php';
+    require_once( MYARCADE_DIR . '/core/feedback.php' );
+    require_once( MYARCADE_DIR . '/core/addgames.php' );
+    require_once( MYARCADE_DIR . '/core/file.php' );
   }
 
   // Stats / Tracking
@@ -164,13 +164,13 @@ function myarcade_set_distributors() {
       'famobi'        => 'Famobi',
       'fgd'           => 'FlashGameDistribution',
       'gamedistribution' => 'GameDistribution',
+      'gamemonetize'  => 'GameMonetize',
       'gamepix'       => 'GamePix',
       'myarcadefeed'  => 'MyArcadeFeed',
       'softgames'     => 'Softgames',
       'spilgames'     => 'Spil Games',
       'agf'           => 'Arcade Game Feed (Pro)',
       'fog'           => 'FreeGamesForYourWebsite (Pro)',
-      'gamefeed'      => 'GameFeed (Pro)',
       'htmlgames'     => 'HTML Games (Pro)',
       'kongregate'    => 'Kongregate (Pro)',
       'playtomax'     => 'PlayToMax (Pro)',
@@ -193,6 +193,7 @@ function myarcade_set_game_type_custom() {
   $myarcade_game_type_custom = array(
     'embed'     => __( "Embed Code", 'myarcadeplugin' ),
     'custom'    => __( "Flash (SWF)", 'myarcadeplugin' ),
+    'html5'     => __( "HTML5 Game (Pro)", 'myarcadeplugin' ),
     'ibparcade' => __( "IBPArcade Game  (Pro)", 'myarcadeplugin' ),
     'iframe'    => __( "Iframe URL", 'myarcadeplugin' ),
     'phpbb'     => __( "PHPBB Game (Pro)", 'myarcadeplugin' ),

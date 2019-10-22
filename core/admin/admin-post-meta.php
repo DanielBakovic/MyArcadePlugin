@@ -238,68 +238,65 @@ function myarcade_game_data_box() {
     var file_path_field;
     window.send_to_editor_default = window.send_to_editor;
 
-    jQuery('.upload_thumbnail_button').live('click', function(){
-      file_path_field = jQuery(this).parent().find('.thumbnail_path');
-      formfield = jQuery(file_path_field).attr('name');
-      window.send_to_editor = window.send_to_download_url;
-      tb_show('', 'media-upload.php?post_id=<?php echo $post->ID; ?>&amp;type=myarcade_image&amp;from=wc01&amp;TB_iframe=true');
-      return false;
+    jQuery('.upload_thumbnail_button').live('click', function(event){
+      event.preventDefault();
+      var custom_uploader = wp.media.frames.file_frame = wp.media({ multiple: false });
+      custom_uploader.on('select', function() {
+        var attachment = custom_uploader.state().get("selection").first().toJSON();
+        $('#thumbnail_path').val(attachment.url);
+      });
+      custom_uploader.open();
     });
 
-    jQuery('.upload_game_button').live('click', function(){
-      file_path_field = jQuery(this).parent().find('.game_path');
-      formfield = jQuery(file_path_field).attr('name');
-      window.send_to_editor = window.send_to_download_url;
-      tb_show('', 'media-upload.php?post_id=<?php echo $post->ID; ?>&amp;type=myarcade_game&amp;from=wc01&amp;TB_iframe=true');
-      return false;
+    jQuery('.upload_game_button').live('click', function(event){
+      event.preventDefault();
+      var custom_uploader = wp.media.frames.file_frame = wp.media({ multiple: false });
+      custom_uploader.on('select', function() {
+        var attachment = custom_uploader.state().get("selection").first().toJSON();
+        $('#game_path').val(attachment.url);
+      });
+      custom_uploader.open();
     });
 
-    jQuery('.upload_screen1_button').live('click', function(){
-      file_path_field = jQuery(this).parent().find('.screen1_path');
-      formfield = jQuery(file_path_field).attr('name');
-      window.send_to_editor = window.send_to_download_url;
-      tb_show('', 'media-upload.php?post_id=<?php echo $post->ID; ?>&amp;type=myarcade_image&amp;from=wc01&amp;TB_iframe=true');
-      return false;
+    jQuery('.upload_screen1_button').live('click', function(event){
+      event.preventDefault();
+      var custom_uploader = wp.media.frames.file_frame = wp.media({ multiple: false });
+      custom_uploader.on('select', function() {
+        var attachment = custom_uploader.state().get("selection").first().toJSON();
+        $('#mabp_screen1_url').val(attachment.url);
+      });
+      custom_uploader.open();
     });
 
-    jQuery('.upload_screen2_button').live('click', function(){
-      file_path_field = jQuery(this).parent().find('.screen2_path');
-      formfield = jQuery(file_path_field).attr('name');
-      window.send_to_editor = window.send_to_download_url;
-      tb_show('', 'media-upload.php?post_id=<?php echo $post->ID; ?>&amp;type=myarcade_image&amp;from=wc01&amp;TB_iframe=true');
-      return false;
+    jQuery('.upload_screen2_button').live('click', function(event){
+      event.preventDefault();
+      var custom_uploader = wp.media.frames.file_frame = wp.media({ multiple: false });
+      custom_uploader.on('select', function() {
+        var attachment = custom_uploader.state().get("selection").first().toJSON();
+        $('#mabp_screen2_url').val(attachment.url);
+      });
+      custom_uploader.open();
     });
 
-    jQuery('.upload_screen3_button').live('click', function(){
-      file_path_field = jQuery(this).parent().find('.screen3_path');
-      formfield = jQuery(file_path_field).attr('name');
-      window.send_to_editor = window.send_to_download_url;
-      tb_show('', 'media-upload.php?post_id=<?php echo $post->ID; ?>&amp;type=myarcade_image&amp;from=wc01&amp;TB_iframe=true');
-      return false;
+    jQuery('.upload_screen3_button').live('click', function(event){
+      event.preventDefault();
+      var custom_uploader = wp.media.frames.file_frame = wp.media({ multiple: false });
+      custom_uploader.on('select', function() {
+        var attachment = custom_uploader.state().get("selection").first().toJSON();
+        $('#mabp_screen3_url').val(attachment.url);
+      });
+      custom_uploader.open();
     });
 
-    jQuery('.upload_screen4_button').live('click', function(){
-      file_path_field = jQuery(this).parent().find('.screen4_path');
-      formfield = jQuery(file_path_field).attr('name');
-      window.send_to_editor = window.send_to_download_url;
-      tb_show('', 'media-upload.php?post_id=<?php echo $post->ID; ?>&amp;type=myarcade_image&amp;from=wc01&amp;TB_iframe=true');
-      return false;
+    jQuery('.upload_screen4_button').live('click', function(event){
+      event.preventDefault();
+      var custom_uploader = wp.media.frames.file_frame = wp.media({ multiple: false });
+      custom_uploader.on('select', function() {
+        var attachment = custom_uploader.state().get("selection").first().toJSON();
+        $('#mabp_screen4_url').val(attachment.url);
+      });
+      custom_uploader.open();
     });
-
-    window.send_to_download_url = function(html) {
-      file_url = jQuery(html).attr('href');
-      if (file_url) {
-        jQuery(file_path_field).val(file_url);
-      }
-      else {
-        file_url = jQuery(html).attr('src');
-        if (file_url) {
-          jQuery(file_path_field).val(file_url);
-        }
-      }
-      tb_remove();
-      window.send_to_editor = window.send_to_editor_default;
-    }
   </script>
   <?php
 }

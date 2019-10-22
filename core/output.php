@@ -35,7 +35,6 @@ function myarcade_get_embed_type( $game_type ) {
 /**
  * Show a game depended on the game type
  *
- * @version 5.29.0
  * @access  public
  * @param   int  $game_id        Post ID
  * @param   boolean $fullsize   TRUE to display the game with origial dimensions
@@ -156,6 +155,7 @@ function get_game( $game_id = false, $fullsize = false, $preview = false, $fulls
         } break;
 
         case 'iframe':
+        case 'html5':
         {
           $gamewidth = ( !empty($gamewidth) ) ? 'width="'.$gamewidth.'"' : '';
           $gameheight = ( !empty($gameheight) ) ? 'height="'.$gameheight.'"' : '';

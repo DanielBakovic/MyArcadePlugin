@@ -13,7 +13,7 @@ if( !defined( 'ABSPATH' ) ) {
 /**
  * Import games page
  *
- * @version 5.28.0
+ * @version 5.31.0
  * @access  public
  * @return  void
  */
@@ -27,43 +27,39 @@ function myarcade_import_games() {
   // Crete an empty game class
   $game = new stdClass();
 
-  $import_action = sanitize_text_field( filter_input( INPUT_POST, 'impcostgame' ) );
-  $import_type   = sanitize_text_field( filter_input( INPUT_POST, 'importtype' ) );
-
-  if ( 'import' == $import_action ) {
-    if ( 'embed' == $import_type || 'iframe' == $import_type ) {
-      $decoded = esc_url( urldecode( $_POST['importgame'] ) );
+  if ( isset($_POST['impcostgame']) && ($_POST['impcostgame'] == 'import') ) {
+    if ( $_POST['importtype'] == 'embed' || $_POST['importtype'] == 'iframe' || $_POST['importtype'] == 'html5' ) {
+      $decoded = urldecode( $_POST['importgame'] );
       $converted = str_replace( array("\r\n", "\r", "\n"), " ", $decoded);
       $game->swf_url = esc_sql( $converted );
     }
     else {
-      $game->swf_url = esc_url( $_POST['importgame'] );
+      $game->swf_url = $_POST['importgame'];
     }
 
-    $game->width = !empty($_POST['gamewidth']) ? sanitize_text_field( $_POST['gamewidth'] ) : '';
-    $game->height = !empty($_POST['gameheight']) ? sanitize_text_field( $_POST['gameheight'] ) : '';
+    $game->width = !empty($_POST['gamewidth']) ? $_POST['gamewidth'] : '';
+    $game->height = !empty($_POST['gameheight']) ? $_POST['gameheight'] : '';
 
-    if ( 'ibparcade' == $import_type || 'phpbb' == $import_type ) {
-      $game->slug = sanitize_text_field( $_POST['slug'] );
-    }
-    else {
-      $game->slug = preg_replace("/[^a-zA-Z0-9 ]/", "", strtolower( sanitize_text_field( $_POST['gamename'] ) ) );
-      $game->slug = str_replace( " ", "-", $game->slug );
+    $game->slug = filter_input( INPUT_POST, 'slug' );
+
+    if ( ! $game->slug ) {
+      $game->slug           = preg_replace("/[^a-zA-Z0-9 ]/", "", strtolower($_POST['gamename']));
+      $game->slug           = str_replace(" ", "-", $game->slug);
     }
 
-    $game->name           = sanitize_text_field( $_POST['gamename'] );
-    $game->type           = $import_type;
-    $game->uuid           = md5( $game->name.'import' );
-    $game->game_tag       = ( !empty($_POST['importgametag'])) ? sanitize_text_field( $_POST['importgametag'] ) : crc32( $game->uuid );
-    $game->thumbnail_url  = sanitize_text_field( $_POST['importthumb'] );
-    $game->description    = esc_textarea( $_POST['gamedescr'] );
-    $game->instructions   = esc_textarea( $_POST['gameinstr'] );
+    $game->name           = $_POST['gamename'];
+    $game->type           = $_POST['importtype'];
+    $game->uuid           = md5($game->name.'import');
+    $game->game_tag       = ( !empty($_POST['importgametag'])) ? $_POST['importgametag'] : crc32($game->uuid);
+    $game->thumbnail_url  = $_POST['importthumb'];
+    $game->description    = $_POST['gamedescr'];
+    $game->instructions   = $_POST['gameinstr'];
     $game->tags           = esc_sql( $_POST['gametags'] );
-    $game->categs         = ( isset($_POST['gamecategs']) ) ? sanitize_text_field( implode(",", $_POST['gamecategs'] ) ) : 'Other';
+    $game->categs         = ( isset($_POST['gamecategs']) ) ? implode(",", $_POST['gamecategs']) : 'Other';
     $game->created        = gmdate( 'Y-m-d H:i:s', ( time() + (get_option( 'gmt_offset' ) * 3600 ) ) );
-    $game->leaderboard_enabled = sanitize_text_field( filter_input( INPUT_POST, 'lbenabled' ) );
+    $game->leaderboard_enabled = filter_input( INPUT_POST, 'lbenabled' );
 
-    if ( 'low' == filter_input( INPUT_POST, 'highscoretype' ) ) {
+    if ( ! empty( $_POST['highscoretype'] ) && 'low' == $_POST['highscoretype'] ) {
       $game->highscore_type = 'ASC';
     }
     else {
@@ -71,12 +67,12 @@ function myarcade_import_games() {
     }
 
     $game->status         = 'new';
-    $game->screen1_url    = esc_sql( $_POST['importscreen1'] );
-    $game->screen2_url    = esc_sql( $_POST['importscreen2'] );
-    $game->screen3_url    = esc_sql( $_POST['importscreen3'] );
-    $game->screen4_url    = esc_sql( $_POST['importscreen4'] );
-    $game->video_url      = isset($_POST['video_url']) ? esc_url( $_POST['video_url'] ) : '';
-    $game->score_bridge   = isset($_POST['score_bridge']) ? sanitize_text_field( $_POST['score_bridge'] ) : '';
+    $game->screen1_url    = $_POST['importscreen1'];
+    $game->screen2_url    = $_POST['importscreen2'];
+    $game->screen3_url    = $_POST['importscreen3'];
+    $game->screen4_url    = $_POST['importscreen4'];
+    $game->video_url      = isset($_POST['video_url']) ? $_POST['video_url'] : '';
+    $game->score_bridge   = isset($_POST['score_bridge']) ? $_POST['score_bridge'] : '';
 
     // Add game to table
     myarcade_insert_game($game);

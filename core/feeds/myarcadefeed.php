@@ -85,14 +85,12 @@ function myarcade_settings_myarcadefeed() {
 /**
  * Retrieve distributor's default settings
  *
- * @version 5.19.0
- * @since   5.19.0
  * @access  public
  * @return  array Default settings
  */
 function myarcade_default_settings_myarcadefeed() {
   return array(
-    'feed1'          => 'http://games.myarcadeplugin.com/game_feed.xml',
+    'feed1'          => '',
     'feed2'          => '',
     'feed3'          => '',
     'feed4'          => '',
@@ -222,7 +220,7 @@ function myarcade_feed_myarcadefeed($args) {
   $games = myarcade_fetch_games( array(
       'url'     => $myarcadefeed[$feed],
       'service' => 'xml',
-      'echo'    => true
+      'echo'    => $echo
     )
   );
 

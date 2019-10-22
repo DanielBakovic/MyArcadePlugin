@@ -196,7 +196,7 @@ class MyArcade_Admin_Reports {
   public static function generate_postbox_content( $post, $args ) {
 
     // Set the loading image
-    $loading_img = '<div style="width: 100%; text-align: center;"><img src=" ' . MYARCADE_URL . '/images/loading.gif" alt="' . __( 'Loading...', 'myarcadeplugin' ) . '"></div>';
+    $loading_img = '<div style="width: 100%; text-align: center;"><img src=" ' . MYARCADE_URL . '/assets/images/loading.gif" alt="' . __( 'Loading...', 'myarcadeplugin' ) . '"></div>';
     // Generate the container id
     $container_id = str_replace( '.', '_', $args['args']['widget'] . '_postbox' );
 

@@ -64,8 +64,6 @@ function myarcade_get_abs_path( $url )  {
 /**
  * Delete game files when deleting a post
  *
- * @version 5.30.0
- * @access  public
  * @param   int $post_ID Post ID
  * @return  bool
  */
@@ -112,30 +110,44 @@ function myarcade_delete_game( $post_ID ) {
   }
 
   // Delete game file
-  $game_path = myarcade_get_abs_path( get_post_meta( $post_ID, "mabp_swf_url", true ) );
+  $game_file = get_post_meta( $post_ID, "mabp_swf_url", true );
+  $game_path = myarcade_get_abs_path( $game_file  );
 
   if ( $game_path ) {
-    myarcade_del_file($game_path);
+    myarcade_log_core( "Delete game file: {$game_path}" );
+
+    // Check if this is html5 games
+    if ( 'html5' == get_post_meta( $post_ID, "mabp_game_type", true ) ) {
+      // remove index.html
+      $game_path = str_replace( '/index.html', '', $game_path );
+
+      myarcade_log_core( "Delete HTML5 Folder: {$game_path}" );
+
+      // We have to make sure that the folder is within our games folder to prevent deleting of wrong files
+      if ( strpos( $game_path, '/uploads/games/html5/' ) !== FALSE ) {
+        require_once( ABSPATH . '/wp-admin/includes/class-wp-filesystem-base.php' );
+        require_once( ABSPATH . '/wp-admin/includes/class-wp-filesystem-direct.php' );
+        $direct = new WP_Filesystem_Direct( array() );
+        $direct->rmdir( $game_path, true );
+      }
+    }
+    else {
+      // Delete a single file
+      myarcade_del_file( $game_path );
+    }
+  }
+  else {
+    myarcade_log_core( "Can't determinate game file: {$game_file}" );
   }
 
-  // Delete game scores
-    // Get game_tag
+  // Get game_tag
   $game_tag = $wpdb->get_var("SELECT game_tag FROM `".$wpdb->prefix . 'myarcadegames'."` WHERE `postid` = '$post_ID'");
-    // Delete scores
+  // Delete scores
   $wpdb->query("DELETE FROM `".$wpdb->prefix.'myarcadescores'."` WHERE  `game_tag` = '$game_tag'");
-
-  // Set game status to deleted
-  $query = "UPDATE `".$wpdb->prefix . 'myarcadegames'."` SET
-           `status` = 'deleted',
-           `postid` = ''
-           WHERE `postid` = '$post_ID'";
-
-  $wpdb->query($query);
-
   // Delete game stats
   $wpdb->query( "DELETE FROM {$wpdb->prefix}myarcade_plays WHERE `post_id` = '$post_ID'" );
-
-  return true;
+  // Delete game
+  $wpdb->query("DELETE FROM `".$wpdb->prefix.'myarcadegames'."` WHERE  `postid` = '$post_ID'");
 }
 add_action('before_delete_post', 'myarcade_delete_game');
 

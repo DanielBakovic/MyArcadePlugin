@@ -480,7 +480,7 @@ jQuery(document).ready(function($) {
         $('#thumbform').hide();
         $('#importphpbb').hide();
         $('#importunity').hide();
-        $('#importibparcade').fadeIn('slow');
+        $('#importibparcade').fadeIn();
       }
       break;
 
@@ -488,7 +488,7 @@ jQuery(document).ready(function($) {
         $('#importswfdcr').hide();
         $('#importembedif').hide();
         $('#thumbform').hide();
-        $('#importphpbb').fadeIn('slow');
+        $('#importphpbb').fadeIn();
         $('#importunity').hide();
         $('#importibparcade').hide();
       }
@@ -499,8 +499,8 @@ jQuery(document).ready(function($) {
         $('#importembedif').hide();
         $('#importphpbb').hide();
         $('#importunity').hide();
-        $('#importswfdcr').fadeIn('slow');
-        $('#thumbform').fadeIn('slow');
+        $('#importswfdcr').fadeIn();
+        $('#thumbform').fadeIn();
       }
       break;
 
@@ -509,8 +509,8 @@ jQuery(document).ready(function($) {
         $('#importswfdcr').hide();
         $('#importphpbb').hide();
         $('#importunity').hide();
-        $('#importembedif').fadeIn('slow');
-        $('#thumbform').fadeIn('slow');
+        $('#importembedif').fadeIn();
+        $('#thumbform').fadeIn();
       }
       break;
 
@@ -518,9 +518,9 @@ jQuery(document).ready(function($) {
         $('#importibparcade').hide();
         $('#importswfdcr').hide();
         $('#importphpbb').hide();
-        $('#importunity').fadeIn('slow');
+        $('#importunity').fadeIn();
         $('#importembedif').hide();
-        $('#thumbform').fadeIn('slow');
+        $('#thumbform').fadeIn();
       }
       break;
     }

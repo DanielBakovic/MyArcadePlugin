@@ -8,7 +8,7 @@
 /**
  * Save options function
  *
- * @version 5.19.0
+ * @version 5.28.0
  * @since   5.19.0
  * @access  public
  * @return  void
