@@ -2,8 +2,8 @@
 Contributors: NetReview.de
 Tags: WP Arcade, WPArcade, Flash Games, Unity3D, Unity, HTML5, Autoblog, Auto post, Arcade Script, Arcade Plugin, Game Script
 Requires at least: 4.4
-Tested up to: 4.9
-Stable tag: 5.5.2
+Tested up to: 5.2.4
+Stable tag: 5.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,6 +34,7 @@ FunGames Theme in Action
 = MyArcadePlugin Lite Features =
 * Fetch Games from Famobi
 * Fetch Games from GamePix
+* Fetch Games from GameMonetize
 * Fetch Games from MyArcadeFeed
 * Fetch Games from Softgames
 * Import Flash Games (SWF)
@@ -59,6 +60,7 @@ MyArcadePlugin Lite is a fully functional but limited version of <a href='https:
 * Fetch Games from Famobi
 * Fetch Games from FreeOnlineGames
 * Fetch Games from GameDistribution
+* Fetch Games from GameMonetize
 * Fetch Games from GamePix
 * Fetch Games from HTML Games
 * Fetch Games from Kongregate
