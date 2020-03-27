@@ -199,7 +199,6 @@ function myarcade_get_categories_gamemonetize() {
  * @return  void
  */
 function myarcade_feed_gamemonetize( $args = array() ) {
-  global $wpdb;
 
   $defaults = array(
     'echo'     => false,
