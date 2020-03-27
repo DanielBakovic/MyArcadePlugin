@@ -171,7 +171,7 @@ function myarcade_settings_softgames() {
  */
 function myarcade_default_settings_softgames() {
   return array(
-    'feed'          => 'http://kirk.softgames.de/categories/latest-games.json/',
+    'feed'          => 'https://publishers.softgames.com/categories/new_games.json',
     'publisher_id'  => '',
     'category'      => 'all',
     'thumbnail'     => 'thumbBig',
@@ -232,8 +232,8 @@ function myarcade_feed_softgames( $args = array() ) {
   $json_games = myarcade_fetch_games( array( 'url' => $settings['feed'], 'service' => 'json', 'echo' => $echo ) );
 
   //====================================
-  if ( !empty($json_games->channel->games ) ) {
-    foreach ( $json_games->channel->games as $game_obj ) {
+  if ( !empty($json_games ) ) {
+    foreach ( $json_games as $game_obj ) {
 
       $game = new stdClass();
       $game->uuid     = crc32( $game_obj->title ) . '_softgames';
