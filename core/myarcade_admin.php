@@ -6,7 +6,7 @@
  */
 
 // No direct access
-if( !defined( 'ABSPATH' ) ) {
+if ( !defined( 'ABSPATH' ) ) {
   die();
 }
 
@@ -465,7 +465,7 @@ add_action('wp_loaded', 'myarcade_plugin_update');
  */
 function myarcade_check_for_update( $checked_data ) {
 
-  if ( empty($checked_data->checked) ) {
+  if ( empty( $checked_data->checked[ MYARCADE_PLUGIN_FOLDER_NAME . '/myarcadeplugin.php' ] ) ) {
     return $checked_data;
   }
 
@@ -490,9 +490,7 @@ function myarcade_check_for_update( $checked_data ) {
 
   return $checked_data;
 }
-if ( ! defined('WP_ENV') || WP_ENV != 'development' ) {
-  add_filter('pre_set_site_transient_update_plugins', 'myarcade_check_for_update');
-}
+add_filter('pre_set_site_transient_update_plugins', 'myarcade_check_for_update');
 
 /**
  * Take over the plugin info screen
@@ -788,7 +786,8 @@ function myarcade_handler() {
     case "publish":
     case "draft": {
       if ( !isset($gameID) || empty($gameID) ) {
-        echo "No Game ID!"; die();
+        echo "No Game ID!";
+        die();
       }
 
       // Publish this game
@@ -893,7 +892,7 @@ function myarcade_handler() {
 
             ?>
             <span id="general_delmap_<?php echo $_POST['mapcat']; ?>_<?php echo $feedcategories[$i]['Slug']; ?>" class="remove_map">
-              <img style="flaot:left;top:4px;position:relative;" src="<?php echo MYARCADE_URL; ?>/assets/images/remove.png" alt="UnMap" onclick="myabp_del_map('<?php echo $_POST['mapcat']; ?>', '<?php echo $feedcategories[$i]['Slug']; ?>', 'general')" />&nbsp;<?php echo $cat_name; ?>
+              <img style="float:left;top:2px;position:relative;" src="<?php echo MYARCADE_URL; ?>/assets/images/remove.png" alt="UnMap" onclick="myabp_del_map('<?php echo $_POST['mapcat']; ?>', '<?php echo $feedcategories[$i]['Slug']; ?>', 'general')" />&nbsp;<?php echo $cat_name; ?>
             </span>
             <?php
           }
@@ -1019,7 +1018,7 @@ function myarcade_handler() {
     } break;
   }
 
-  wp_die();
+  die();
 }
 add_action('wp_ajax_myarcade_handler', 'myarcade_handler');
 
@@ -1037,7 +1036,7 @@ function myarcade_plugin_update_notice() {
   }
   ?>
   <div style="border-radius:4px;-moz-border-radius:4px;-webkit-border-radius:4px;background:#FEB1B1;border:1px solid #FE9090;color:#820101;font-size:14px;font-weight:bold;height:auto;margin:30px 15px 15px 0px;overflow:hidden;padding:4px 10px 6px;line-height:30px;">
-    MyArcadePlugin was just updated / installed - Please visit the <a href="admin.php?page=myarcade-edit-settings">Plugin Options Page</a> and setup the plugin!
+    MyArcadePlugin was just updated / installed - Please visit the <a href="admin.php?page=myarcade-edit-settings">Plugin Options Page</a>, setup the plugin and save settings!
   </div>
   <?php
 }
@@ -1105,12 +1104,20 @@ function myarcade_create_directories() {
   // Game folders
   $upload_dir   = myarcade_upload_dir();
 
-  @wp_mkdir_p( $upload_dir['gamesdir'] );
-  @wp_mkdir_p( $upload_dir['thumbsdir']);
-  @wp_mkdir_p( $upload_dir['gamesdir'] . '/uploads/swf' );
-  @wp_mkdir_p( $upload_dir['gamesdir'] . '/uploads/ibparcade' );
-  @wp_mkdir_p( $upload_dir['gamesdir'] . '/uploads/phpbb' );
-  @wp_mkdir_p( $upload_dir['gamesdir'] . '/uploads/unity' );
+  wp_mkdir_p( $upload_dir['gamesdir'] );
+  wp_mkdir_p( $upload_dir['thumbsdir']) ;
+
+  $game_folders = array(
+    'html5',
+    'swf',
+    'ibparcade',
+    'phpbb',
+    'unity',
+  );
+
+  foreach ( $game_folders as $folder ) {
+    wp_mkdir_p( $upload_dir['gamesdir'] . "/uploads/{$folder}" );
+  }
 }
 
 /**

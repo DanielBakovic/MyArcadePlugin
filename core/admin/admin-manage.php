@@ -146,12 +146,20 @@ function myarcade_manage_games() {
         <?php _e("Type", 'myarcadeplugin'); ?>:
         <select name="distr" id="distr">
           <option value="all" <?php myarcade_selected($game_type, 'all'); ?>>All</option>
-          <option value="embed" <?php myarcade_selected($game_type, 'embed'); ?>>Embed</option>
-          <option value="iframe" <?php myarcade_selected($game_type, 'iframe'); ?>>Iframe</option>
-          <option value="custom" <?php myarcade_selected($game_type, 'custom'); ?>>Custom SWF</option>
-          <?php foreach ($myarcade_distributors as $slug => $name) : ?>
-          <option value="<?php echo $slug; ?>" <?php myarcade_selected($game_type, $slug); ?>><?php echo $name; ?></option>
-          <?php endforeach; ?>
+          <optgroup label="Game Distributors">
+            <?php foreach ($myarcade_distributors as $slug => $name) : ?>
+            <option value="<?php echo $slug; ?>" <?php myarcade_selected($game_type, $slug); ?>><?php echo $name; ?></option>
+            <?php endforeach; ?>
+          </optgroup>
+          <optgroup label="Imported Games">
+            <option value="html5" <?php myarcade_selected($game_type, 'html5'); ?>><?php _e("HTML5 Games", 'myarcadeplugin');?></option>
+            <option value="embed" <?php myarcade_selected($game_type, 'embed'); ?>><?php _e("Embed Codes", 'myarcadeplugin'); ?></option>
+            <option value="iframe" <?php myarcade_selected($game_type, 'iframe'); ?>><?php _e("Iframe (URL)", 'myarcadeplugin'); ?></option>
+            <option value="ibparcade" <?php myarcade_selected($game_type, 'ibparcade'); ?>><?php _e("IBPArcade Games", 'myarcadeplugin'); ?></option>
+            <option value="phpbb" <?php myarcade_selected($game_type, 'phpbb'); ?>><?php _e("PHPBB Games", 'myarcadeplugin'); ?></option>
+            <option value="dcr" <?php myarcade_selected($game_type, 'dcr'); ?>><?php _e("Shockwave Games (DCR)", 'myarcadeplugin'); ?></option>
+            <option value="custom" <?php myarcade_selected($game_type, 'custom'); ?>><?php _e("Flash Games (SWF)", 'myarcadeplugin'); ?></option>
+          </optgroup>
         </select>
       </div>
 

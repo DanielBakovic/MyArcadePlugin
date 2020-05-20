@@ -49,9 +49,9 @@ if ( function_exists('current_user_can') && !current_user_can('manage_options') 
         $score = $_POST['score'];
 
         // get score
-        $old_score = $wpdb->get_row("SELECT * FROM ".$wpdb->prefix.'myarcadescores'." WHERE id = '{$scoreid}'");
+        $old_score = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}myarcadescores WHERE id = %d", $scoreid ) );
         // Get highscore
-        $highscore = $wpdb->get_row("SELECT * FROM ".$wpdb->prefix.'myarcadehighscores'." WHERE game_tag = '{$old_score->game_tag}' AND user_id = '{$old_score->user_id}' AND score = '{$old_score->score}'");
+        $highscore = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}myarcadehighscores WHERE game_tag = '%s' AND user_id = %d AND score = '%s'", $old_score->game_tag, $old_score->user_id, $old_score->score ) );
 
         if ( $highscore ) {
           // Update highscore

@@ -211,8 +211,8 @@ function myarcade_add_game_post($game) {
     }
   }
 
-  // Update postID
-  $wpdb->query( "UPDATE " . $wpdb->prefix . 'myarcadegames' . " SET postid = '{$post_id}' WHERE id = '{$game->id}'" );
+  // Update post ID
+  $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}myarcadegames SET postid = %d WHERE id = %d", $post_id, $game->id ) );
 
   // Fire an action when the post has been created
   do_action( 'myarcade_post_created', $post_id );
@@ -520,7 +520,7 @@ function myarcade_add_games_to_blog( $args = array() ) {
 
   if ( $post_id ) {
     // Game-Table: Set post status to published
-    $wpdb->query( "UPDATE " . $wpdb->prefix . 'myarcadegames' . " SET status = 'published' WHERE id = '".$game->id."'" );
+    $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}myarcadegames SET status = 'published' WHERE id = %d", $game->id ) );
     return $post_id;
   }
 
@@ -553,10 +553,6 @@ function myaracade_set_featured_image ($post_id, $filename) {
     $tmp = download_url( $filename );
 
     // Set variables for storage
-    // fix file filename for query strings
-    preg_match('/[^\?]+\.(jpg|JPG|jpe|JPE|jpeg|JPEG|gif|GIF|png|PNG)/', $filename, $matches);
-
-    //if ( empty($slug) ) $slug = basename($matches[0]);
     $file_array['name'] = basename($filename);
     $file_array['tmp_name'] = $tmp;
     $file_array['type'] = $wp_filetype['type'];
@@ -636,7 +632,7 @@ function myarcade_add_fetched_game( $game, $args = array() ) {
   if ( $result  ) {
     // Show game
     if ( $echo ) {
-      $new_game = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . 'myarcadegames' . " WHERE uuid = '$game->uuid' LIMIT 1");
+      $new_game = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}myarcadegames WHERE uuid = '%s' LIMIT 1", $game->uuid ) );
       myarcade_show_game( $new_game );
     }
   }
@@ -780,12 +776,12 @@ function myarcade_ajax_publish() {
 
   header( 'Content-type: application/json' );
 
-  $id       = (int) $_REQUEST['id'];
-  $status   = $_REQUEST['status'];
-  $schedule = (int) $_REQUEST['schedule'];
-  $count    = (int) $_REQUEST['count'];
-  $download_screens = ($_REQUEST['download_screens'] == '1') ? true : false;
-  $download_games = ($_REQUEST['download_games'] == '1') ? true : false;
+  $id       = filter_input( INPUT_POST, 'id', FILTER_VALIDATE_INT );
+  $status   = filter_input( INPUT_POST, 'status' );
+  $schedule = filter_input( INPUT_POST, 'schedule', FILTER_VALIDATE_INT );
+  $count    = filter_input( INPUT_POST, 'count', FILTER_VALIDATE_INT );
+  $download_screens = ( isset( $_REQUEST['download_screens'] ) && $_REQUEST['download_screens'] == '1' ) ? true : false;
+  $download_games = ( isset( $_REQUEST['download_games'] ) && $_REQUEST['download_games'] == '1' ) ? true : false;
 
   if ( $status == 'future') {
     $post_interval = ($count - 1) * $schedule;
@@ -843,7 +839,7 @@ function myarcade_ajax_publish() {
 
     // The game has been published successfully
     wp_die(
-      json_encode(
+      wp_json_encode(
         array( 'success' => '<strong>'.esc_html( get_the_title($post_id) ).'</strong><br />
           <div>
             <div style="float:left;margin-right:5px">
@@ -866,7 +862,11 @@ function myarcade_ajax_publish() {
   }
   else {
     // Error while creating game post
-    die(json_encode(array('error' => __("Error: Post can not be created!", 'myarcadeplugin') .' - ' . $messages )));
+    wp_die(
+      wp_json_encode(
+        array( 'error' => __( "Error: Post can not be created!", 'myarcadeplugin' ) .' - ' . $messages )
+      )
+    );
   }
 }
 add_action('wp_ajax_myarcade_ajax_publish', 'myarcade_ajax_publish');

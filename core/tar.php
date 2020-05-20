@@ -205,8 +205,6 @@ class tar {
     chdir($to_dir);
     $cur_dir = getcwd();
 
-    $to_dir_slash = $to_dir . "/";
-
     //-----------------------------------------
     // Get the file info from the tar
     //-----------------------------------------

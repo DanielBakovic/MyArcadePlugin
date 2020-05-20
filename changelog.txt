@@ -1,3 +1,18 @@
+v5.7.0 - 2020-05-20 - Based on MyArcadePlugin Pro 5.38.0
+  * New - Updated Softgames API integration
+  * New - GameDistribution - Option to fetch exclusive games
+  * New - GameDistribution - Set mobile parameter during fetching if only mobile games are enabled
+  * Tweak - Removed SWFObject game displaying
+  * Fix - MyArcadeFeed - Games can't be fetched
+  * Tweak - Optimized GameMonetize category mapping to be able to fetch all available games
+  * Tweak - Removed unused code
+  * Tweak - Use wp_json_encode instead of json_encode
+  * Fix: PHP Notice on plugin activation or update check
+  * Fix - Quick Edit clears all custom field values
+  * Fix - Usage of a non-validated or sanitized variables
+  * Fix - Fixed some error prone code
+  * Fix - Site Health issues
+
 v5.6.0 - 2019-10-22 - Based on MyArcadePlugin Pro 5.36.0
   * New - GameMonetize Integration (HTML5 and Mobile Games)
   * New - Updated GameDistribution API

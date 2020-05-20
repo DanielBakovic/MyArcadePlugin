@@ -178,13 +178,13 @@ function myarcade_get_categories_gamemonetize() {
     "Defense"     => false,
     "Customize"   => false,
     "Dress-Up"    => "Girls",
-    "Driving"     => false,
+    "Driving"     => true,
     "Education"   => false,
-    "Fighting"    => false,
+    "Fighting"    => true,
     "Jigsaw"      => false,
     "Multiplayer" => "2 Player,Multiplayer",
     "Other"       => ".IO,3D,Boys,Cooking,Stickman,Hypercasual,Other",
-    "Puzzles"     => "Puzzle",
+    "Puzzles"     => true,
     "Rhythm"      => false,
     "Shooting"    => true,
     "Sports"      => "Soccer,Sports,Racing",
@@ -213,7 +213,7 @@ function myarcade_feed_gamemonetize( $args = array() ) {
 
   $gamemonetize            = myarcade_get_settings( 'gamemonetize' );
   $gamemonetize_categories = myarcade_get_categories_gamemonetize();
-  $feedcategories          = get_option( 'myarcade_categories' );
+  $feedcategories          = myarcade_get_settings( 'categories' );
 
   // Init settings var's
   if ( ! empty( $settings ) ) {
@@ -269,12 +269,22 @@ function myarcade_feed_gamemonetize( $args = array() ) {
       foreach( $categories as $gamecat ) {
         // Loop trough MyArcade categories
         foreach ( $feedcategories as $feedcat ) {
-          // Chek if the game category matches an active MyArcade categoty
-          if ( ( $feedcat['Name'] == $gamecat ) && ( $feedcat['Status'] == 'checked' ) ) {
-            $add_game          = true;
-            $categories_string = $gamecat;
+          if ( 'checked' == $feedcat['Status'] ) {
+            if ( ! empty( $gamemonetize_categories[ $feedcat['Name'] ] ) ) {
+              // Set category name to check
+              if ( $gamemonetize_categories[ $feedcat['Name'] ] === true ) {
+                $cat_name = $feedcat['Name'];
+              }
+              else {
+                $cat_name = $gamemonetize_categories[ $feedcat['Name'] ];
+              }
+            }
 
-            break 2;
+            if ( strpos( $cat_name, $gamecat ) !== false ) {
+              $add_game = true;
+              $categories_string = $feedcat['Name'];
+              break 2;
+            }
           }
         }
       } // END - Category-Check

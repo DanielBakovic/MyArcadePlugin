@@ -163,7 +163,6 @@ function myarcade_no_fetching_options( $key ) {
  */
 function myarcade_distributors_can_fetch( $distributors = array() ) {
 
-  unset( $distributors['gamefeed'] );
   unset( $distributors['fgd'] );
   unset( $distributors['twopg'] );
   unset( $distributors['coolgames'] );

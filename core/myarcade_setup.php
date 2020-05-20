@@ -18,7 +18,7 @@ if( !defined( 'ABSPATH' ) ) {
  * @return  void
  */
 function myarcade_install() {
-  global $wpdb, $wp_version;
+  global $wpdb;
 
   require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 

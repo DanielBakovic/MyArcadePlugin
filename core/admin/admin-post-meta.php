@@ -13,8 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Add meta box to a game post.
  *
- * @version 5.15.0
- * @return  void
  */
 function myarcade_add_meta_box_conditionally() {
   // Get Post ID
@@ -31,7 +29,7 @@ function myarcade_add_meta_box_conditionally() {
 
   if ( is_game( $post_id ) || $general['post_type'] == get_post_type( $post_id ) ) {
     add_action('add_meta_boxes', 'myarcade_game_details_meta_box');
-    add_action('save_post', 'myarcade_meta_box_save', 1, 2);
+    add_action('save_post', 'myarcade_meta_box_save', 1);
 
     // Add scores meta box
     if ( is_leaderboard_game( $post_id ) ) {
@@ -44,9 +42,6 @@ add_action( 'admin_init', 'myarcade_add_meta_box_conditionally' );
 /**
  * Add MyArcade Game Details Meta Box
  *
- * @version 5.15.0
- * @access  public
- * @return  void
  */
 function myarcade_game_details_meta_box() {
 
@@ -61,7 +56,6 @@ function myarcade_game_details_meta_box() {
 
   add_meta_box('myarcade-game-data', __('MyArcadePlugin Game Details', 'myarcadeplugin'), 'myarcade_game_data_box', $type, 'normal', 'high');
 }
-//add_action('add_meta_boxes', 'myarcade_meta_boxes');
 
 function myarcade_game_leaderboard_meta_box() {
 
@@ -80,9 +74,6 @@ function myarcade_game_leaderboard_meta_box() {
 /**
  * Displays the MyArcade Meta Box
  *
- * @version 5.27.1
- * @access  public
- * @return  void
  */
 function myarcade_game_data_box() {
   global $post, $postID, $myarcade_distributors, $myarcade_game_type_custom;
@@ -304,8 +295,6 @@ function myarcade_game_data_box() {
 /**
  * Display the MyArcade Scores Meta Box
  *
- * @version 5.15.0
- * @return  void
  */
 function myarcade_game_scores_box() {
   global $post, $wpdb;
@@ -388,24 +377,17 @@ function myarcade_game_scores_box() {
 /**
  * Update MyArcade Meta Box values
  *
- * @version 5.14.0
- * @access  public
  * @param   int $post_id    Post ID
- * @param   mixed $post     Post Object
- * @return  void
  */
-function myarcade_meta_box_save($post_id, $post) {
-
-  // Do some checks before save
-  if ( !isset($_POST) ) {
-    return $post_id;
-  }
+function myarcade_meta_box_save($post_id) {
 
   if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
     return $post_id;
   }
 
-  if ( ! wp_verify_nonce( filter_input( INPUT_POST, 'myarcade_meta_nonce' ), 'myarcade_save_data' ) ) {
+  $nonce = filter_input( INPUT_POST, 'myarcade_meta_nonce' );
+
+  if ( ! $nonce || ! wp_verify_nonce( $nonce, 'myarcade_save_data' ) ) {
     return $post_id;
   }
 
@@ -413,48 +395,28 @@ function myarcade_meta_box_save($post_id, $post) {
     return $post_id;
   }
 
-  $game_height = (isset($_POST['mabp_height'])) ? sanitize_text_field( $_POST['mabp_height'] ) : '';
-  $game_width = (isset($_POST['mabp_width'])) ? sanitize_text_field( $_POST['mabp_width'] ) : '';
-  $game_description = (isset($_POST['mabp_description'])) ? esc_textarea( $_POST['mabp_description'] ) : '';
-  $game_instruction = (isset($_POST['mabp_instructions'])) ? esc_textarea( $_POST['mabp_instructions'] ) : '';
-  $game_scores = (isset($_POST['mabp_leaderboard'])) ? sanitize_text_field( $_POST['mabp_leaderboard'] ) : '';
-  $score_technologie = (isset($_POST['mabp_score_bridge'] ) ) ? sanitize_text_field( $_POST['mabp_score_bridge'] ) : '';
+  update_post_meta( $post_id, 'mabp_game_type', filter_input( INPUT_POST, 'mabp_game_type' ) );
+  update_post_meta( $post_id, 'mabp_height', filter_input( INPUT_POST, 'mabp_height' ) );
+  update_post_meta( $post_id, 'mabp_width', filter_input( INPUT_POST, 'mabp_width' ) );
+  update_post_meta( $post_id, 'mabp_description',  filter_input( INPUT_POST, 'mabp_description' ) );
+  update_post_meta( $post_id, 'mabp_instructions', filter_input( INPUT_POST, 'mabp_instructions' ) );
+  update_post_meta( $post_id, 'mabp_leaderboard', filter_input( INPUT_POST, 'mabp_leaderboard' ) );
+  update_post_meta( $post_id, 'mabp_score_order', filter_input( INPUT_POST, 'mabp_score_order' ) );
+  update_post_meta( $post_id, 'mabp_score_bridge', filter_input( INPUT_POST, 'mabp_score_bridge' ) );
+  update_post_meta($post_id, 'mabp_thumbnail_url', filter_input( INPUT_POST, 'mabp_thumbnail_url' ) );
+  update_post_meta($post_id, 'mabp_swf_url', filter_input( INPUT_POST, 'mabp_swf_url' ) );
+  update_post_meta($post_id, 'mabp_video_url', filter_input( INPUT_POST, 'mabp_video_url' ) );
 
-  update_post_meta($post_id, 'mabp_game_type', sanitize_text_field( $_POST['mabp_game_type'] ) );
-  update_post_meta($post_id, 'mabp_height', $game_height);
-  update_post_meta($post_id, 'mabp_width', $game_width);
-  update_post_meta($post_id, 'mabp_description',  $game_description);
-  update_post_meta($post_id, 'mabp_instructions', $game_instruction);
-  update_post_meta($post_id, 'mabp_leaderboard', $game_scores);
-  update_post_meta($post_id, 'mabp_score_order', sanitize_text_field( $_POST['mabp_score_order'] ) );
-  update_post_meta($post_id, 'mabp_score_bridge', $score_technologie );
-
-  $thumb = (isset($_POST['mabp_thumbnail_url'])) ? esc_url( $_POST['mabp_thumbnail_url'] ) : '';
-  $game = (isset($_POST['mabp_swf_url'])) ? sanitize_text_field( $_POST['mabp_swf_url'] ) : ''; // This can be an embed code, too
-  $screen1 = (isset($_POST['mabp_screen1_url'])) ? esc_url( $_POST['mabp_screen1_url'] ) : '';
-  $screen2 = (isset($_POST['mabp_screen2_url'])) ? esc_url( $_POST['mabp_screen2_url'] ) : '';
-  $screen3 = (isset($_POST['mabp_screen3_url'])) ? esc_url( $_POST['mabp_screen3_url'] ) : '';
-  $screen4 = (isset($_POST['mabp_screen4_url'])) ? esc_url( $_POST['mabp_screen4_url'] ) : '';
-  $video_url = (isset($_POST['mabp_video_url'])) ? esc_url( $_POST['mabp_video_url'] ) : '';
-
-  update_post_meta($post_id, 'mabp_thumbnail_url', $thumb);
-  update_post_meta($post_id, 'mabp_swf_url', $game);
-  update_post_meta($post_id, 'mabp_screen1_url', $screen1);
-  update_post_meta($post_id, 'mabp_screen2_url', $screen2);
-  update_post_meta($post_id, 'mabp_screen3_url', $screen3);
-  update_post_meta($post_id, 'mabp_screen4_url', $screen4);
-  update_post_meta($post_id, 'mabp_video_url', $video_url);
-
+  for ( $i = 1; $i <= 4; $i++ ) {
+    $fieled = "mabp_screen{$i}_url";
+    update_post_meta( $post_id, $fieled, filter_input( INPUT_POST, $fieled ) );
+  }
 }
-//add_action('save_post', 'myarcade_meta_box_save', 1, 2);
 
 /**
  * Generate a text input field
  *
- * @version 5.13.0
- * @access  public
  * @param   array $field Field params
- * @return  void
  */
 function myarcade_wp_text_input( $field ) {
   global $postID, $post;
@@ -487,10 +449,7 @@ function myarcade_wp_text_input( $field ) {
 /**
  * Generate a text area field
  *
- * @version 5.13.0
- * @access  public
  * @param   array $field Field params
- * @return  void
  */
 function myarcade_wp_textarea_input( $field ) {
   global $postID, $post;
@@ -523,10 +482,7 @@ function myarcade_wp_textarea_input( $field ) {
 /**
  * Generate a select field
  *
- * @version 5.13.0
- * @access  public
  * @param   array $field Field params
- * @return  void
  */
 function myarcade_wp_select( $field ) {
   global $postID, $post;
@@ -563,10 +519,7 @@ function myarcade_wp_select( $field ) {
 /**
  * Generate a checkbox input field
  *
- * @version 5.14.0
- * @access  public
  * @param   array $field Field params
- * @return  void
  */
 function myarcade_wp_checkbox( $field ) {
   global $postID, $post;
@@ -583,4 +536,3 @@ function myarcade_wp_checkbox( $field ) {
 
   echo '</p>';
 }
-?>

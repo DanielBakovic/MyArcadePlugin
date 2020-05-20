@@ -50,7 +50,7 @@ class MyArcade_Tracker {
         'timeout'     => 45,
         'blocking'    => false,
         'headers'     => array( 'user-agent' => 'MyArcadeTracker/' . md5( esc_url( home_url( '/' ) ) ) . ';' ),
-        'body'        => json_encode( $params ),
+        'body'        => wp_json_encode( $params ),
       )
     );
   }

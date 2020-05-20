@@ -27,7 +27,7 @@ if( !defined( 'ABSPATH' ) ) {
  */
 function myarcade_start_session() {
 
-  $current_user = wp_get_current_user();
+  $user_id = get_current_user_id();
 
   // --- SESSION START -- //
   $id = session_id();
@@ -35,7 +35,7 @@ function myarcade_start_session() {
   if ( empty($id) ) {
     @session_start();
 
-    $_SESSION['uuid'] = $current_user->ID;
+    $_SESSION['uuid'] = $user_id;
 
     if ( !isset($_SESSION['plays']) ) {
       $_SESSION['plays'] = 0;
@@ -46,7 +46,7 @@ function myarcade_start_session() {
     }
   }
   else {
-    $_SESSION['uuid'] = $current_user->ID;
+    $_SESSION['uuid'] = $user_id;
   }
 }
 

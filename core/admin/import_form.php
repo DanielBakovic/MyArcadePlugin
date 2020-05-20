@@ -1,57 +1,75 @@
 <?php defined('MYARCADE_VERSION') or die(); ?>
 <?php // UPLOAD Game  ?>
 <?php $loading_image = MYARCADE_URL . '/assets/images/loading.gif'; ?>
+
+<?php
+/**
+ * Flash/DCR Import
+ */
+?>
 <div id="importswfdcr">
  <h2><?php _e("Add SWF or DCR Game", 'myarcadeplugin'); ?></h2>
  <h2 class="box"><?php _e("Game Files", 'myarcadeplugin'); ?></h2>
 
-<form method="post" enctype="multipart/form-data" id="uploadFormSWF">
-  <input type="hidden" name="upload" value="swf" />
+  <form method="post" enctype="multipart/form-data" id="uploadFormSWF">
+    <input type="hidden" name="upload" value="swf" />
 
-  <div class="container">
-    <div class="block">
-      <table class="optiontable" width="100%">
-        <tr>
-          <td><h3><?php _e("Game File", 'myarcadeplugin'); ?> <small>(<?php _e("required", 'myarcadeplugin'); ?>)</small></h3></td>
-        </tr>
-        <tr>
-          <td><p style="margin-bottom:10px"><?php _e("Important: A game file must be added prior to completing the other steps.", 'myarcadeplugin'); ?></p></td>
-        </tr>
-        <tr>
+    <div class="container">
+      <div class="block">
+        <table class="optiontable" width="100%">
+          <tr>
+            <td><h3><?php _e("Flash or DCR Game", 'myarcadeplugin'); ?> <small>(<?php _e("required", 'myarcadeplugin'); ?>)</small></h3></td>
+          </tr>
+          <tr>
+            <td><p style="margin-bottom:10px"><?php _e("Important: A game file must be added prior to completing the other steps.", 'myarcadeplugin'); ?></p></td>
+          </tr>
+          <tr>
+            <td>
+            <p style="font-style:italic;margin:5px 0;"><?php _e("Select a game file from your local computer (swf or dcr).", 'myarcadeplugin'); ?></p>
+             <?php _e("Local File:", 'myarcadeplugin'); ?> <input type="file" size="50" id="gamefile" name="gamefile" />  <strong><span id="lblgamefile"></span></strong>
+            </td>
+          </tr>
+          <tr>
+            <td>
+               <p style="font-style:italic;margin:5px 0;"><?php _e("<strong>OR</strong> select an already uploaded file to (games/uploads/swf).", 'myarcadeplugin'); ?></p>
+              <div id="swf" style="min-height:30px">
+                <img class="loadimg" src="<?php echo $loading_image; ?>" style="display:none" />
+                <input type="button" id="folderswf" class="button-secondary fileselection" value="<?php _e("Select from folder", 'myarcadeplugin'); ?>" />
+                <input type="button" class="button-secondary cancelselection" value="<?php _e("Cancel", 'myarcadeplugin'); ?>" style="display:none" />
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+               <p style="font-style:italic;margin:5px 0;"><?php _e("<strong>OR</strong> paste a URL to import a game file from the internet( swf or dcr).", 'myarcadeplugin'); ?></p>
+              <?php _e("URL:", 'myarcadeplugin'); ?> <input name="gameurl" id="gameurl" type="text" size="50" />
+            </td>
+          </tr>
+          <tr>
           <td>
-          <p style="font-style:italic;margin:5px 0;"><?php _e("Select a game file from your local computer (swf or dcr).", 'myarcadeplugin'); ?></p>
-           <?php _e("Local File:", 'myarcadeplugin'); ?> <input type="file" size="50" id="gamefile" name="gamefile" />  <strong><span id="lblgamefile"></span></strong>
+            <p>
+              <input type="submit" class="button button-primary" class="button button-primary" id="swfupload" name="swfupload" value="<?php _e('Add File', 'myarcadeplugin'); ?>" />
+            </p>
+            <img id="loadimgswf" src="<?php echo $loading_image; ?>" style="display:none;" />
+            <div id="filename"></div>
           </td>
-        </tr>
-        <tr>
-          <td>
-             <p style="font-style:italic;margin:5px 0;"><?php _e("<strong>OR</strong> select an already uploaded file to (games/uploads/swf).", 'myarcadeplugin'); ?></p>
-            <div id="swf" style="min-height:30px">
-              <img class="loadimg" src="<?php echo $loading_image; ?>" style="display:none" />
-              <input type="button" id="folderswf" class="button-secondary fileselection" value="<?php _e("Select from folder", 'myarcadeplugin'); ?>" />
-              <input type="button" class="button-secondary cancelselection" value="<?php _e("Cancel", 'myarcadeplugin'); ?>" style="display:none" />
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-             <p style="font-style:italic;margin:5px 0;"><?php _e("<strong>OR</strong> paste a URL to import a game file from the internet( swf or dcr).", 'myarcadeplugin'); ?></p>
-            <?php _e("URL:", 'myarcadeplugin'); ?> <input name="gameurl" id="gameurl" type="text" size="50" />
-          </td>
-        </tr>
-        <tr>
-        <td>
-          <p>
-            <input type="submit" class="button button-primary" class="button button-primary" id="swfupload" name="swfupload" value="<?php _e('Add File', 'myarcadeplugin'); ?>" />
-          </p>
-          <img id="loadimgswf" src="<?php echo $loading_image; ?>" style="display:none;" />
-          <div id="filename"></div>
-        </td>
-        </tr>
-      </table>
+          </tr>
+        </table>
+      </div>
     </div>
+  </form>
+</div>
+
+<?php
+/**
+ * HTML5 zip Import
+ */
+?>
+<div id="importhtml5">
+  <h2><?php _e("Add HTML5 Game (zip file) ", 'myarcadeplugin'); ?></h2>
+  <div class="container">
+    <?php myarcade_premium_message(); ?>
   </div>
-</form>
 </div>
 
 <?php
@@ -60,12 +78,11 @@
  */
  ?>
 <div id="importibparcade">
-  <?php // UPLOAD TAR Game  ?>
-     <h2><?php _e("Add IBPArcade Game", 'myarcadeplugin'); ?></h2>
-     <div class="container">
-     <?php myarcade_premium_message(); ?>
-     </div>
+  <h2><?php _e("Add IBPArcade Game", 'myarcadeplugin'); ?></h2>
+  <div class="container">
+    <?php myarcade_premium_message(); ?>
   </div>
+</div>
 
 <?php
 /**
@@ -73,48 +90,47 @@
  */
  ?>
 <div id="importphpbb">
-  <?php // UPLOAD TAR Game  ?>
-     <h2><?php _e("Add ZIP Game (PHPBB, Mochi) ", 'myarcadeplugin'); ?></h2>
-     <div class="container">
-     <?php myarcade_premium_message(); ?>
-     </div>
+  <h2><?php _e("Add ZIP Game (PHPBB, Mochi) ", 'myarcadeplugin'); ?></h2>
+  <div class="container">
+    <?php myarcade_premium_message(); ?>
   </div>
+</div>
 
 
 <?php // IMPORT EMBED / IFRAME GAME ?>
 <div id="importembedif">
-<h2><?php _e("Add Embed Code / Iframe URL", 'myarcadeplugin'); ?></h2>
-<h2 class="box"><?php _e("Game Files", 'myarcadeplugin'); ?></h2>
-<form method="post" id="uploadFormEMIF">
-  <input type="hidden" name="upload" value="emif" />
-  <div id="importembedif">
-    <div class="container">
-    <div class="block">
-      <table class="optiontable" width="100%">
-        <tr>
-          <td><h3><?php _e("Game Code", 'myarcadeplugin'); ?> <small>(<?php _e("required", 'myarcadeplugin'); ?>)</small></h3></td>
-        </tr>
-        <tr>
+  <h2><?php _e("Add Embed Code / Iframe URL", 'myarcadeplugin'); ?></h2>
+  <h2 class="box"><?php _e("Game Files", 'myarcadeplugin'); ?></h2>
+  <form method="post" id="uploadFormEMIF">
+    <input type="hidden" name="upload" value="emif" />
+    <div id="importembedif">
+      <div class="container">
+      <div class="block">
+        <table class="optiontable" width="100%">
+          <tr>
+            <td><h3><?php _e("Game Code", 'myarcadeplugin'); ?> <small>(<?php _e("required", 'myarcadeplugin'); ?>)</small></h3></td>
+          </tr>
+          <tr>
+            <td>
+              <textarea rows="6" cols="80" name="embedcode"></textarea>
+              <br />
+              <i><?php _e("Paste here a complete embed code or an iframe URL and click on 'Add Code'.", 'myarcadeplugin'); ?></i>
+            </td>
+          </tr>
+          <tr>
           <td>
-            <textarea rows="6" cols="80" name="embedcode"></textarea>
-            <br />
-            <i><?php _e("Paste here a complete embed code or an iframe URL and click on 'Add Code'.", 'myarcadeplugin'); ?></i>
+            <p>
+              <input type="submit" id="emifupload" name="emifupload" value="<?php _e('Add Code', 'myarcadeplugin'); ?>" />
+            </p>
+            <img id="loadimgemif" src="<?php echo $loading_image; ?>" style="display:none;" />
+            <div id="filenameemif"></div>
           </td>
-        </tr>
-        <tr>
-        <td>
-          <p>
-            <input type="submit" id="emifupload" name="emifupload" value="<?php _e('Add Code', 'myarcadeplugin'); ?>" />
-          </p>
-          <img id="loadimgemif" src="<?php echo $loading_image; ?>" style="display:none;" />
-          <div id="filenameemif"></div>
-        </td>
-        </tr>
-      </table>
+          </tr>
+        </table>
+      </div>
+      </div>
     </div>
-    </div>
-  </div>
-</form>
+  </form>
 </div>
 
 <?php
@@ -123,50 +139,49 @@
  */
  ?>
 <div id="importunity">
-  <?php // UPLOAD Unity Game  ?>
-     <h2><?php _e("Add Unity3D Game", 'myarcadeplugin'); ?></h2>
-     <div class="container">
-     <?php myarcade_premium_message(); ?>
-     </div>
+  <h2><?php _e("Add Unity3D Game", 'myarcadeplugin'); ?></h2>
+  <div class="container">
+    <?php myarcade_premium_message(); ?>
   </div>
+</div>
 
 
 <?php // UPLOAD THUMB ?>
 <div id="thumbform">
-<form method="post" enctype="multipart/form-data" id="uploadFormTHUMB">
-  <input type="hidden" name="upload" value="thumb" />
+  <form method="post" enctype="multipart/form-data" id="uploadFormTHUMB">
+    <input type="hidden" name="upload" value="thumb" />
 
-  <div class="container">
-    <div class="block">
-      <table class="optiontable" width="100%">
-        <tr>
-          <td><h3><?php _e("Game Thumbnail", 'myarcadeplugin'); ?> <small>(<?php _e("required", 'myarcadeplugin'); ?>)</small></h3></td>
-        </tr>
-        <tr>
+    <div class="container">
+      <div class="block">
+        <table class="optiontable" width="100%">
+          <tr>
+            <td><h3><?php _e("Game Thumbnail", 'myarcadeplugin'); ?> <small>(<?php _e("required", 'myarcadeplugin'); ?>)</small></h3></td>
+          </tr>
+          <tr>
+            <td>
+            <p style="font-style:italic;margin:5px 0;"><?php _e("Select a thumbnail from your local computer.", 'myarcadeplugin'); ?></p>
+             <?php _e("Local File:", 'myarcadeplugin'); ?> <input type="file" size="50" name="thumbfile" />
+            </td>
+          </tr>
+          <tr>
+            <td>
+               <p style="font-style:italic;margin:5px 0;"><?php _e("<strong>OR</strong> paste a URL to import a thumbnail from the internet.", 'myarcadeplugin'); ?></p>
+              <?php _e("URL:", 'myarcadeplugin'); ?> <input name="thumburl" type="text" size="50" />
+            </td>
+          </tr>
+          <tr>
           <td>
-          <p style="font-style:italic;margin:5px 0;"><?php _e("Select a thumbnail from your local computer.", 'myarcadeplugin'); ?></p>
-           <?php _e("Local File:", 'myarcadeplugin'); ?> <input type="file" size="50" name="thumbfile" />
+            <p>
+              <input type="submit" class="button button-primary" id="thumbupload" name="thumbupload" value="<?php _e('Add File', 'myarcadeplugin'); ?>" />
+            </p>
+            <img id="loadimgthumb" src="<?php echo $loading_image; ?>" style="display:none;" />
+            <div id="filenamethumb"></div>
           </td>
-        </tr>
-        <tr>
-          <td>
-             <p style="font-style:italic;margin:5px 0;"><?php _e("<strong>OR</strong> paste a URL to import a thumbnail from the internet.", 'myarcadeplugin'); ?></p>
-            <?php _e("URL:", 'myarcadeplugin'); ?> <input name="thumburl" type="text" size="50" />
-          </td>
-        </tr>
-        <tr>
-        <td>
-          <p>
-            <input type="submit" class="button button-primary" id="thumbupload" name="thumbupload" value="<?php _e('Add File', 'myarcadeplugin'); ?>" />
-          </p>
-          <img id="loadimgthumb" src="<?php echo $loading_image; ?>" style="display:none;" />
-          <div id="filenamethumb"></div>
-        </td>
-        </tr>
-      </table>
+          </tr>
+        </table>
+      </div>
     </div>
-  </div>
-</form>
+  </form>
 </div>
 
 <?php // UPLOAD SCREENSHOTS ?>

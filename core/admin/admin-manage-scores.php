@@ -41,16 +41,9 @@ function myarcade_manage_scores() {
     $last = ceil($count / $page_rows);
 
     // This makes sure the page number isn't below one, or more than our maximum pages
-    $pagenum = 1;
+    $pagenum = filter_input( INPUT_GET, 'pagenum', FILTER_VALIDATE_INT, array( 'options' => array( "default" => 1, "min_range" => 1 ) ) );
 
-    if ( isset($_GET['pagenum']) ) {
-      $pagenum = $_GET['pagenum'];
-    }
-
-    if ($pagenum < 1)  {
-      $pagenum = 1;
-    }
-    elseif ($pagenum > $last)  {
+   if ( $pagenum > $last )  {
       $pagenum = $last;
     }
 
@@ -116,7 +109,7 @@ function myarcade_manage_scores() {
           <?php
           $user = get_user_by('id', $score->user_id);
 
-          $post_id = $wpdb->get_var( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'mabp_game_tag' AND meta_value = '{$score->game_tag}'" );
+          $post_id = $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'mabp_game_tag' AND meta_value = '%s'", $score->game_tag ) );
 
           if (! $post_id ) {
             ?>

@@ -110,14 +110,13 @@ function get_game( $game_id = false, $fullsize = false, $preview = false, $fulls
   switch ( $game_variant ) {
     case 'gamepix': {
       $gamepix = get_option( 'myarcade_gamepix' );
-      $gamepix['publisher_id'] = '10013';
       $gamepix['site_id'] = '20015';
 
-      $game_url = add_query_arg( array( 'pid' => $gamepix['publisher_id'], 'sid' => $gamepix['site_id'] ), $game_url );
+      $game_url = add_query_arg( array( 'sid' => $gamepix['site_id'] ), $game_url );
     } break;
 
     case 'softgames': {
-      $game_url = add_query_arg( array( 'p' => 'myarcadeplugin'), $game_url );
+      $game_url = add_query_arg( array( 'p' => 'pub-10477-18399'), $game_url );
     } break;
   }
 
@@ -178,20 +177,10 @@ function get_game( $game_id = false, $fullsize = false, $preview = false, $fulls
         } break;
 
         case 'flash':
-        default:
-        {
-          $general = get_option( 'myarcade_general' );
+        default: {
+          $embed_parameters = apply_filters( 'myarcade_embed_parameters', 'wmode="direct" menu="false" quality="high"', $game_id );
+          $code = '<embed src="'.$game_url.'" '.$embed_parameters.' width="'.$gamewidth.'" height="'.$gameheight.'" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />';
 
-          if ( !$preview && isset( $general['swfobject'] ) && $general['swfobject'] ) {
-            $flashvars = apply_filters('myarcade_swfobject_flashvars', array(), $game_id );
-            $params = apply_filters( 'myarcade_swfobject_params', array( 'wmode' => 'direct', 'allowscriptaccess' => 'always', 'swLiveConnect' => 'true', 'quality' => 'high' ), $game_id );
-            $attributes = apply_filters( 'myarcade_swfobject_attributes', array(), $game_id );
-            $code  = '<div id="myarcade_swfobject_content"></div>'."\n";
-            $code .= "<script type=\"text/javascript\">swfobject.embedSWF( '".$game_url."', 'myarcade_swfobject_content', '".$gamewidth."', '".$gameheight."', '9.0.0', '', ".json_encode($flashvars).", ".json_encode($params).", ".json_encode($attributes).");</script>";          }
-          else {
-            $embed_parameters = apply_filters( 'myarcade_embed_parameters', 'wmode="direct" menu="false" quality="high"', $game_id );
-            $code = '<embed src="'.$game_url.'" '.$embed_parameters.' width="'.$gamewidth.'" height="'.$gameheight.'" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />';
-          }
         } break;
     }
   }

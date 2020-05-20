@@ -74,54 +74,21 @@ function myarcade_show_stats() {
       </div>
     </div><!-- postbox end -->
 
-    <div class="postbox">
-      <div class="joystickico"></div>
-      <h3 class="hndle" id="poststuff"><span><?php _e('Premium Arcade Themes', 'myarcadeplugin') ?></span></h3>
-      <div class="preloader-container">
-        <div class="insider" id="boxy">
-          <p>
-          <?php
-          $rss = fetch_feed('https://exells.com/special-offer/feed/?withoutcomments=1');
-          if ( is_wp_error( $rss ) ) {
-            echo '<p>'; _e('Sorry, can not download the feed', 'myarcadeplugin'); echo '</p>';
-          }
-          else {
-            $rss_item = $rss->get_item(0);
-            echo $rss_item->get_content();
-          }
-          ?>
-          </p>
-          <div class="clear">&nbsp;</div>
-        </div> <!-- inside end -->
-      </div>
-    </div> <!-- postbox end -->
   </div><!-- end dash-left -->
 
   <div class="dash-right metabox-holder">
 
-    <div class="postbox">
-      <div class="newsico"></div>
-        <h3 class="hndle" id="poststuff"><span><?php _e('Lastest MyArcadePlugin News', 'myarcadeplugin') ?></span></h3>
-        <div class="preloader-container">
-          <div class="insider" id="boxy">
-          <?php
-             wp_widget_rss_output('https://myarcadeplugin.com/feed', array('items' => 5, 'show_author' => 0, 'show_date' => 1, 'show_summary' => 0));
-          ?>
-          </div> <!-- inside end -->
-        </div>
-      </div> <!-- postbox end -->
-
-    <div class="postbox">
-      <div class="newsico"></div>
-        <h3 class="hndle" id="poststuff"><span><?php _e('Lastest exells.com News', 'myarcadeplugin') ?></span></h3>
-        <div class="preloader-container">
-          <div class="insider" id="boxy">
-          <?php
-             wp_widget_rss_output('https://exells.com/feed', array('items' => 5, 'show_author' => 0, 'show_date' => 1, 'show_summary' => 0));
-          ?>
-          </div> <!-- inside end -->
-        </div>
-      </div> <!-- postbox end -->
+  <div class="postbox">
+    <div class="newsico"></div>
+      <h3 class="hndle" id="poststuff"><span><?php _e('Lastest MyArcadePlugin News', 'myarcadeplugin') ?></span></h3>
+      <div class="preloader-container">
+        <div class="insider" id="boxy">
+        <?php
+           wp_widget_rss_output('https://myarcadeplugin.com/feed', array('items' => 5, 'show_author' => 0, 'show_date' => 1, 'show_summary' => 0));
+        ?>
+        </div> <!-- inside end -->
+      </div>
+    </div> <!-- postbox end -->
 
     <div class="postbox">
       <div class="facebookico"></div>
@@ -130,7 +97,7 @@ function myarcade_show_stats() {
           <div class="insider" id="boxy">
             <p style="text-align:center"><strong><?php _e('If you like MyArcadePlugin, become our friend on Facebook', 'myarcadeplugin'); ?></strong></p>
             <p style="text-align:center;">
-              <iframe src="https://www.facebook.com/plugins/likebox.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FMyArcadePlugin%2F178161832232562&amp;width=300&amp;colorscheme=light&amp;show_faces=true&amp;stream=false&amp;header=false&amp;height=400" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:300px; height:400px;" allowTransparency="true"></iframe>
+              <iframe src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMyArcadePlugin%2F&tabs&width=500&height=250&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId=240110659370021" width="500" height="250" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true" allow="encrypted-media"></iframe>
             </p>
           </div> <!-- inside end -->
         </div>

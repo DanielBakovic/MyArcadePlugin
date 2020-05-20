@@ -3,7 +3,7 @@
  * Plugin Name:  MyArcadePlugin Lite
  * Plugin URI:   https://myarcadeplugin.com
  * Description:  WordPress Arcade Plugin
- * Version:      5.6.0
+ * Version:      5.7.0
  * Author:       Daniel Bakovic
  * Author URI:   http://myarcadeplugin.com
  * License:      GPLv2 or later (license.txt)
@@ -11,7 +11,7 @@
  * Text Domain:  myarcadeplugin
  * Domain Path:  /lang
  * Requires at least: 4.4
- * Tested up to: 5.2.4
+ * Tested up to: 5.4.1
  */
 
 /*
@@ -50,7 +50,9 @@ function myarcade_init() {
   add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'myarcade_action_links' );
 
   // Start new session
-  myarcade_start_session();
+  if ( ! is_admin() ) {
+    myarcade_start_session();
+  }
 
   // Set default distributors and custom game types
   myarcade_set_distributors();
@@ -61,13 +63,11 @@ add_action( 'init', 'myarcade_init' );
 /**
  * Defines initial constants
  *
- * @version 5.31.0
- * @return  void
  */
 function myarcade_initial_constants() {
 
   // Define MyArcadePlugin version
-  define('MYARCADE_VERSION', '5.5.2');
+  define('MYARCADE_VERSION', '5.7.0');
 
   // You need at least PHP Version 5.3.0+ to run this plugin
   define('MYARCADE_PHP_VERSION', '5.3.0');
@@ -104,8 +104,6 @@ function myarcade_initial_constants() {
 /**
  * Include required files used in admin and on the frontend.
  *
- * @version 5.30.0
- * @return  void
  */
 function myarcade_includes() {
 
@@ -152,7 +150,6 @@ function myarcade_includes() {
 /**
  * Set default game distributors
  *
- * @return  void
  */
 function myarcade_set_distributors() {
   global $myarcade_distributors;
@@ -169,6 +166,8 @@ function myarcade_set_distributors() {
       'myarcadefeed'  => 'MyArcadeFeed',
       'softgames'     => 'Softgames',
       'spilgames'     => 'Spil Games',
+      'fourj'         => '4J (Pro)',
+      'fourjrevshare' => '4J (Revenue Share) (Pro)',
       'agf'           => 'Arcade Game Feed (Pro)',
       'fog'           => 'FreeGamesForYourWebsite (Pro)',
       'htmlgames'     => 'HTML Games (Pro)',
@@ -183,8 +182,6 @@ function myarcade_set_distributors() {
 /**
  * Set default custom game types
  *
- * @version 5.15.0
- * @return  void
  */
 function myarcade_set_game_type_custom() {
   global $myarcade_game_type_custom;
@@ -205,8 +202,6 @@ function myarcade_set_game_type_custom() {
 /**
  * Load game import handler
  *
- * @version 5.13.0
- * @return  void
  */
 function myarcade_import_handler() {
   require_once( MYARCADE_CORE_DIR . '/admin/import_handler.php');
@@ -214,31 +209,9 @@ function myarcade_import_handler() {
 add_action('wp_ajax_myarcade_import_handler', 'myarcade_import_handler');
 
 /**
- * Load frontend scripts.
- * Loads SWFObject if activated on MyArcadePlugin options.
- *
- * @version 5.13.0
- * @return  void
- */
-function myarcade_frontend_scripts() {
-  if ( is_admin() || ! is_single() || ! is_game() ) {
-    return;
-  }
-
-  $general = get_option( 'myarcade_general' );
-
-  if ( isset( $general['swfobject']) && $general['swfobject'] ) {
-    wp_enqueue_script( 'swfobject' );
-  }
-}
-add_action( 'wp_print_scripts', 'myarcade_frontend_scripts' );
-
-/**
  * Defines MyArcadePlugin cron intervals
  *
- * @version 5.13.0
- * @access  public
- * @return  arrray cron schedule intervals
+ * @return  array cron schedule intervals
  */
 function myarcade_get_cron_intervals() {
   // Set MyArcadePlugin cron intervals
@@ -256,7 +229,6 @@ function myarcade_get_cron_intervals() {
 /**
  * Exstends the WP cron function
  *
- * @version 5.13.0
  * @param  array $schedules WordPress schedules
  * @return array
  */
@@ -276,10 +248,7 @@ add_filter('cron_schedules', 'myarcade_extend_cron');
 /**
  * Call MyArcadePlugin install function
  *
- * @version 5.15.0
- * @access  public
  * @param   bool $network_wide TRUE if this is a network activation (multisite)
- * @return  void
  */
 function myarcade_do_install( $network_wide = FALSE ) {
   global $wpdb;
@@ -299,10 +268,7 @@ register_activation_hook( __FILE__, 'myarcade_do_install' );
 /**
  * Call MyArcadePlugin uninstall function
  *
- * @version 5.15.0
- * @access  public
  * @param   bool $network_wide TRUE if this is a network activation (multisite)
- * @return  void
  */
 function myarcade_do_uninstall( $network_wide = FALSE ) {
   global $wpdb;
@@ -316,7 +282,6 @@ register_deactivation_hook( __FILE__, 'myarcade_do_uninstall' );
 /**
  * Add MyArcade action links on plugins page
  *
- * @version 5.15.0
  * @param   array $links Default links
  * @return  array links
  */
@@ -333,7 +298,6 @@ function myarcade_action_links( $links ) {
 /**
  * Get MyArcade upload directories
  *
- * @version 5.15.0
  * @return  array Upload directories (absolute and url)
  */
 function myarcade_upload_dir() {
@@ -376,10 +340,6 @@ function myarcade_upload_dir() {
 /**
  * Locate and include distributor's integration file
  *
- * @version 5.19.0
- * @since   5.19.0
- * @access  public
- * @return  void
  */
 function myarcade_distributor_integration( $key ) {
 
@@ -393,9 +353,6 @@ function myarcade_distributor_integration( $key ) {
 /**
  * Get distributor's settings
  *
- * @version 5.19.0
- * @since   5.19.0
- * @access  public
  * @return  array Settings
  */
 function myarcade_get_settings( $key ) {
@@ -442,9 +399,6 @@ function myarcade_get_settings( $key ) {
 /**
  * MyArcadePlugin Premium Hint
  *
- * @version 5.0.0
- * @access  public
- * @return  void
  */
 function myarcade_premium_img() {
   echo '<img src="'.MYARCADE_URL.'/assets/images/locked.png" alt="Pro Version Only!" title="Pro Version Only!" />';
@@ -453,12 +407,7 @@ function myarcade_premium_img() {
 /**
  * Upgrade to premium message
  *
- * @version 5.4.0
- * @since   5.4.0
- * @static
- * @access  public
  * @param   boolean $alert
- * @return  void
  */
 function myarcade_premium_message( $alert = true ) {
   if ( $alert ) {
@@ -475,4 +424,3 @@ function myarcade_premium_message( $alert = true ) {
 function myarcade_premium_span( $color = 'yellow' ) {
   echo '<span style="color:'.$color.'"">PRO FEATURE</span> - ';
 }
-?>

@@ -80,6 +80,7 @@ function myarcade_settings_gamedistribution() {
           <td>
             <select size="1" name="gamedistribution_collection" id="gamedistribution_collection">
               <option value="all" <?php myarcade_selected( $gamedistribution['collection'], 'all' ); ?>><?php _e( 'All games', 'myarcadeplugin' ); ?></option>
+              <option value="exclusive" <?php myarcade_selected( $gamedistribution['collection'], 'exclusive' ); ?>><?php _e( 'Exclusive games', 'myarcadeplugin' ); ?></option>
               <option value="best" <?php myarcade_selected( $gamedistribution['collection'], 'best' ); ?>><?php _e( 'Best new games', 'myarcadeplugin' ); ?></option>
               <option value="featured" <?php myarcade_selected( $gamedistribution['collection'], 'featured' ); ?>><?php _e( 'Hot Games', 'myarcadeplugin' ); ?></option>
             </select>
@@ -309,7 +310,6 @@ function myarcade_get_categories_gamedistribution() {
  * @return  void
  */
 function myarcade_feed_gamedistribution( $args = array() ) {
-  global $wpdb;
 
   $defaults = array(
     'echo'     => false,
@@ -339,15 +339,6 @@ function myarcade_feed_gamedistribution( $args = array() ) {
     $settings['method'] = 'latest';
   }
 
-  /**
-   * since 5.33.0
-   * Update distributor URL
-   */
-  if ( strpos( $settings['feed'], 'games.gamedistribution.com/All/' ) !== FALSE ) {
-    $default_settings = myarcade_default_settings_gamedistribution();
-    $settings['feed'] = $default_settings['feed'];
-  }
-
   // Generate the feed URL
   $feed = add_query_arg( array( "format" => "json", "collection" => $settings['collection'] ), trim( $settings['feed'] ) );
 
@@ -362,8 +353,8 @@ function myarcade_feed_gamedistribution( $args = array() ) {
     $feed = add_query_arg( array("category" => rawurlencode( $settings['category'] ) ), $feed );
   }
 
-  if ( isset( $general['type'] ) && 'mobile' == $general['type'] ) {
-    $feed = add_query_arg( array( "type"  => "html5" ), $feed );
+  if ( isset( $general['types'] ) && 'mobile' == $general['types'] ) {
+    $feed = add_query_arg( array( "type"  => "html5", "mobile" => 1 ), $feed );
   }
   else {
     $feed = add_query_arg( array( "type"  => "all" ), $feed );

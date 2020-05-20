@@ -27,12 +27,13 @@ function myarcade_settings() {
   <h2><?php _e("Settings"); ?></h2>
   <?php
 
-  $action = filter_input( INPUT_POST, 'feedaction' );
   if ( "unknown" == get_option( 'myarcade_allow_tracking' ) ) {
     myarcade_tracking_message();
   }
 
-  if ( 'save' ==  $action ) {
+  $action = filter_input( INPUT_POST, 'feedaction' );
+
+  if ( 'save' == $action ) {
 
     myarcade_check_settings_nonce();
 
@@ -55,7 +56,6 @@ function myarcade_settings() {
     $general['interval_fetching']   = $_POST['interval_fetching'];
     $general['automated_publishing']  = (isset($_POST['automated_publishing'])) ? true : false;
     $general['interval_publishing']   = $_POST['interval_publishing'];
-    $general['swfobject'] = isset( $_POST['swfobject'] ) ? true : false;
     $general['cron_publish_limit'] = !empty($_POST['general_cron_publish_limit']) ? $_POST['general_cron_publish_limit'] : 1;
     $general['types'] = filter_input( INPUT_POST, 'general_types' );
     $general['handle_ssl'] = (isset($_POST['handle_ssl'])) ? true : false;;
@@ -298,7 +298,7 @@ function myarcade_settings() {
                 <td>
                   <input type="checkbox" name="downloadgames" value="true"  <?php myarcade_checked($general['down_games'], true); ?> /><label class="opt">&nbsp;<?php _e("Yes", 'myarcadeplugin'); ?></label>
                 </td>
-                <td><i><?php _e("Should the game be imported and saved on your web server? For this to work properly, the game directory (wp-content/games/) must be writable.", 'myarcadeplugin'); ?></i></td>
+                <td><i><?php _e("Activate this in order to download Flash (SWF) games to your server. Keep in mind that HMTL5 games can't be downloaded.", 'myarcadeplugin'); ?></i></td>
               </tr>
 
               <tr><td colspan="2"><h3><?php _e("Download Screenshots", 'myarcadeplugin'); ?></h3></td></tr>
@@ -478,15 +478,6 @@ function myarcade_settings() {
                 </select>
                 </td>
                 <td><i><?php _e("Select if MyArcadePlugin should auto embed the game code in your game posts (only if you don't use FunGames theme).", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <tr><td colspan="2"><h3><?php _e("Use SWFObject", 'myarcadeplugin'); ?></h3></td></tr>
-
-              <tr>
-                <td>
-                  <input type="checkbox" name="swfobject" value="true" <?php myarcade_checked( $general['swfobject'], true); ?> /><label class="opt">&nbsp;<?php _e("Yes", 'myarcadeplugin'); ?></label>
-                </td>
-                <td><i><?php _e("Activate this if you want to use SWFObject to embed Flash games.", 'myarcadeplugin'); ?></i></td>
               </tr>
 
               <tr><td colspan="2"><h3><?php _e("Game Post Template", 'myarcadeplugin'); ?></h3></td></tr>

@@ -41,8 +41,13 @@ $game->error = '';
 
 $result = false;
 
+$upload_action = filter_input( INPUT_POST, 'upload' );
+$gameurl       = filter_input( INPUT_POST, 'gameurl' );
+$fileselectswf = filter_input( INPUT_POST, 'fileselectswf' );
+$thumburl      = filter_input( INPUT_POST, 'thumburl' );
+
 // Check the submission
-switch ( $_POST['upload'] ) {
+switch ( $upload_action ) {
 
   // Upload SWF / DCR File
   case 'swf':
@@ -54,19 +59,19 @@ switch ( $_POST['upload'] ) {
         myarcade_log_import('Error while uploading SWF File: ' . $game->error);
       }
       else {
-        $file_temp = $_FILES['gamefile']['tmp_name'];
-        $file_info = pathinfo($_FILES['gamefile']['name']);
+        $file_temp = esc_html( $_FILES['gamefile']['tmp_name'] );
+        $file_info = pathinfo( esc_html( $_FILES['gamefile']['name'] ) );
         // generate new file name
         $upload_dir_specific = myarcade_get_folder_path($file_info['filename'], 'custom');
         $file_name = wp_unique_filename( $upload_dir_specific['gamesdir'], $file_info['basename'] );
         $result = move_uploaded_file($file_temp, $upload_dir_specific['gamesdir'] . $file_name);
         // Delete temp file
-        @unlink($_FILES['gamefile']['tmp_name']);
+        @unlink( esc_html( $_FILES['gamefile']['tmp_name'] ) );
       }
     }
-    elseif ( !empty($_POST['gameurl']) ) {
+    elseif ( $gameurl ) {
       // grab from net?
-      $file_temp = myarcade_get_file($_POST['gameurl']);
+      $file_temp = myarcade_get_file( $gameurl );
 
       if ( !empty($file_temp['error']) ) {
         // Get error message
@@ -74,20 +79,20 @@ switch ( $_POST['upload'] ) {
         myarcade_log_import("Error while downloading SWF file: " . $game->error);
       }
       else {
-        $file_info = pathinfo($_POST['gameurl']);
+        $file_info = pathinfo( $gameurl );
         $upload_dir_specific = myarcade_get_folder_path($file_info['filename'], 'custom');
         $file_name = wp_unique_filename( $upload_dir_specific['gamesdir'], $file_info['basename']);
         $result = file_put_contents(  $upload_dir_specific['gamesdir'] . $file_name, $file_temp['response']);
       }
     }
-    elseif ( !empty( $_POST['fileselectswf'] ) ) {
-      $full_abs_path = $upload_dir['gamesdir'] . '/uploads/swf/' . $_POST['fileselectswf'];
+    elseif ( $fileselectswf ) {
+      $full_abs_path = $upload_dir['gamesdir'] . '/uploads/swf/' . $fileselectswf;
 
       if ( !file_exists( $full_abs_path ) ) {
         $game->error = __("Can't find the selected file.", 'myarcadeplugin');
       }
       else {
-        $file_info      = pathinfo( $_POST['fileselectswf'] );
+        $file_info      = pathinfo( $fileselectswf );
         $upload_dir_specific = myarcade_get_folder_path($file_info['filename'], 'custom');
         $file_name      = wp_unique_filename($upload_dir_specific['gamesdir'], $file_info['basename']);
         $result         = rename($full_abs_path, $upload_dir_specific['gamesdir'] . $file_name);
@@ -155,9 +160,9 @@ switch ( $_POST['upload'] ) {
         @unlink($_FILES['thumbfile']['tmp_name']);
       }
     }
-    else if  ( !empty($_POST['thumburl']) ) {
+    else if  ( $thumburl ) {
       // grab from net?
-      $file_temp = myarcade_get_file($_POST['thumburl']);
+      $file_temp = myarcade_get_file( $thumburl );
 
       if ( !empty($file_temp['error']) ) {
         // Get error message
@@ -165,7 +170,7 @@ switch ( $_POST['upload'] ) {
         myarcade_log_import("Error while downloading thumbnail: " . $game->error);
       }
       else {
-        $file_info = pathinfo($_POST['thumburl']);
+        $file_info = pathinfo( $thumburl );
         $upload_dir_specific = myarcade_get_folder_path($file_info['filename'], 'custom');
         $file_name = wp_unique_filename( $upload_dir_specific['thumbsdir'], $file_info['basename'] );
         $result = file_put_contents( $upload_dir_specific['thumbsdir'] . $file_name, $file_temp['response'] );
@@ -209,9 +214,9 @@ switch ( $_POST['upload'] ) {
           @unlink($_FILES[$screen]['tmp_name']);
         }
       }
-      else if  ( !empty($_POST[$screen.'url']) ) {
+      else if  ( ! empty( $_POST[ $screen . 'url' ] ) ) {
          // There is a screen to grab
-        $file_temp = myarcade_get_file($_POST[$screen.'url']);
+        $file_temp = myarcade_get_file( $_POST [ $screen . 'url' ] );
 
         if ( !empty($file_temp['error']) ) {
           // Get error message
@@ -275,7 +280,7 @@ switch ( $_POST['upload'] ) {
 } // end swtich
 
 // Prepare the output
-$json = json_encode($game);
+$json = wp_json_encode( $game );
 
 myarcade_log_import("Json Return: " . print_r($json, true) );
 

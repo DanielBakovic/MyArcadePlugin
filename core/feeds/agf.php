@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Display distributor settings on admin page
  *
- * @version 5.17.0
+ * @version 5.32.0
  * @access  public
  * @return  void
  */

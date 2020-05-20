@@ -28,7 +28,7 @@ class MyArcade_Admin_Widget_Plays {
           animate: true,
           animateReplot: true,
           title: {
-            text: <?php echo json_encode( sprintf( __( 'Plays in the last %s days', 'myarcadeplugin' ), $days ) ); ?>,
+            text: <?php echo wp_json_encode( sprintf( __( 'Plays in the last %s days', 'myarcadeplugin' ), $days ) ); ?>,
             fontSize: '12px',
           },
           grid: {
@@ -67,7 +67,7 @@ class MyArcade_Admin_Widget_Plays {
             yaxis: {
               min: 0,
               padMin: 1.0,
-              label: <?php echo json_encode( __( 'Number of plays', 'myarcadeplugin' ) ); ?>,
+              label: <?php echo wp_json_encode( __( 'Number of plays', 'myarcadeplugin' ) ); ?>,
               labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
               labelOptions: {
                 angle: -90,

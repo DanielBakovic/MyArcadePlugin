@@ -84,7 +84,6 @@ class MyArcade_Stats_Ajax {
 
       $record_time = strtotime( $play_record->date );
       $current_time = time() + ( get_option( 'gmt_offset' ) * 3600 );
-      $diff = $current_time - $record_time;
 
       if ( ( $record_time + $duration ) > $current_time) {
         // Cheating??
@@ -95,7 +94,7 @@ class MyArcade_Stats_Ajax {
       $wpdb->update( $wpdb->prefix . 'myarcade_plays', array( 'duration' => $duration ), array( 'ID' => $play_record->ID ) );
     }
 
-    wp_die();
+    die();
   }
 
   /**
@@ -118,7 +117,7 @@ class MyArcade_Stats_Ajax {
       include_once( $widget_file );
     }
 
-    wp_die();
+    die();
   }
 }
 

@@ -27,7 +27,7 @@ function myarcade_settings_myarcadefeed() {
         <tr>
           <td colspan="2">
             <i>
-              <?php _e("Add up to five Feeds generated with MyArcadeFeed Plugin.", 'myarcadeplugin'); ?> Click <a href="http://exells.com/shop/products/myarcadefeed">here</a> to learn more about MyArcadeFeed.
+              <?php _e("Add up to five Feeds generated with MyArcadeFeed Plugin.", 'myarcadeplugin'); ?> Click <a href="https://myarcadeplugin.com/buy/myarcadefeed/">here</a> to learn more about MyArcadeFeed.
             </i>
             <br /><br />
           </td>
@@ -197,7 +197,6 @@ function myarcade_get_fetch_options_myarcadefeed() {
  * @return  void
  */
 function myarcade_feed_myarcadefeed($args) {
- global $wpdb;
 
   $defaults = array(
     'echo'     => false,
@@ -224,21 +223,21 @@ function myarcade_feed_myarcadefeed($args) {
     )
   );
 
-  if ( !empty($games) && isset($games->gameset) ) {
-    foreach ($games->gameset->game as $game) {
+  if ( ! empty( $games->game ) ) {
+    foreach ( $games->game as $game_obj ) {
 
-      $game->uuid     = $game->id;
-      // Generate a game tag for this game
-      $game->game_tag = md5($game->id.$game->name.'myarcadefeed');
+      $game           = new stdClass();
+      $game->uuid     = $game_obj->id . '_myarcadefeed';
+      $game->game_tag = md5( $game_obj->id . 'myarcadefeed' );
 
-      $categories = explode( ',', $game->category );
+      $categories = explode( ',', $game_obj->category );
 
       if ( ! $myarcadefeed['all_categories'] ) {
         $add_game = false;
         // Category-Check
-        foreach ($feedcategories as $feedcat) {
+        foreach ( $feedcategories as $feedcat ) {
           foreach ( $categories as $category ) {
-            if ( ($feedcat['Name'] == $category) && ($feedcat['Status'] == 'checked') ) {
+            if ( ( $feedcat['Name'] == $category ) && ( $feedcat['Status'] == 'checked' ) ) {
               $add_game = true;
               break;
             }
@@ -249,19 +248,25 @@ function myarcade_feed_myarcadefeed($args) {
         }
 
         // Should we add this game?
-        if ($add_game == false) { continue; }
+        if ( ! $add_game ) {
+          continue;
+        }
       }
 
       // Decode URL
-      $game->gamecode = urldecode($game->gamecode);
+      $game_obj->gamecode = urldecode( $game_obj->gamecode );
 
       // Check for file extension or embed code
-      if ( strpos( $game->gamecode, 'src=') !== FALSE ) {
+      if ( strpos( $game_obj->gamecode, 'src=') !== FALSE ) {
         // This is an embed code game
         $game->type = 'embed';
       }
       else {
-        $extension = pathinfo( $game->gamecode , PATHINFO_EXTENSION );
+        $extension = pathinfo( $game_obj->gamecode , PATHINFO_EXTENSION );
+
+        if ( ! $extension ) {
+          $extension = 'iframe';
+        }
 
         switch ( $extension ) {
           case 'dcr' : {
@@ -272,7 +277,8 @@ function myarcade_feed_myarcadefeed($args) {
             $game->type = 'unity';
           }
 
-          case 'html' : {
+          case 'html' :
+          case 'iframe': {
             $game->type = 'iframe';
           } break;
 
@@ -282,18 +288,20 @@ function myarcade_feed_myarcadefeed($args) {
         }
       }
 
-      $game->name           = esc_sql( $game->name );
-      $game->slug           = myarcade_make_slug($game->name);
-      $game->description    = esc_sql($game->description);
-      $game->instructions    = esc_sql($game->instructions);
-      $game->categs         = esc_sql($game->category);
-      $game->thumbnail_url  = esc_sql($game->thumbnail);
-      $game->swf_url        = esc_sql($game->gamecode);
-      $game->screen1_url    = !empty($game->screenshot_1) ? $game->screenshot_1 : '';
-      $game->screen2_url    = !empty($game->screenshot_2) ? $game->screenshot_2 : '';
-      $game->screen3_url    = !empty($game->screenshot_3) ? $game->screenshot_3 : '';
-      $game->screen4_url    = !empty($game->screenshot_4) ? $game->screenshot_4 : '';
-      $game->tags           = ( !empty($game->tags) ) ? esc_sql($game->tags) : '';
+      $game->name           = esc_sql( $game_obj->name );
+      $game->slug           = myarcade_make_slug( $game_obj->name );
+      $game->description    = esc_sql( $game_obj->description );
+      $game->instructions    = esc_sql( $game_obj->instructions );
+      $game->categs         = esc_sql( $game_obj->category );
+      $game->thumbnail_url  = esc_sql( $game_obj->thumbnail );
+      $game->swf_url        = esc_sql( $game_obj->gamecode );
+      $game->width          = esc_sql( $game_obj->width );
+      $game->height         = esc_sql( $game_obj->height );
+      $game->screen1_url    = !empty( $game_obj->screenshot_1 ) ? esc_sql( $game_obj->screenshot_1 ) : '';
+      $game->screen2_url    = !empty( $game_obj->screenshot_2 ) ? esc_sql( $game_obj->screenshot_2 ) : '';
+      $game->screen3_url    = !empty( $game_obj->screenshot_3 ) ? esc_sql( $game_obj->screenshot_3 ) : '';
+      $game->screen4_url    = !empty( $game_obj->screenshot_4 ) ? esc_sql( $game_obj->screenshot_4 ) : '';
+      $game->tags           = ( !empty( $game_obj->tags ) ) ? esc_sql($game_obj->tags) : '';
 
       // Add game to the database
       if ( myarcade_add_fetched_game( $game, $args ) ) {

@@ -27,69 +27,76 @@ function myarcade_import_games() {
   // Crete an empty game class
   $game = new stdClass();
 
-  if ( isset($_POST['impcostgame']) && ($_POST['impcostgame'] == 'import') ) {
-    if ( $_POST['importtype'] == 'embed' || $_POST['importtype'] == 'iframe' || $_POST['importtype'] == 'html5' ) {
-      $decoded = urldecode( $_POST['importgame'] );
+  $impcostgame   = filter_input( INPUT_POST, 'impcostgame' );
+  $importtype    = filter_input( INPUT_POST, 'importtype' );
+  $importgame    = filter_input( INPUT_POST, 'importgame' );
+  $gamename      = filter_input( INPUT_POST, 'gamename' );
+  $importgametag = filter_input( INPUT_POST, 'importgametag' );
+
+  if ( 'import' == $impcostgame ) {
+    if ( $importtype == 'embed' || $importtype == 'iframe' || $importtype == 'html5' ) {
+      $decoded = urldecode( $importgame );
       $converted = str_replace( array("\r\n", "\r", "\n"), " ", $decoded);
       $game->swf_url = esc_sql( $converted );
     }
     else {
-      $game->swf_url = $_POST['importgame'];
+      $game->swf_url = $importgame;
     }
 
-    $game->width = !empty($_POST['gamewidth']) ? $_POST['gamewidth'] : '';
-    $game->height = !empty($_POST['gameheight']) ? $_POST['gameheight'] : '';
-
-    $game->slug = filter_input( INPUT_POST, 'slug' );
+    $game->width  = filter_input( INPUT_POST, 'gamewidth' );
+    $game->height = filter_input( INPUT_POST, 'gameheight' );
+    $game->slug   = filter_input( INPUT_POST, 'slug' );
 
     if ( ! $game->slug ) {
-      $game->slug           = preg_replace("/[^a-zA-Z0-9 ]/", "", strtolower($_POST['gamename']));
+      $game->slug           = preg_replace("/[^a-zA-Z0-9 ]/", "", strtolower( $gamename ) );
       $game->slug           = str_replace(" ", "-", $game->slug);
     }
 
-    $game->name           = $_POST['gamename'];
-    $game->type           = $_POST['importtype'];
+    $gamecategs = filter_input( INPUT_POST, 'gamecategs', FILTER_DEFAULT, FILTER_FORCE_ARRAY );
+
+    $game->name           = $gamename;
+    $game->type           = $importtype;
     $game->uuid           = md5($game->name.'import');
-    $game->game_tag       = ( !empty($_POST['importgametag'])) ? $_POST['importgametag'] : crc32($game->uuid);
-    $game->thumbnail_url  = $_POST['importthumb'];
-    $game->description    = $_POST['gamedescr'];
-    $game->instructions   = $_POST['gameinstr'];
-    $game->tags           = esc_sql( $_POST['gametags'] );
-    $game->categs         = ( isset($_POST['gamecategs']) ) ? implode(",", $_POST['gamecategs']) : 'Other';
+    $game->game_tag       = ( $importgametag ) ? $importgametag : crc32( $game->uuid );
+    $game->thumbnail_url  = filter_input( INPUT_POST, 'importthumb' );
+    $game->description    = filter_input( INPUT_POST, 'gamedescr' );
+    $game->instructions   = filter_input( INPUT_POST, 'gameinstr' );
+    $game->tags           = esc_sql( filter_input( INPUT_POST, 'gametags' ) );
+    $game->categs         = ( $gamecategs ) ? implode( ",", $gamecategs ) : 'Other';
     $game->created        = gmdate( 'Y-m-d H:i:s', ( time() + (get_option( 'gmt_offset' ) * 3600 ) ) );
     $game->leaderboard_enabled = filter_input( INPUT_POST, 'lbenabled' );
 
-    if ( ! empty( $_POST['highscoretype'] ) && 'low' == $_POST['highscoretype'] ) {
+    $highscoretype        = filter_input( INPUT_POST, 'highscoretype' );
+    $game->highscore_type = 'DESC';
+
+    if ( 'low' == $highscoretype ) {
       $game->highscore_type = 'ASC';
     }
-    else {
-      $game->highscore_type = 'DESC';
-    }
 
-    $game->status         = 'new';
-    $game->screen1_url    = $_POST['importscreen1'];
-    $game->screen2_url    = $_POST['importscreen2'];
-    $game->screen3_url    = $_POST['importscreen3'];
-    $game->screen4_url    = $_POST['importscreen4'];
-    $game->video_url      = isset($_POST['video_url']) ? $_POST['video_url'] : '';
-    $game->score_bridge   = isset($_POST['score_bridge']) ? $_POST['score_bridge'] : '';
+    $game->status       = 'new';
+    $game->screen1_url  = filter_input( INPUT_POST, 'importscreen1' );
+    $game->screen2_url  = filter_input( INPUT_POST, 'importscreen2' );
+    $game->screen3_url  = filter_input( INPUT_POST, 'importscreen3' );
+    $game->screen4_url  = filter_input( INPUT_POST, 'importscreen4' );
+    $game->video_url    = filter_input( INPUT_POST, 'video_url' );
+    $game->score_bridge = filter_input( INPUT_POST, 'score_bridge' );
 
     // Add game to table
     myarcade_insert_game($game);
 
-    $publis_status = sanitize_text_field( filter_input( INPUT_POST, 'publishstatus' ) );
+    $publishstatus = filter_input( INPUT_POST, 'publishstatus' );
 
     // Add the game as blog post
-    if ( 'add' != $publis_status ) {
+    if ( 'add' != $publishstatus ) {
       $gameID = $wpdb->get_var("SELECT id FROM " . $wpdb->prefix . 'myarcadegames' . " WHERE uuid = '$game->uuid'");
 
       if ( !empty($gameID) ) {
-        myarcade_add_games_to_blog( array( 'game_id' => $gameID, 'post_status' => $publis_status, 'echo' => false ) );
+        myarcade_add_games_to_blog( array('game_id' => $gameID, 'post_status' => $publishstatus, 'echo' => false) );
 
-        echo '<div class="mabp_info mabp_680"><p>'.sprintf( __("Import of '%s' was succsessful.", 'myarcadeplugin'), $game->name ).'</p></div>';
+        echo '<div class="mabp_info mabp_680"><p>'.sprintf(__("Import of '%s' was succsessful.", 'myarcadeplugin'), $game->name).'</p></div>';
       }
       else  {
-        echo '<div class="mabp_error mabp_680"><p>'.__( "Can't import that game...", 'myarcadeplugin' ).'</p></div>';
+        echo '<div class="mabp_error mabp_680"><p>'.__("Can't import that game...", 'myarcadeplugin').'</p></div>';
       }
     }
     else {
@@ -125,6 +132,7 @@ function myarcade_import_games() {
               <select size="1" name="importmethod" id="importmethod">
                 <option value="importswfdcr" <?php selected( "importswfdcr", $selected_method ); ?>><?php _e("Upload / Grab SWF game", 'myarcadeplugin'); ?>&nbsp;</option>
                 <option value="importembedif" <?php selected( "importembedif", $selected_method ); ?>><?php _e("Import Embed / Iframe game", 'myarcadeplugin'); ?></option>
+                <option value="importhtml5" <?php selected( "importhtml5", $selected_method ); ?>><?php _e("HTML5 game (.zip) (PRO)", 'myarcadeplugin'); ?>&nbsp;</option>
                 <option value="importibparcade" <?php selected( "importibparcade", $selected_method ); ?>><?php _e("Upload IBPArcade game (PRO)", 'myarcadeplugin'); ?></option>
                 <option value="importphpbb" <?php selected( "importphpbb", $selected_method ); ?>><?php _e("Upload ZIP File / PHPBB / Mochi (PRO)", 'myarcadeplugin'); ?></option>
                 <option value="importunity" <?php selected( "importunity", $selected_method ); ?>><?php _e("Import Unity game (PRO)", 'myarcadeplugin'); ?></option>

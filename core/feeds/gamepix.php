@@ -1,6 +1,6 @@
 <?php
 /**
- * GamePix Feed
+ * GamePix Feed - https://games.gamepix.com/
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
  */
@@ -13,8 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Display distributor settings on admin page
  *
- * @version 5.17.0
- * @access  public
  * @return  void
  */
 function myarcade_settings_gamepix() {
@@ -113,7 +111,6 @@ function myarcade_settings_gamepix() {
 function myarcade_default_settings_gamepix() {
   return array(
     'feed'          => 'https://games.gamepix.com/games',
-    'publisher_id'  => '10013',
     'site_id'       => '20015',
     'category'      => 'all',
     'thumbnail'     => 'thumbnailUrl100',
@@ -132,7 +129,7 @@ function myarcade_save_settings_gamepix() {
   myarcade_check_settings_nonce();
 
   $settings = array();
-  $settings['publisher_id'] = '10013';
+
   $settings['site_id'] = '20015';
   $settings['feed'] = (isset($_POST['gamepix_url'])) ? esc_sql($_POST['gamepix_url']) : '';
   $settings['category'] = (isset($_POST['gamepix_category'])) ? $_POST['gamepix_category'] : 'all';
@@ -145,13 +142,41 @@ function myarcade_save_settings_gamepix() {
 }
 
 /**
+ * Retrieve available distributor's categories mapped to MyArcadePlugin categories
+ *
+ * @return  array Distributor categories
+ */
+function myarcade_get_categories_gamepix() {
+  return array(
+    "Action"      => false,
+    "Adventure"   => true,
+    "Arcade"      => true,
+    "Board Game"  => "Board",
+    "Casino"      => false,
+    "Defense"     => false,
+    "Customize"   => false,
+    "Dress-Up"    => false,
+    "Driving"     => false,
+    "Education"   => false,
+    "Fighting"    => false,
+    "Jigsaw"      => false,
+    "Multiplayer" => false,
+    "Other"       => "Classics,Junior",
+    "Puzzles"     => true,
+    "Rhythm"      => false,
+    "Shooting"    => false,
+    "Sports"      => true,
+    "Strategy"    => true,
+  );
+}
+
+/**
  * Fetch FlashGameDistribution games
  *
  * @param   array  $args Fetching parameters
  * @return  void
  */
 function myarcade_feed_gamepix( $args = array() ) {
-  global $wpdb;
 
   $defaults = array(
     'echo'     => false,
@@ -164,8 +189,9 @@ function myarcade_feed_gamepix( $args = array() ) {
   $new_games = 0;
   $add_game = false;
 
-  $gamepix = myarcade_get_settings( 'gamepix' );
-  $feedcategories = get_option('myarcade_categories');
+  $gamepix            = myarcade_get_settings( 'gamepix' );
+  $gamepix_categories = myarcade_get_categories_gamemonetize();
+  $feedcategories     = get_option('myarcade_categories');
 
   // Init settings var's
   if ( !empty($settings) ) {
@@ -175,9 +201,8 @@ function myarcade_feed_gamepix( $args = array() ) {
     $settings = $gamepix;
   }
 
-  if ( empty( $settings['publisher_id']) || empty( $settings['site_id']) ) {
+  if ( empty( $settings['site_id']) ) {
     // Use our default affiliate credentials
-    $settings['publisher_id'] = '10013';
     $settings['site_id'] = '20015';
   }
 
@@ -186,8 +211,7 @@ function myarcade_feed_gamepix( $args = array() ) {
     $settings['feed'] = add_query_arg( array("category" => $settings['category'] ), trim( $settings['feed'] ) );
   }
 
-  $settings['feed'] = add_query_arg( array("pid" => $settings['publisher_id'] ), trim( $settings['feed'] ) );
-  $settings['feed'] = add_query_arg( array("sid" => $settings['site_id'] ), trim( $settings['feed'] ) );
+  $settings['feed'] = add_query_arg( array( "sid" => $settings['site_id'] ), trim( $settings['feed'] ) );
 
   // Include required fetch functions
   require_once( MYARCADE_CORE_DIR . '/fetch.php' );
@@ -207,23 +231,29 @@ function myarcade_feed_gamepix( $args = array() ) {
       $add_game   = false;
 
       // Transform some categories
-      $categories = explode(',', $game_obj->category);
+      $categories = explode( ',', $game_obj->category );
       $categories_string = 'Other';
 
-      foreach($categories as $gamecat) {
+      // Loop trough game categories
+      foreach( $categories as $gamecat ) {
+        // Loop trough MyArcade categories
+        foreach ( $feedcategories as $feedcat ) {
+          if ( 'checked' == $feedcat['Status'] ) {
+            if ( ! empty( $gamepix_categories[ $feedcat['Name'] ] ) ) {
+              // Set category name to check
+              if ( $gamepix_categories[ $feedcat['Name'] ] === true ) {
+                $cat_name = $feedcat['Name'];
+              }
+              else {
+                $cat_name = $gamepix_categories[ $feedcat['Name'] ];
+              }
+            }
 
-        // Transform some feed categories
-        switch ( $gamecat ) {
-          case 'Classics': {
-            $gamecat = 'Other';
-          } break;
-        }
-
-        foreach ($feedcategories as $feedcat) {
-          if ( ($feedcat['Name'] == $gamecat) && ($feedcat['Status'] == 'checked') ) {
-            $add_game = true;
-            $categories_string = $gamecat;
-            break 2;
+            if ( strpos( $cat_name, $gamecat ) !== false ) {
+              $add_game = true;
+              $categories_string = $feedcat['Name'];
+              break 2;
+            }
           }
         }
       } // END - Category-Check
@@ -237,17 +267,17 @@ function myarcade_feed_gamepix( $args = array() ) {
       $game->slug          = myarcade_make_slug($game_obj->title);
       $game->description   = esc_sql($game_obj->description);
       $game->categs        = $categories_string;
-      $game->swf_url       = esc_sql( strtok( myarcade_maybe_ssl( $game_obj->url ), '?' ) );
+      $game->swf_url       = esc_sql( strtok( $game_obj->url, '?' ) );
       $game->width         = esc_sql($game_obj->width);
       $game->height        = esc_sql($game_obj->height);
 
       $thumb_size = $settings['thumbnail'];
 
       if ( ! empty( $game_obj->$thumb_size ) ) {
-        $game->thumbnail_url = esc_sql( myarcade_maybe_ssl( $game_obj->$thumb_size ) );
+        $game->thumbnail_url = esc_sql( $game_obj->$thumb_size );
       }
       else {
-        $game->thumbnail_url = esc_sql( myarcade_maybe_ssl( $game_obj->thumbnailUrl100 ) );
+        $game->thumbnail_url = esc_sql( $game_obj->thumbnailUrl100 );
       }
 
       // Add game to the database

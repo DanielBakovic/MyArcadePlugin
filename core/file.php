@@ -6,7 +6,7 @@
  */
 
 // No direct access
-if( !defined( 'ABSPATH' ) ) {
+if ( ! defined( 'ABSPATH' ) ) {
   die();
 }
 
@@ -309,12 +309,12 @@ function myarcade_get_max_post_size_bytes() {
 function myarcade_get_filelist() {
 
   if ( empty( $_POST['type'] ) ) {
-    exit;
+    die();
   }
 
   $upload_dir = myarcade_upload_dir();
 
-  $type = sanitize_text_field( $_POST['type'] );
+  $type = sanitize_text_field( filter_input( INPUT_POST, 'type' ) );
   $dir =  $upload_dir['gamesdir'] . 'uploads/' . $type;
 
   $files_array = array();
@@ -347,7 +347,7 @@ function myarcade_get_filelist() {
    echo '<span id="fileselect'.$type.'">'. __("No files found!", 'myarcadeplugin') . '</span>';
   }
 
-  exit;
+  die();
 }
 add_action('wp_ajax_myarcade_get_filelist', 'myarcade_get_filelist');
 
@@ -390,4 +390,3 @@ function myarcade_add_attachment( $file_url, $file_path ) {
 
   return $attachment_id;
 }
-?>

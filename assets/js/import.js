@@ -2,147 +2,6 @@ jQuery(function($) {
   function showLoader(id) { $(id).show(); }
   function hideLoader(id) { $(id).hide(); }
 
-  // SWF handler
-  $('#uploadFormSWF').submit(function(e) {
-    e.preventDefault();
-
-    var options = {
-      type: 'POST',
-      url: ajaxurl,
-      data: { action: "myarcade_import_handler" },
-      dataType: 'json',
-      beforeSubmit: function() { showLoader('#loadimgswf'); },
-      success: showResponseSWF
-    };
-
-    $(this).ajaxSubmit(options);
-
-    return false;
-  });
-
-  // Thumbnail handler
-  $('#uploadFormTHUMB').submit(function(e) {
-    e.preventDefault();
-
-    var options = {
-    type: 'POST',
-    url: ajaxurl,
-    data: { action: "myarcade_import_handler" },
-    dataType: 'json',
-    beforeSubmit: function() { showLoader('#loadimgthumb'); },
-    success: showResponseTHUMB
-    };
-    $(this).ajaxSubmit(options);
-    return false;
-  });
-
-  // Screenshot handler
-  $('#uploadFormSCREEN').submit(function(e) {
-    e.preventDefault();
-
-    var options = {
-    type: 'POST',
-    url: ajaxurl,
-    data: { action: "myarcade_import_handler" },
-    dataType: 'json',
-    beforeSubmit: function() { showLoader('#loadimgscreen'); },
-    success: showResponseSCREEN
-    };
-    $(this).ajaxSubmit(options);
-    return false;
-  });
-
-  // TAR handler
-  $('#uploadFormTAR').submit(function(e) {
-    e.preventDefault();
-
-    var options = {
-    type: 'POST',
-    url: ajaxurl,
-    data: { action: "myarcade_import_handler" },
-    dataType: 'json',
-    beforeSubmit: function() { showLoader('#loadimgtar'); },
-    success: showResponseTAR
-    };
-    $(this).ajaxSubmit(options);
-    return false;
-  });
-
-  // ZIP handler
-  $('#uploadFormZIP').submit(function(e) {
-    e.preventDefault();
-
-    var options = {
-    type: 'POST',
-    url: ajaxurl,
-    data: { action: "myarcade_import_handler" },
-    dataType: 'json',
-    beforeSubmit: function() { showLoader('#loadimgzip'); },
-    success: showResponseZIP
-    };
-    $(this).ajaxSubmit(options);
-    return false;
-  });
-
-  // Unity handler
-  $('#uploadFormUnity').submit(function(e) {
-    e.preventDefault();
-    var options = {
-    type: 'POST',
-    url: ajaxurl,
-    data: { action: "myarcade_import_handler" },
-    dataType: 'json',
-    beforeSubmit: function() { showLoader('#loadimgunity'); },
-    success: showResponseUnity
-    };
-    $(this).ajaxSubmit(options);
-    return false;
-  });
-
-  // Embed handler
-  $('#uploadFormEMIF').submit(function(e) {
-    e.preventDefault();
-    var options = {
-    type: 'POST',
-    url: ajaxurl,
-    data: { action: "myarcade_import_handler" },
-    dataType: 'json',
-    beforeSubmit: function() { showLoader('#loadimgemif'); },
-    success: showResponseEMIF
-    };
-    $(this).ajaxSubmit(options);
-    return false;
-  });
-
-  // File Size check
-  $("#gamefile").change(function ()  {
-    myarcade_check_file_size("#gamefile", "#lblgamefile");
-  });
-  $("#tarfile").change(function ()  {
-    myarcade_check_file_size("#tarfile", "#lbltarfile");
-  });
-  $("#zipfile").change(function ()  {
-    myarcade_check_file_size("#zipfile", "#lblzipfile");
-  });
-  $("#unityfile").change(function ()  {
-    myarcade_check_file_size("#unityfile", "#lblunityfile");
-  });
-
-  // Folder selection
-  $(".fileselection").click( function() {
-    var selected = $(this).closest('div').attr('id');
-    $("#folder" + selected).hide();
-    $("#" + selected + " .loadimg").show();
-    showfileSelection( selected );
-  });
-
-  $(".cancelselection").click( function() {
-    var selected = $(this).closest('div').attr('id');
-    $("#fileselect" + selected).remove();
-    $("#" + selected + " .cancelselection").hide();
-    $("#" + selected + " .fileselection").show();
-  });
-
   function showfileSelection( selected ) {
     $.ajax({
       type: 'POST',
@@ -219,6 +78,28 @@ jQuery(function($) {
         }
       }
       $('#filenamescreen').html(output_string);
+    }
+    else {
+      if ( statusText != 'success' ) {
+        alert( MyArcadeImport.error_string + ' ' + statusText );
+      }
+      else {
+        alert( MyArcadeImport.error_string + ' ' + data.error );
+      }
+    }
+  }
+
+  function showResponseHTML5(data, statusText, xhr, $form)  {
+    hideLoader('#loadimghtml5');
+
+    // Check the status
+    if (statusText == 'success' && data.error == '') {
+      $('#filenamehtml5').html('<strong>' + data.name + '</strong> - <i>' + data.info_dim + '</i>');
+      $('#gamewidth').val(data.width);
+      $('#gameheight').val(data.height);
+      $('#gamename').val(data.realname);
+      $('#importgame').val(data.location_url);
+      $('#importtype').val(data.type);
     }
     else {
       if ( statusText != 'success' ) {
@@ -450,10 +331,171 @@ jQuery(function($) {
       alert( MyArcadeImport.max_filesize_exceeded );
     }
   }
+
+  // SWF handler
+  $('#uploadFormSWF').submit(function(e) {
+    e.preventDefault();
+
+    var options = {
+      type: 'POST',
+      url: ajaxurl,
+      data: { action: "myarcade_import_handler" },
+      dataType: 'json',
+      beforeSubmit: function() { showLoader('#loadimgswf'); },
+      success: showResponseSWF
+    };
+
+    $(this).ajaxSubmit(options);
+
+    return false;
+  });
+
+  // Thumbnail handler
+  $('#uploadFormTHUMB').submit(function(e) {
+    e.preventDefault();
+
+    var options = {
+    type: 'POST',
+    url: ajaxurl,
+    data: { action: "myarcade_import_handler" },
+    dataType: 'json',
+    beforeSubmit: function() { showLoader('#loadimgthumb'); },
+    success: showResponseTHUMB
+    };
+    $(this).ajaxSubmit(options);
+    return false;
+  });
+
+  // Screenshot handler
+  $('#uploadFormSCREEN').submit(function(e) {
+    e.preventDefault();
+
+    var options = {
+    type: 'POST',
+    url: ajaxurl,
+    data: { action: "myarcade_import_handler" },
+    dataType: 'json',
+    beforeSubmit: function() { showLoader('#loadimgscreen'); },
+    success: showResponseSCREEN
+    };
+    $(this).ajaxSubmit(options);
+    return false;
+  });
+
+  // HTML5 handler
+  $('#uploadFormhtml5').submit(function(e) {
+    e.preventDefault();
+
+    var options = {
+    type: 'POST',
+    url: ajaxurl,
+    data: { action: "myarcade_import_handler" },
+    dataType: 'json',
+    beforeSubmit: function() { showLoader('#loadimghtml5'); },
+    success: showResponseHTML5
+    };
+    $(this).ajaxSubmit(options);
+    return false;
+  });
+
+  // TAR handler
+  $('#uploadFormTAR').submit(function(e) {
+    e.preventDefault();
+
+    var options = {
+    type: 'POST',
+    url: ajaxurl,
+    data: { action: "myarcade_import_handler" },
+    dataType: 'json',
+    beforeSubmit: function() { showLoader('#loadimgtar'); },
+    success: showResponseTAR
+    };
+    $(this).ajaxSubmit(options);
+    return false;
+  });
+
+  // ZIP handler
+  $('#uploadFormZIP').submit(function(e) {
+    e.preventDefault();
+
+    var options = {
+    type: 'POST',
+    url: ajaxurl,
+    data: { action: "myarcade_import_handler" },
+    dataType: 'json',
+    beforeSubmit: function() { showLoader('#loadimgzip'); },
+    success: showResponseZIP
+    };
+    $(this).ajaxSubmit(options);
+    return false;
+  });
+
+  // Unity handler
+  $('#uploadFormUnity').submit(function(e) {
+    e.preventDefault();
+    var options = {
+    type: 'POST',
+    url: ajaxurl,
+    data: { action: "myarcade_import_handler" },
+    dataType: 'json',
+    beforeSubmit: function() { showLoader('#loadimgunity'); },
+    success: showResponseUnity
+    };
+    $(this).ajaxSubmit(options);
+    return false;
+  });
+
+  // Embed handler
+  $('#uploadFormEMIF').submit(function(e) {
+    e.preventDefault();
+    var options = {
+    type: 'POST',
+    url: ajaxurl,
+    data: { action: "myarcade_import_handler" },
+    dataType: 'json',
+    beforeSubmit: function() { showLoader('#loadimgemif'); },
+    success: showResponseEMIF
+    };
+    $(this).ajaxSubmit(options);
+    return false;
+  });
+
+  // File Size check
+  $("#gamefile").change(function ()  {
+    myarcade_check_file_size("#gamefile", "#lblgamefile");
+  });
+  $("#tarfile").change(function ()  {
+    myarcade_check_file_size("#tarfile", "#lbltarfile");
+  });
+  $("#zipfile").change(function ()  {
+    myarcade_check_file_size("#zipfile", "#lblzipfile");
+  });
+  $("#html5file").change(function ()  {
+    myarcade_check_file_size("#html5file", "#lblhtml5zipfile");
+  });
+  $("#unityfile").change(function ()  {
+    myarcade_check_file_size("#unityfile", "#lblunityfile");
+  });
+
+  // Folder selection
+  $(".fileselection").click( function() {
+    var selected = $(this).closest('div').attr('id');
+    $("#folder" + selected).hide();
+    $("#" + selected + " .loadimg").show();
+    showfileSelection( selected );
+  });
+
+  $(".cancelselection").click( function() {
+    var selected = $(this).closest('div').attr('id');
+    $("#fileselect" + selected).remove();
+    $("#" + selected + " .cancelselection").hide();
+    $("#" + selected + " .fileselection").show();
+  });
 });
 
 /* Import method selection */
 jQuery(document).ready(function($) {
+  $('#importhtml5').hide();
   $('#importibparcade').hide();
   $('#importphpbb').hide();
   $('#importunity').hide();
@@ -474,12 +516,24 @@ jQuery(document).ready(function($) {
     $('#slug').val('');
 
     switch (this.value) {
+      case 'importhtml5': {
+        $('#importswfdcr').hide();
+        $('#importembedif').hide();
+        $('#thumbform').fadeIn();
+        $('#importphpbb').hide();
+        $('#importunity').hide();
+        $('#importibparcade').hide();
+        $('#importhtml5').fadeIn();
+      }
+      break;
+
       case 'importibparcade': {
         $('#importswfdcr').hide();
         $('#importembedif').hide();
         $('#thumbform').hide();
         $('#importphpbb').hide();
         $('#importunity').hide();
+        $('#importhtml5').hide();
         $('#importibparcade').fadeIn();
       }
       break;
@@ -490,6 +544,7 @@ jQuery(document).ready(function($) {
         $('#thumbform').hide();
         $('#importphpbb').fadeIn();
         $('#importunity').hide();
+        $('#importhtml5').hide();
         $('#importibparcade').hide();
       }
       break;
@@ -499,6 +554,7 @@ jQuery(document).ready(function($) {
         $('#importembedif').hide();
         $('#importphpbb').hide();
         $('#importunity').hide();
+        $('#importhtml5').hide();
         $('#importswfdcr').fadeIn();
         $('#thumbform').fadeIn();
       }
@@ -509,6 +565,7 @@ jQuery(document).ready(function($) {
         $('#importswfdcr').hide();
         $('#importphpbb').hide();
         $('#importunity').hide();
+        $('#importhtml5').hide();
         $('#importembedif').fadeIn();
         $('#thumbform').fadeIn();
       }
@@ -519,6 +576,7 @@ jQuery(document).ready(function($) {
         $('#importswfdcr').hide();
         $('#importphpbb').hide();
         $('#importunity').fadeIn();
+        $('#importhtml5').hide();
         $('#importembedif').hide();
         $('#thumbform').fadeIn();
       }

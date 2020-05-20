@@ -286,7 +286,6 @@ function myarcade_get_categories_famobi() {
  * @return  void
  */
 function myarcade_feed_famobi( $args = array() ) {
-  global $wpdb;
 
   $defaults = array(
     'echo'     => false,

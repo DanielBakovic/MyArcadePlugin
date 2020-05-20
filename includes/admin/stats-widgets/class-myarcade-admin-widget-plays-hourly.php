@@ -27,7 +27,7 @@ class MyArcade_Admin_Widget_Plays_Hourly {
           animate: true,
           animateReplot: true,
           title: {
-            text: <?php echo json_encode( __( "Yesterday's hourly plays", 'myarcadeplugin' ) ); ?>,
+            text: <?php echo wp_json_encode( __( "Yesterday's hourly plays", 'myarcadeplugin' ) ); ?>,
             fontSize: '12px',
           },
           highlighter: {
