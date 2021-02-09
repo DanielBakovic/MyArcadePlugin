@@ -62,7 +62,7 @@ add_action( 'init', 'myarcade_init' );
 function myarcade_initial_constants() {
 
   // Define MyArcadePlugin version.
-  define('MYARCADE_VERSION', '5.7.0');
+  define('MYARCADE_VERSION', '5.8.0');
 
 	// You need at least PHP Version 5.3.0+ to run this plugin.
   define('MYARCADE_PHP_VERSION', '5.3.0');
