@@ -1,212 +1,58 @@
-(function(){!function(a,b){return"function"==typeof define&&define.amd?define(function(){return b()}):"object"==typeof exports?module.exports=b():a.ifvisible=b()}(this,function(){var a,b,c,d,e,f,g,h,i,j,k,l,m,n;return i={},c=document,k=!1,l="active",g=6e4,f=!1,b=function(){var a,b,c,d,e,f,g;return a=function(){return(65536*(1+Math.random())|0).toString(16).substring(1)},e=function(){return a()+a()+"-"+a()+"-"+a()+"-"+a()+"-"+a()+a()+a()},f={},c="__ceGUID",b=function(a,b,d){return a[c]=void 0,a[c]||(a[c]="ifvisible.object.event.identifier"),f[a[c]]||(f[a[c]]={}),f[a[c]][b]||(f[a[c]][b]=[]),f[a[c]][b].push(d)},d=function(a,b,d){var e,g,h,i,j;if(a[c]&&f[a[c]]&&f[a[c]][b]){for(i=f[a[c]][b],j=[],g=0,h=i.length;h>g;g++)e=i[g],j.push(e(d||{}));return j}},g=function(a,b,d){var e,g,h,i,j;if(d){if(a[c]&&f[a[c]]&&f[a[c]][b])for(j=f[a[c]][b],g=h=0,i=j.length;i>h;g=++h)if(e=j[g],e===d)return f[a[c]][b].splice(g,1),e}else if(a[c]&&f[a[c]]&&f[a[c]][b])return delete f[a[c]][b]},{add:b,remove:g,fire:d}}(),a=function(){var a;return a=!1,function(b,c,d){return a||(a=b.addEventListener?function(a,b,c){return a.addEventListener(b,c,!1)}:b.attachEvent?function(a,b,c){return a.attachEvent("on"+b,c,!1)}:function(a,b,c){return a["on"+b]=c}),a(b,c,d)}}(),d=function(a,b){var d;return c.createEventObject?a.fireEvent("on"+b,d):(d=c.createEvent("HTMLEvents"),d.initEvent(b,!0,!0),!a.dispatchEvent(d))},h=function(){var a,b,d,e,f;for(e=void 0,f=3,d=c.createElement("div"),a=d.getElementsByTagName("i"),b=function(){return d.innerHTML="<!--[if gt IE "+ ++f+"]><i></i><![endif]-->",a[0]};b(););return f>4?f:e}(),e=!1,n=void 0,"undefined"!=typeof c.hidden?(e="hidden",n="visibilitychange"):"undefined"!=typeof c.mozHidden?(e="mozHidden",n="mozvisibilitychange"):"undefined"!=typeof c.msHidden?(e="msHidden",n="msvisibilitychange"):"undefined"!=typeof c.webkitHidden&&(e="webkitHidden",n="webkitvisibilitychange"),m=function(){var b,d;return b=!1,d=function(){return clearTimeout(b),"active"!==l&&i.wakeup(),f=+new Date,b=setTimeout(function(){return"active"===l?i.idle():void 0},g)},d(),a(c,"mousemove",d),a(c,"keyup",d),a(window,"scroll",d),i.focus(d),i.wakeup(d)},j=function(){var b;return k?!0:(e===!1?(b="blur",9>h&&(b="focusout"),a(window,b,function(){return i.blur()}),a(window,"focus",function(){return i.focus()})):a(c,n,function(){return c[e]?i.blur():i.focus()},!1),k=!0,m())},i={setIdleDuration:function(a){return g=1e3*a},getIdleDuration:function(){return g},getIdleInfo:function(){var a,b;return a=+new Date,b={},"idle"===l?(b.isIdle=!0,b.idleFor=a-f,b.timeLeft=0,b.timeLeftPer=100):(b.isIdle=!1,b.idleFor=a-f,b.timeLeft=f+g-a,b.timeLeftPer=(100-100*b.timeLeft/g).toFixed(2)),b},focus:function(a){return"function"==typeof a?this.on("focus",a):(l="active",b.fire(this,"focus"),b.fire(this,"wakeup"),b.fire(this,"statusChanged",{status:l}))},blur:function(a){return"function"==typeof a?this.on("blur",a):(l="hidden",b.fire(this,"blur"),b.fire(this,"idle"),b.fire(this,"statusChanged",{status:l}))},idle:function(a){return"function"==typeof a?this.on("idle",a):(l="idle",b.fire(this,"idle"),b.fire(this,"statusChanged",{status:l}))},wakeup:function(a){return"function"==typeof a?this.on("wakeup",a):(l="active",b.fire(this,"wakeup"),b.fire(this,"statusChanged",{status:l}))},on:function(a,c){return j(),b.add(this,a,c)},off:function(a,c){return j(),b.remove(this,a,c)},onEvery:function(a,b){var c,d;return j(),c=!1,b&&(d=setInterval(function(){return"active"===l&&c===!1?b():void 0},1e3*a)),{stop:function(){return clearInterval(d)},pause:function(){return c=!0},resume:function(){return c=!1},code:d,callback:b}},now:function(a){return j(),l===(a||"active")}}})}).call(this);
+/** ifvisible.js
+ *  https://github.com/serkanyersen/ifvisible.js
+ */
+!function(t,e){if("object"==typeof exports&&"object"==typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var i=e();for(var s in i)("object"==typeof exports?exports:t)[s]=i[s]}}(this,function(){return function(t){function e(s){if(i[s])return i[s].exports;var o=i[s]={exports:{},id:s,loaded:!1};return t[s].call(o.exports,o,o.exports,e),o.loaded=!0,o.exports}var i={};return e.m=t,e.c=i,e.p="",e(0)}([function(t,e,i){t.exports=i(2)},function(t,e,i){"use strict";Object.defineProperty(e,"__esModule",{value:!0});var s,o,n="active",r="idle",u="hidden",d=void 0;!function(t){function e(t,e){r[t]||(r[t]=[]),r[t].push(e)}function i(t,e){r[t]&&r[t].forEach(function(t){t.apply(void 0,e)})}function s(t,e){r[t]&&(r[t]=r[t].filter(function(t){return e!==t}))}function o(t,e,i){return n||(n=t.addEventListener?function(t,e,i){return t.addEventListener(e,i,!1)}:"function"==typeof t.attachEvent?function(t,e,i){return t.attachEvent("on"+e,i,!1)}:function(t,e,i){return t["on"+e]=i}),n(t,e,i)}var n,r={};t.attach=e,t.fire=i,t.remove=s,t.dom=o}(o=e.Events||(e.Events={}));var a=function(){function t(t,e,i){var s=this;this.ifvisible=t,this.seconds=e,this.callback=i,this.stopped=!1,this.start(),this.ifvisible.on("statusChanged",function(t){s.stopped===!1&&(t.status===n?s.start():s.pause())})}return t.prototype.start=function(){this.stopped=!1,clearInterval(this.token),this.token=setInterval(this.callback,1e3*this.seconds)},t.prototype.stop=function(){this.stopped=!0,clearInterval(this.token)},t.prototype.resume=function(){this.start()},t.prototype.pause=function(){this.stop()},t}();e.Timer=a,e.IE=function(){for(var t,e=3,i=document.createElement("div"),s=i.getElementsByTagName("i");i.innerHTML="<!--[if gt IE "+ ++e+"]><i></i><![endif]-->",s[0];);return e>4?e:t}();var h=function(){function t(t,e){var i=this;if(this.root=t,this.doc=e,this.status=n,this.VERSION="2.0.10",this.timers=[],this.idleTime=3e4,this.isLegacyModeOn=!1,void 0!==this.doc.hidden?(s="hidden",d="visibilitychange"):void 0!==this.doc.mozHidden?(s="mozHidden",d="mozvisibilitychange"):void 0!==this.doc.msHidden?(s="msHidden",d="msvisibilitychange"):void 0!==this.doc.webkitHidden&&(s="webkitHidden",d="webkitvisibilitychange"),void 0===s)this.legacyMode();else{var r=function(){i.doc[s]?i.blur():i.focus()};r(),o.dom(this.doc,d,r)}this.startIdleTimer(),this.trackIdleStatus()}return t.prototype.legacyMode=function(){var t=this;if(!this.isLegacyModeOn){var i="blur",s="focus";e.IE<9&&(i="focusout"),o.dom(this.root,i,function(){return console.log("blurred"),t.blur()}),o.dom(this.root,s,function(){return t.focus()}),this.isLegacyModeOn=!0}},t.prototype.startIdleTimer=function(t){var e=this;t instanceof MouseEvent&&0===t.movementX&&0===t.movementY||(this.timers.map(clearTimeout),this.timers.length=0,this.status===r&&this.wakeup(),this.idleStartedTime=+new Date,this.timers.push(setTimeout(function(){if(e.status===n||e.status===u)return e.idle()},this.idleTime)))},t.prototype.trackIdleStatus=function(){o.dom(this.doc,"mousemove",this.startIdleTimer.bind(this)),o.dom(this.doc,"mousedown",this.startIdleTimer.bind(this)),o.dom(this.doc,"keyup",this.startIdleTimer.bind(this)),o.dom(this.doc,"touchstart",this.startIdleTimer.bind(this)),o.dom(this.root,"scroll",this.startIdleTimer.bind(this)),this.focus(this.startIdleTimer.bind(this))},t.prototype.on=function(t,e){return o.attach(t,e),this},t.prototype.off=function(t,e){return o.remove(t,e),this},t.prototype.setIdleDuration=function(t){return this.idleTime=1e3*t,this.startIdleTimer(),this},t.prototype.getIdleDuration=function(){return this.idleTime},t.prototype.getIdleInfo=function(){var t,e=+new Date;if(this.status===r)t={isIdle:!0,idleFor:e-this.idleStartedTime,timeLeft:0,timeLeftPer:100};else{var i=this.idleStartedTime+this.idleTime-e;t={isIdle:!1,idleFor:e-this.idleStartedTime,timeLeft:i,timeLeftPer:parseFloat((100-100*i/this.idleTime).toFixed(2))}}return t},t.prototype.idle=function(t){return t?this.on("idle",t):(this.status=r,o.fire("idle"),o.fire("statusChanged",[{status:this.status}])),this},t.prototype.blur=function(t){return t?this.on("blur",t):(this.status=u,o.fire("blur"),o.fire("statusChanged",[{status:this.status}])),this},t.prototype.focus=function(t){return t?this.on("focus",t):this.status!==n&&(this.status=n,o.fire("focus"),o.fire("wakeup"),o.fire("statusChanged",[{status:this.status}])),this},t.prototype.wakeup=function(t){return t?this.on("wakeup",t):this.status!==n&&(this.status=n,o.fire("wakeup"),o.fire("statusChanged",[{status:this.status}])),this},t.prototype.onEvery=function(t,e){return new a(this,t,e)},t.prototype.now=function(t){return void 0!==t?this.status===t:this.status===n},t}();e.IfVisible=h},function(t,e,i){(function(t){"use strict";Object.defineProperty(e,"__esModule",{value:!0});var s=i(1),o="object"==typeof self&&self.self===self&&self||"object"==typeof t&&t.global===t&&t||this;e.ifvisible=new s.IfVisible(o,document)}).call(e,function(){return this}())}])});
 
-/*Copyright (c) 2015 Jason Zissman
+/* Copyright (c) 2020 Jason Zissman
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
 the Software without restriction, including without limitation the rights to
 use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 the Software, and to permit persons to whom the Software is furnished to do so,
 subject to the following conditions:
-
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
-
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+https://github.com/jasonzissman/TimeMe.js
 */
+(()=>{((a,b)=>{if("undefined"!=typeof module&&module.exports)return module.exports=b();return"function"==typeof define&&define.amd?void define([],()=>a.TimeMe=b()):a.TimeMe=b()})(this,()=>{let a={startStopTimes:{},idleTimeoutMs:30000,currentIdleTimeMs:0,checkIdleStateRateMs:250,isUserCurrentlyOnPage:!0,isUserCurrentlyIdle:!1,currentPageName:"default-page-name",timeElapsedCallbacks:[],userLeftCallbacks:[],userReturnCallbacks:[],trackTimeOnElement:b=>{let c=document.getElementById(b);c&&(c.addEventListener("mouseover",()=>{a.startTimer(b)}),c.addEventListener("mousemove",()=>{a.startTimer(b)}),c.addEventListener("mouseleave",()=>{a.stopTimer(b)}),c.addEventListener("keypress",()=>{a.startTimer(b)}),c.addEventListener("focus",()=>{a.startTimer(b)}))},getTimeOnElementInSeconds:b=>{let c=a.getTimeOnPageInSeconds(b);return c?c:0},startTimer:(b,c)=>{if(b||(b=a.currentPageName),void 0===a.startStopTimes[b])a.startStopTimes[b]=[];else{let c=a.startStopTimes[b],d=c[c.length-1];if(void 0!==d&&void 0===d.stopTime)return}a.startStopTimes[b].push({startTime:c||new Date,stopTime:void 0})},stopAllTimers:()=>{let b=Object.keys(a.startStopTimes);for(let c=0;c<b.length;c++)a.stopTimer(b[c])},stopTimer:(b,c)=>{b||(b=a.currentPageName);let d=a.startStopTimes[b];void 0===d||0===d.length||d[d.length-1].stopTime===void 0&&(d[d.length-1].stopTime=c||new Date)},getTimeOnCurrentPageInSeconds:()=>a.getTimeOnPageInSeconds(a.currentPageName),getTimeOnPageInSeconds:b=>{let c=a.getTimeOnPageInMilliseconds(b);return void 0===c?void 0:c/1e3},getTimeOnCurrentPageInMilliseconds:()=>a.getTimeOnPageInMilliseconds(a.currentPageName),getTimeOnPageInMilliseconds:b=>{let c=0,d=a.startStopTimes[b];if(void 0===d)return;let e=0;for(let a=0;a<d.length;a++){let b=d[a].startTime,c=d[a].stopTime;void 0===c&&(c=new Date);let f=c-b;e+=f}return c=+e,c},getTimeOnAllPagesInSeconds:()=>{let b=[],c=Object.keys(a.startStopTimes);for(let d=0;d<c.length;d++){let e=c[d],f=a.getTimeOnPageInSeconds(e);b.push({pageName:e,timeOnPage:f})}return b},setIdleDurationInSeconds:b=>{let c=parseFloat(b);if(!1===isNaN(c))a.idleTimeoutMs=1e3*b;else throw{name:"InvalidDurationException",message:"An invalid duration time ("+b+") was provided."}},setCurrentPageName:b=>{a.currentPageName=b},resetRecordedPageTime:b=>{delete a.startStopTimes[b]},resetAllRecordedPageTimes:()=>{let b=Object.keys(a.startStopTimes);for(let c=0;c<b.length;c++)a.resetRecordedPageTime(b[c])},userActivityDetected:()=>{a.isUserCurrentlyIdle&&a.triggerUserHasReturned(),a.resetIdleCountdown()},resetIdleCountdown:()=>{a.isUserCurrentlyIdle=!1,a.currentIdleTimeMs=0},callWhenUserLeaves:(b,c)=>{a.userLeftCallbacks.push({callback:b,numberOfTimesToInvoke:c})},callWhenUserReturns:(b,c)=>{a.userReturnCallbacks.push({callback:b,numberOfTimesToInvoke:c})},triggerUserHasReturned:()=>{if(!a.isUserCurrentlyOnPage){a.isUserCurrentlyOnPage=!0,a.resetIdleCountdown();for(let b=0;b<a.userReturnCallbacks.length;b++){let c=a.userReturnCallbacks[b],d=c.numberOfTimesToInvoke;(isNaN(d)||d===void 0||0<d)&&(c.numberOfTimesToInvoke-=1,c.callback())}}a.startTimer()},triggerUserHasLeftPageOrGoneIdle:()=>{if(a.isUserCurrentlyOnPage){a.isUserCurrentlyOnPage=!1;for(let b=0;b<a.userLeftCallbacks.length;b++){let c=a.userLeftCallbacks[b],d=c.numberOfTimesToInvoke;(isNaN(d)||d===void 0||0<d)&&(c.numberOfTimesToInvoke-=1,c.callback())}}a.stopAllTimers()},callAfterTimeElapsedInSeconds:(b,c)=>{a.timeElapsedCallbacks.push({timeInSeconds:b,callback:c,pending:!0})},checkIdleState:()=>{for(let b=0;b<a.timeElapsedCallbacks.length;b++)a.timeElapsedCallbacks[b].pending&&a.getTimeOnCurrentPageInSeconds()>a.timeElapsedCallbacks[b].timeInSeconds&&(a.timeElapsedCallbacks[b].callback(),a.timeElapsedCallbacks[b].pending=!1);!1===a.isUserCurrentlyIdle&&a.currentIdleTimeMs>a.idleTimeoutMs?(a.isUserCurrentlyIdle=!0,a.triggerUserHasLeftPageOrGoneIdle()):a.currentIdleTimeMs+=a.checkIdleStateRateMs},visibilityChangeEventName:void 0,hiddenPropName:void 0,listenForVisibilityEvents:(b,c)=>{b&&a.listenForUserLeavesOrReturnsEvents(),c&&a.listForIdleEvents()},listenForUserLeavesOrReturnsEvents:()=>{"undefined"==typeof document.hidden?"undefined"==typeof document.mozHidden?"undefined"==typeof document.msHidden?"undefined"!=typeof document.webkitHidden&&(a.hiddenPropName="webkitHidden",a.visibilityChangeEventName="webkitvisibilitychange"):(a.hiddenPropName="msHidden",a.visibilityChangeEventName="msvisibilitychange"):(a.hiddenPropName="mozHidden",a.visibilityChangeEventName="mozvisibilitychange"):(a.hiddenPropName="hidden",a.visibilityChangeEventName="visibilitychange"),document.addEventListener(a.visibilityChangeEventName,()=>{document[a.hiddenPropName]?a.triggerUserHasLeftPageOrGoneIdle():a.triggerUserHasReturned()},!1),window.addEventListener("blur",()=>{a.triggerUserHasLeftPageOrGoneIdle()}),window.addEventListener("focus",()=>{a.triggerUserHasReturned()})},listForIdleEvents:()=>{document.addEventListener("mousemove",()=>{a.userActivityDetected()}),document.addEventListener("keyup",()=>{a.userActivityDetected()}),document.addEventListener("touchstart",()=>{a.userActivityDetected()}),window.addEventListener("scroll",()=>{a.userActivityDetected()}),setInterval(()=>{!0!==a.isUserCurrentlyIdle&&a.checkIdleState()},a.checkIdleStateRateMs)},websocket:void 0,websocketHost:void 0,setUpWebsocket:b=>{if(window.WebSocket&&b){let c=b.websocketHost;try{a.websocket=new WebSocket(c),window.onbeforeunload=()=>{a.sendCurrentTime(b.appId)},a.websocket.onopen=()=>{a.sendInitWsRequest(b.appId)},a.websocket.onerror=a=>{console&&console.log("Error occurred in websocket connection: "+a)},a.websocket.onmessage=a=>{console&&console.log(a.data)}}catch(a){console&&console.error("Failed to connect to websocket host.  Error:"+a)}}},websocketSend:b=>{a.websocket.send(JSON.stringify(b))},sendCurrentTime:b=>{let c=a.getTimeOnCurrentPageInMilliseconds(),d={type:"INSERT_TIME",appId:b,timeOnPageMs:c,pageName:a.currentPageName};a.websocketSend(d)},sendInitWsRequest:b=>{a.websocketSend({type:"INIT",appId:b})},initialize:b=>{let c,d,e=a.idleTimeoutMs||30,f=a.currentPageName||"default-page-name",g=!0,h=!0;b&&(e=b.idleTimeoutInSeconds||e,f=b.currentPageName||f,c=b.websocketOptions,d=b.initialStartTime,!1===b.trackWhenUserLeavesPage&&(g=!1),!1===b.trackWhenUserGoesIdle&&(h=!1)),a.setIdleDurationInSeconds(e),a.setCurrentPageName(f),a.setUpWebsocket(c),a.listenForVisibilityEvents(g,h),a.startTimer(void 0,d)}};return a})}).call(this);
 
-/*
-  Notice!  This project requires ifvisible.js to run.  You can get a copy from
-  the ifinvisible.js github (https://github.com/serkanyersen/ifvisible.js) or
-  by running "bower install timeme.js", which will install both TimeMe.js and ifvisible.js.
-*/
-
-(function(ifvisible) {
-
-  TimeMe = {
-    startStopTimes: {},
-
-    idleTimeout: 30,
-
-    currentPageName: "default-page-name",
-
-    getIfVisibleHandle: function(){
-      if (typeof ifvisible === 'object') {
-        return ifvisible;
-      } else {
-        if (typeof console !== "undefined") {
-          console.log("Required dependency (ifvisible.js) not found.  Make sure it has been included.");
-        }
-        throw {
-          name: "MissingDependencyException",
-          message: "Required dependency (ifvisible.js) not found.  Make sure it has been included."
-        };
-      }
-    },
-
-    startTimer: function() {
-      var pageName = TimeMe.currentPageName;
-      if (TimeMe.startStopTimes[pageName] === undefined){
-        TimeMe.startStopTimes[pageName] = [];
-      } else {
-        var arrayOfTimes = TimeMe.startStopTimes[pageName];
-        var latestStartStopEntry = arrayOfTimes[arrayOfTimes.length -1];
-        if (latestStartStopEntry !== undefined && latestStartStopEntry.stopTime === undefined) {
-          // Can't start new timer until previous finishes.
-          return;
-        }
-      }
-      TimeMe.startStopTimes[pageName].push({
-        "startTime": new Date(),
-        "stopTime": undefined
-      });
-    },
-
-    stopTimer: function() {
-      var pageName = TimeMe.currentPageName;
-      var arrayOfTimes = TimeMe.startStopTimes[pageName];
-      if (arrayOfTimes === undefined || arrayOfTimes.length === 0){
-        // Can't stop timer before you've started it.
-        return;
-      }
-      if (arrayOfTimes[arrayOfTimes.length -1].stopTime === undefined) {
-        arrayOfTimes[arrayOfTimes.length -1].stopTime = new Date();
-      }
-    },
-
-    getTimeOnCurrentPageInSeconds : function() {
-      return TimeMe.getTimeOnPageInSeconds(TimeMe.currentPageName);
-    },
-
-    getTimeOnPageInSeconds: function(pageName) {
-
-      var totalTimeOnPage = 0;
-
-      var arrayOfTimes = TimeMe.startStopTimes[pageName];
-      if (arrayOfTimes === undefined){
-        // Can't get time on page before you've started the timer.
-        return;
-      }
-
-      var timeSpentOnPageInSeconds = 0;
-      for(var i=0; i < arrayOfTimes.length; i++) {
-        var startTime = arrayOfTimes[i].startTime;
-        var stopTime = arrayOfTimes[i].stopTime;
-        if (stopTime === undefined){
-          stopTime = new Date();
-        }
-        var difference = stopTime - startTime;
-        timeSpentOnPageInSeconds += (difference / 1000);
-      }
-
-      totalTimeOnPage = Number(timeSpentOnPageInSeconds);
-      return totalTimeOnPage;
-    },
-
-    getTimeOnAllPagesInSeconds: function() {
-      var allTimes = [];
-      var pageNames = Object.keys(TimeMe.startStopTimes);
-      for (var i=0; i < pageNames.length; i++){
-        var pageName = pageNames[i];
-        var timeOnPage = TimeMe.getTimeOnPageInSeconds(pageName);
-        allTimes.push({
-          "pageName": pageName,
-          "timeOnPage": timeOnPage
-        });
-      }
-      return allTimes;
-    },
-
-    setIdleDurationInSeconds: function(duration) {
-      var durationFloat = parseFloat(duration);
-      if (isNaN(durationFloat) === false){
-        TimeMe.getIfVisibleHandle().setIdleDuration(durationFloat);
-        TimeMe.idleTimeout = durationFloat;
-      } else {
-        throw {
-          name: "InvalidDurationException",
-          message: "An invalid duration time (" + duration + ") was provided."
-        };
-      }
-    },
-
-    setCurrentPageName: function(pageName) {
-      TimeMe.currentPageName = pageName;
-    },
-
-    resetRecordedPageTime: function(pageName) {
-      delete TimeMe.startStopTimes[pageName];
-    },
-
-    resetAllRecordedPageTimes: function() {
-      var pageNames = Object.keys(TimeMe.startStopTimes);
-      for (var i=0; i < pageNames.length; i++){
-        TimeMe.resetRecordedPageTime(pageNames[i]);
-      }
-    },
-
-    listenForVisibilityEvents: function(){
-      TimeMe.getIfVisibleHandle().on("blur", function(){
-        TimeMe.stopTimer();
+// Init TimeMe
+TimeMe.initialize({
+  setCurrentPageName: myarcade_stats_i18n.slug, // current page
+  idleTimeoutInSeconds: 10 // stop recoring time due to inactivity
       });
 
-      TimeMe.getIfVisibleHandle().on("focus", function(){
-        TimeMe.startTimer();
-      });
+window.onbeforeunload = function(event) {
+  console.log( "token: " + myarcade_stats_i18n.token);
 
-      TimeMe.getIfVisibleHandle().on("idle", function(){
-        if (TimeMe.idleTimeout > 0){
-          TimeMe.stopTimer();
-        }
-      });
+  if ( typeof( myarcade_stats_i18n.token ) !== 'undefined' ) {
 
-      TimeMe.getIfVisibleHandle().on("wakeup", function(){
-        if (TimeMe.idleTimeout > 0){
-          TimeMe.startTimer();
-        }
-      });
-    },
+    var time_on_page = TimeMe.getTimeOnCurrentPageInSeconds().toFixed(0);
 
-    initialize: function (){
-      TimeMe.listenForVisibilityEvents();
-      TimeMe.startTimer();
-    }
-  };
+    console.log("time: " + time_on_page)
 
-  if (typeof define === "function" && define.amd) {
-    define(function() {
-      return TimeMe;
-    });
-  } else {
-    window.TimeMe = TimeMe;
-  }
-})(this.ifvisible);
-
-// Init
-TimeMe.setIdleDurationInSeconds(30);
-TimeMe.setCurrentPageName( myarcade_stats_i18n.slug );
-TimeMe.initialize();
-window.onload = function() {
-  setInterval( function() {
-    var timeSpentOnPage = TimeMe.getTimeOnCurrentPageInSeconds();
-  }, 1000);
-}
-window.addEventListener( "beforeunload", function(e) {
-  if ( typeof( myarcade_stats_token ) !== 'undefined' ) {
+    if ( time_on_page > 0 ) {
     jQuery.ajax({
       type: 'POST',
       async: true,
       url: myarcade_stats_i18n.ajaxurl,
       data: {
         action: 'myarcade_stats_duration_do_ajax',
-        duration: TimeMe.getTimeOnCurrentPageInSeconds().toFixed(0),
-        token: myarcade_stats_token,
+          duration: time_on_page,
+          token: myarcade_stats_i18n.token,
         nonce: myarcade_stats_i18n.nonce
       }
     });
   }
-});
+  }
+  else {
+    console.log( "stats token missing");
+  }
+};

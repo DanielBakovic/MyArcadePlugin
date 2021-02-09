@@ -115,7 +115,7 @@ function myarcade_import_games() {
   }
 
   $categories = get_terms( $taxonomy, array('hide_empty' => false) );
-  $selected_method = filter_input( INPUT_POST, 'importmethod', FILTER_SANITIZE_STRING, array( "options" => array( "default" => 'importswfdcr') ) );
+  $selected_method = filter_input( INPUT_POST, 'importmethod', FILTER_SANITIZE_STRING, array( "options" => array( "default" => 'importembedif') ) );
   ?>
 
   <div id="myabp_import">

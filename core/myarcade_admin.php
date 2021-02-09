@@ -31,7 +31,7 @@ function myarcade_admin_menu() {
     $permisssion = 'manage_options';
   }
 
-  add_menu_page('MyArcade', 'MyArcade', $permisssion , basename(__FILE__), 'myarcade_show_stats_page', MYARCADE_URL . '/assets/images/arcade.png', 55);
+  add_menu_page( 'MyArcade', 'MyArcade', $permisssion , basename(__FILE__), 'myarcade_show_stats_page', MYARCADE_URL . '/assets/images/arcade.png' );
   add_submenu_page(basename(__FILE__), __('Dashboard', 'myarcadeplugin'), __('Dashboard', 'myarcadeplugin'), $permisssion, basename(__FILE__), 'myarcade_show_stats_page');
 
     add_submenu_page( basename(__FILE__),
@@ -497,16 +497,16 @@ add_filter('pre_set_site_transient_update_plugins', 'myarcade_check_for_update')
  *
  * @version 5.30.0
  * @access  public
- * @param   bolean $unused
+ * @param   bolean $result
  * @param   string $action
  * @param   object $args
  * @return  stdClass
  */
-function myarcade_api_call( $unused, $action, $args ) {
+function myarcade_api_call( $result, $action, $args ) {
 
   if ( ! isset( $args->slug ) || $args->slug != MYARCADE_PLUGIN_SLUG ) {
     // Proceed only if this is request for our own plugin
-    return false;
+    return $result;
   }
 
   // Get the current version

@@ -259,8 +259,6 @@ function get_game_code( $post_id = false ) {
 /**
  * Generates Leaderboard bridge codes
  *
- * @version 5.14.0
- * @return  void
  */
 function myarcade_get_leaderboard_code() {
   return;

@@ -12,14 +12,9 @@ class MyArcade_Stats_Aggregator {
   /**
    * Init
    *
-   * @version 5.30.0
-   * @since   5.30.0
-   * @access  public
-   * @return  void
    */
   public static function init() {
     add_action( 'wp_enqueue_scripts', array( __CLASS__, 'laod_scripts' ) );
-    add_action( 'myarcade_display_game', array( __CLASS__, 'track_game_play' ) );
   }
 
   /**
@@ -38,6 +33,13 @@ class MyArcade_Stats_Aggregator {
       return;
     }
 
+    $id = self::track_game_play();
+
+    if ( ! $id ) {
+      // Don't track
+      return;
+    }
+
     $frontend_script_path = str_replace( array( 'http:', 'https:' ), '', MYARCADE_URL . '/assets/' );
 
     wp_register_script( 'myarcade-stats-frontend', $frontend_script_path . 'js/myarcade-stats-frontend.js', array( 'jquery' ), MYARCADE_VERSION, true );
@@ -46,7 +48,8 @@ class MyArcade_Stats_Aggregator {
     wp_localize_script( 'myarcade-stats-frontend', 'myarcade_stats_i18n', array(
       'ajaxurl' => admin_url( 'admin-ajax.php' ),
       'nonce'   => wp_create_nonce( 'myarcade_stats_ajax_nonce' ),
-      'slug'    => $post->post_name
+      'slug'    => $post->post_name,
+      'token'   => $id
     ));
   }
 
@@ -77,31 +80,13 @@ class MyArcade_Stats_Aggregator {
       // Get the iserted ID
       $id = $wpdb->insert_id;
 
-      // Track time on game
-      self::generate_token( $id, $who );
-    }
+      $data['token'] = $id;
+      set_transient( 'myarcade_stats_' . $id, $data, 60*60*2 ); // 2 hours
+
+      return $id;
   }
 
-  /**
-   * Generate a token stored as transient
-   *
-   * @version 5.30.0
-   * @since   5.30.0
-   * @access  public
-   * @param   int $row_id Token for a database table ID
-   * @param   array $data
-   * @return  void
-   */
-  public static function generate_token( $row_id, $data ) {
-
-    $data['token'] = $row_id;
-
-    set_transient( 'myarcade_stats_' . $row_id, $data, 60*60*2 );
-
-    // Add token to page source
-    ?>
-    <script type="text/javascript">var myarcade_stats_token = '<?php echo $row_id; ?>';</script>
-    <?php
+    return false;
   }
 
   /**
@@ -176,12 +161,142 @@ class MyArcade_Stats_Aggregator {
       return true;
     }
 
-    $bots = array('googlebot','google','msnbot','ia_archiver','lycos','jeeves','scooter','fast-webcrawler','slurp@inktomi','turnitinbot','technorati','yahoo','findexa','findlinks','gaisbo','zyborg','surveybot','bloglines','blogsearch','pubsub','syndic8','userland','gigabot','become.com','baiduspider','360spider','spider','sosospider','yandex');
+    $bots = array(
+      '360Spider' => '360spider',
+      'AddThis' => 'addthis',
+      'Adsbot' => 'Adsbot',
+      'AdScanner' => 'adscanner',
+      'AHC' => 'AHC',
+      'Ahrefs' => 'ahrefsbot',
+      'Alex' => 'ia_archiver',
+      'AllTheWeb' => 'fast-webcrawler',
+      'Altavista' => 'scooter',
+      'Amazon' => 'amazonaws.com',
+      'Anders Pink' => 'anderspinkbot',
+      'Apple' => 'applebot',
+      'Archive.org' => 'archive.org_bot',
+      'Ask Jeeves' => 'jeeves',
+      'Aspiegel' => 'AspiegelBot',
+      'Axios' => 'axios',
+      'Baidu' => 'baidu',
+      'Become.com' => 'become.com',
+      'Bing' => 'bingbot',
+      'Bing Preview' => 'bingpreview',
+      'Blackboard' => 'Blackboard',
+      'BLEXBot' => 'blexbot',
+      'Bloglines' => 'bloglines',
+      'Blog Search Engine' => 'blogsearch',
+      'BUbiNG' => 'bubing',
+      'Buck' => 'Buck',
+      'CCBot' => 'ccbot',
+      'CFNetwork' => 'cfnetwork',
+      'CheckMarkNetwork' => 'CheckMarkNetwork',
+      'Cliqzbot' => 'cliqzbot',
+      'Coccoc' => 'coccocbot',
+      'Crawl' => 'crawl',
+      'Curl' => 'Curl',
+      'Cyotek' => 'Cyotek',
+      'Daum' => 'Daum',
+      'Dispatch' => 'Dispatch',
+      'DomainCrawler' => 'domaincrawler',
+      'DotBot' => 'dotbot',
+      'DuckDuckGo' => 'duckduckbot',
+      'EveryoneSocialBot' => 'everyonesocialbot',
+      'Exalead' => 'exabot',
+      'Facebook' => 'facebook',
+      'Facebook Preview' => 'facebookexternalhit',
+      'faceBot' => 'facebot',
+      'Feedfetcher' => 'Feedfetcher',
+      'Findexa' => 'findexa',
+      'Flipboard Preview' => 'FlipboardProxy',
+      'Gais' => 'gaisbo',
+      'Gigabot' => 'gigabot',
+      'Gluten Free' => 'gluten free crawler',
+      'Go-http-client' => 'Go-http-client',
+      'Goforit' => 'GOFORITBOT',
+      'Google' => 'google',
+      'Grid' => 'gridbot',
+      'GroupHigh' => 'grouphigh',
+      'Heritrix' => 'heritrix',
+      'IA Archiver' => 'ia_archiver',
+      'Inktomi' => 'slurp@inktomi',
+      'IPS Agent' => 'ips-agent',
+      'James' => 'james bot',
+      'Jobboerse' => 'Jobboerse',
+      'KomodiaBot' => 'komodiabot',
+      'Konqueror' => 'konqueror',
+      'Lindex' => 'linkdexbot',
+      'Linguee' => 'Linguee',
+      'Linkfluence' => 'linkfluence',
+      'Lycos' => 'lycos',
+      'Maui' => 'mauibot',
+      'Mediatoolkit' => 'mediatoolkitbot',
+      'MegaIndex' => 'MegaIndex',
+      'MetaFeedly' => 'MetaFeedly',
+      'MetaURI' => 'metauri',
+      'MJ12bot' => 'mj12bot',
+      'MojeekBot' => 'mojeekBot',
+      'Moreover' => 'moreover',
+      'MSN' => 'msnbot',
+      'NBot' => 'nbot',
+      'Node-Fetch' => 'node-fetch',
+      'oBot' => 'oBot',
+      'NextLinks' => 'findlinks',
+      'Panscient' => 'panscient.com',
+      'PaperLiBot' => 'paperliBot',
+      'PetalBot' => 'PetalBot',
+      'PhantomJS' => 'phantomjs',
+      'Picsearch' => 'picsearch',
+      'Proximic' => 'proximic',
+      'PubSub' => 'pubsub',
+      'Radian6' => 'radian6',
+      'RadioUserland' => 'userland',
+      'RyteBot' => 'RyteBot',
+      'Moz' => 'rogerbot',
+      'Qwantify' => 'Qwantify',
+      'Scoutjet' => 'Scoutjet',
+      'Screaming Frog SEO Spider' => 'Screaming Frog SEO Spider',
+      'SEOkicks' => 'seokicks-robot',
+      'Semanticbot' => 'Semanticbot',
+      'SemrushBot' => 'semrushbot',
+      'SerendeputyBot' => 'serendeputybot',
+      'Seznam' => 'seznam',
+      'SirdataBot ' => 'SirdataBot ',
+      'SiteExplorer' => 'siteexplorer',
+      'Sixtrix' => 'SIXTRIX',
+      'Slurp' => 'slurp',
+      'SMTBot' => 'SMTBot',
+      'Sogou' => 'Sogou',
+      'OpenLinkProfiler.org' => 'spbot',
+      'SurveyBot' => 'surveybot',
+      'Syndic8' => 'syndic8',
+      'Technorati' => 'technorati',
+      'TelegramBot' => 'telegrambot',
+      'Thither' => 'thither',
+      'TraceMyFile' => 'tracemyfile',
+      'Trendsmap' => 'trendsmap',
+      'Turnitin.com' => 'turnitinbot',
+      'The Tweeted Times' => 'tweetedtimes',
+      'TweetmemeBot' => 'tweetmemeBot',
+      'Twingly' => 'twingly',
+      'Twitter' => 'twitterbot',
+      'VoilaBot' => 'VoilaBot',
+      'Wget' => 'wget',
+      'WhatsApp' => 'whatsapp',
+      'WhoisSource' => 'surveybot',
+      'WiseNut' => 'zyborg',
+      'Wotbox' => 'wotbox',
+      'Xenu Link Sleuth' => 'xenu link sleuth',
+      'XoviBot' => 'xoviBot',
+      'Yahoo' => 'yahoo',
+      'Yandex' => 'yandex',
+      'YisouSpider' => 'yisouspider'
+    );
 
     $result = false;
 
-    foreach ( $bots as $bot ) {
-      if ( stristr( $user_agent, $bot ) !== false ) {
+    foreach ( $bots as $name => $lookfor ) {
+      if ( stristr( $user_agent, $lookfor ) !== false ) {
         $result = true;
         break;
       }

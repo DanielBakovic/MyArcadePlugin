@@ -268,7 +268,7 @@ function myarcade_settings() {
                     <option value="mobile" <?php myarcade_selected($general['types'], 'mobile'); ?> ><?php _e('Mobile only', 'myarcadeplugin'); ?></option>
                   </select>
                 </td>
-                <td><i><?php _e("Select a game types you want to fetch.", 'myarcadeplugin'); ?></i></td>
+                <td><i><?php _e("Select a game type you want to fetch.", 'myarcadeplugin'); ?></i></td>
               </tr>
 
               <tr><td colspan="2"><h3><?php _e("Publish Games", 'myarcadeplugin'); ?></h3></td></tr>
@@ -675,7 +675,7 @@ function myarcade_settings() {
               <tr>
                 <td colspan="2">
                   <i>
-                    <?php _e("Translate games automatically to your language using the Microsoft Translator, Google Translate v2 (payed service) or Yandex Translation API. The translation is triggered when you click on 'Publish Games' or 'Publish'.", 'myarcadeplugin'); ?>
+                    <?php _e( 'Translate games automatically to your language using the Microsoft Translator, Google Translate, or Yandex Translation. The translation is triggered during the game publishing process.', 'myarcadeplugin' ); ?>
                   </i>
                 </td>
               </tr>
@@ -727,14 +727,14 @@ function myarcade_settings() {
                   <h3><?php _e("Microsoft Translator Settings", 'myarcadeplugin'); ?></h3>
                 </td>
               </tr>
-              <tr><td colspan="2"><i><?php _e("To be able to use Microsoft Translator you will need to register on Windows Azure Marketplace and sign up on the <a href='https://datamarket.azure.com' target='_blank'>Microsoft Translator</a>.", 'myarcadeplugin'); ?></i></td></tr>
+              <tr><td colspan="2"><i><?php _e( "To be able to use Microsoft Translator you will need to register at <a href='https://azure.microsoft.com/' target='_blank'>Microsoft Azure.</a>.", 'myarcadeplugin' ); ?></i></td></tr>
 
               <tr><td colspan="2"><h4><?php _e("Azure Key (Key 1)", 'myarcadeplugin'); ?></h4></td></tr>
               <tr>
                 <td>
                   <input type="text" size="40" name="azure_key" value="<?php echo $general['azure_key']; ?>" />
                 </td>
-                <td><i><?php _e("Enter your Windows Azure Marketplace Client ID.", 'myarcadeplugin');?></i></td>
+                <td><i><?php _e("Enter your Microsoft Azure subscription key.", 'myarcadeplugin' );?></i></td>
               </tr>
 
               <?php // Target Language ?>
@@ -742,9 +742,9 @@ function myarcade_settings() {
               <tr>
                 <td>
                   <?php
-                  if (isset($languages_bing) ) {
+                  if (isset($languages_microsoft) ) {
                     ?><select size="1" name="translate_to" id="translate_to"><?php
-                    foreach ($languages_bing as $code => $lang) {
+                    foreach ($languages_microsoft as $code => $lang) {
                       ?><option value="<?php echo $code; ?>" <?php myarcade_selected($general['translate_to'], $code); ?>><?php echo $lang; ?></option><?php
                     }
                     ?></select><?php
@@ -807,7 +807,7 @@ function myarcade_settings() {
                 <td>
                   <input type="text" size="40" name="yandex_key" value="<?php echo $general['yandex_key']; ?>" />
                 </td>
-                <td><i><?php _e('To be able to use Yandex Translator you will need to enter your API Key. Yandex Translator is a free service. Click here to get an API key: <a href="https://api.yandex.com/key/form.xml?service=trnsl" target="_blank">Yandex Translator</a>', 'myarcadeplugin'); ?></i></td>
+                <td><i><?php _e('To be able to use Yandex Translator you will need to enter your API Key. Click here to get an API key: <a href="https://tech.yandex.com/translate/" target="_blank">Yandex Translator</a>', 'myarcadeplugin'); ?></i></td>
               </tr>
 
               <?php // Target Language ?>

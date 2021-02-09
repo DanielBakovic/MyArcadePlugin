@@ -1,3 +1,17 @@
+v5.8.0 - 2020-02-09 - Based on MyArcadePlugin Pro 5.39.2
+  * New - Updated Famobi Integration
+  * New - Updated Kongregate integration
+  * Tweak: Updated play duration recording
+  * Tweak: Updated bot / spider detection
+  * Tweak: Removed MyArcade menu position to avoid conflicts with other plugins
+  * Tweak - Removed deprecated Achievements integration
+  * Tweak - Made missing strings from BuddyPress integration translatable
+  * Tweak - GameMonetize - Removed game type selection because this was the same as on the general settings
+  * Fix - PHP notice during the plugin update check
+  * Fix - JQuery issues with latest WordPress version
+  * Fix - GamePix - Not all available games are fetched
+  * Fix - GameMonetize - Fetch only mobile games if only mobile games are enabled on general settings
+
 v5.7.0 - 2020-05-20 - Based on MyArcadePlugin Pro 5.38.0
   * New - Updated Softgames API integration
   * New - GameDistribution - Option to fetch exclusive games
@@ -7,7 +21,7 @@ v5.7.0 - 2020-05-20 - Based on MyArcadePlugin Pro 5.38.0
   * Tweak - Optimized GameMonetize category mapping to be able to fetch all available games
   * Tweak - Removed unused code
   * Tweak - Use wp_json_encode instead of json_encode
-  * Fix: PHP Notice on plugin activation or update check
+  * Fix - PHP Notice on plugin activation or update check
   * Fix - Quick Edit clears all custom field values
   * Fix - Usage of a non-validated or sanitized variables
   * Fix - Fixed some error prone code

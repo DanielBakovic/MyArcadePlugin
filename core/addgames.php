@@ -74,7 +74,7 @@ function myarcade_add_game_post($game) {
   }
 
   // Proceed with translations if activated
-  if ( ( ($general['translation'] == 'microsoft') && ( !empty($general['bingid']) && !empty($general['bingsecret']) ) )
+  if ( ( ($general['translation'] == 'microsoft') && !empty($general['azure_key'] ) )
     || ( ($general['translation'] == 'google') && ( !empty($general['google_id']) ) )
     || ( ($general['translation'] == 'yandex') && ( !empty($general['yandex_key']) ) ) )
   {

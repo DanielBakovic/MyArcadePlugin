@@ -1,6 +1,6 @@
 <?php
 /**
- * GameMonetize Feed
+ * GameMonetize Feed - https://gamemonetize.com/rss-builder
  *
  */
 
@@ -37,17 +37,6 @@ function myarcade_settings_gamemonetize() {
             <input type="text" size="40"  name="gamemonetize_url" value="<?php echo $gamemonetize['feed']; ?>" />
           </td>
           <td><i><?php _e("Edit this field only if Feed URL has been changed!", 'myarcadeplugin'); ?></i></td>
-        </tr>
-
-        <tr><td colspan="2"><h3><?php _e("Game Type", 'myarcadeplugin'); ?></h3></td></tr>
-        <tr>
-          <td>
-            <select size="1" name="gamemonetize_type" id="gamemonetize_type">
-              <option value="html5" <?php myarcade_selected( $gamemonetize['type'], 'html5' ); ?> ><?php _e("HTML5", 'myarcadeplugin'); ?></option>
-              <option value="mobile" <?php myarcade_selected( $gamemonetize['type'], 'mobile' ); ?> ><?php _e("Mobile Games", 'myarcadeplugin'); ?></option>
-            </select>
-          </td>
-          <td><i><?php _e( "Select the game type you want to fetch.", 'myarcadeplugin' ); ?></i></td>
         </tr>
 
         <tr><td colspan="2"><h3><?php _e("Category", 'myarcadeplugin'); ?></h3></td></tr>
@@ -130,7 +119,6 @@ function myarcade_settings_gamemonetize() {
 function myarcade_default_settings_gamemonetize() {
   return array(
     'feed'          => 'https://gamemonetize.com/rss.php',
-    'type'          => 'html5',
     'category'      => 'All',
     'cron_fetch'    => false,
     'cron_fetch_limit' => '1',
@@ -152,7 +140,6 @@ function myarcade_save_settings_gamemonetize() {
 
   $settings = array();
   $settings['feed']               = esc_sql( filter_input( INPUT_POST, 'gamemonetize_url' ) );
-  $settings['type']               = filter_input( INPUT_POST, 'gamemonetize_type' );
   $settings['category']           = filter_input( INPUT_POST, 'gamemonetize_category' );
   $settings['cron_fetch']         = filter_input( INPUT_POST, 'gamemonetize_cron_fetch', FILTER_VALIDATE_BOOLEAN );
   $settings['cron_fetch_limit']   = filter_input( INPUT_POST, 'gamemonetize_cron_fetch_limit', FILTER_VALIDATE_INT, array( "options" => array( "default" => $defaults['cron_fetch_limit'] ) ) );
@@ -214,6 +201,7 @@ function myarcade_feed_gamemonetize( $args = array() ) {
   $gamemonetize            = myarcade_get_settings( 'gamemonetize' );
   $gamemonetize_categories = myarcade_get_categories_gamemonetize();
   $feedcategories          = myarcade_get_settings( 'categories' );
+  $general                 = myarcade_get_settings( 'general' );
 
   // Init settings var's
   if ( ! empty( $settings ) ) {
@@ -235,9 +223,14 @@ function myarcade_feed_gamemonetize( $args = array() ) {
     'format'   => 'json',
     'amount'   => $limit,
     'category' => $settings['category'],
-    'type'     => $settings['type'],
   ), trim( $settings['feed'] ) );
 
+  if ( isset( $general['types'] ) && 'mobile' == $general['types'] ) {
+    $settings['feed'] = add_query_arg( array( "type"  => "mobile" ),  $settings['feed'] );
+  }
+  else {
+    $settings['feed'] = add_query_arg( array( "type"  =>"html5" ),  $settings['feed'] );
+  }
 
   // Include required fetch functions
   require_once( MYARCADE_CORE_DIR . '/fetch.php' );

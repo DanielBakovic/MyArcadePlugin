@@ -229,7 +229,7 @@ function myarcade_game_data_box() {
     var file_path_field;
     window.send_to_editor_default = window.send_to_editor;
 
-    jQuery('.upload_thumbnail_button').live('click', function(event){
+    jQuery('.upload_thumbnail_button').on('click', function(event){
       event.preventDefault();
       var custom_uploader = wp.media.frames.file_frame = wp.media({ multiple: false });
       custom_uploader.on('select', function() {
@@ -239,7 +239,7 @@ function myarcade_game_data_box() {
       custom_uploader.open();
     });
 
-    jQuery('.upload_game_button').live('click', function(event){
+    jQuery('.upload_game_button').on('click', function(event){
       event.preventDefault();
       var custom_uploader = wp.media.frames.file_frame = wp.media({ multiple: false });
       custom_uploader.on('select', function() {
@@ -249,7 +249,7 @@ function myarcade_game_data_box() {
       custom_uploader.open();
     });
 
-    jQuery('.upload_screen1_button').live('click', function(event){
+    jQuery('.upload_screen1_button').on('click', function(event){
       event.preventDefault();
       var custom_uploader = wp.media.frames.file_frame = wp.media({ multiple: false });
       custom_uploader.on('select', function() {
@@ -259,7 +259,7 @@ function myarcade_game_data_box() {
       custom_uploader.open();
     });
 
-    jQuery('.upload_screen2_button').live('click', function(event){
+    jQuery('.upload_screen2_button').on('click', function(event){
       event.preventDefault();
       var custom_uploader = wp.media.frames.file_frame = wp.media({ multiple: false });
       custom_uploader.on('select', function() {
@@ -269,7 +269,7 @@ function myarcade_game_data_box() {
       custom_uploader.open();
     });
 
-    jQuery('.upload_screen3_button').live('click', function(event){
+    jQuery('.upload_screen3_button').on('click', function(event){
       event.preventDefault();
       var custom_uploader = wp.media.frames.file_frame = wp.media({ multiple: false });
       custom_uploader.on('select', function() {
@@ -279,7 +279,7 @@ function myarcade_game_data_box() {
       custom_uploader.open();
     });
 
-    jQuery('.upload_screen4_button').live('click', function(event){
+    jQuery('.upload_screen4_button').on('click', function(event){
       event.preventDefault();
       var custom_uploader = wp.media.frames.file_frame = wp.media({ multiple: false });
       custom_uploader.on('select', function() {

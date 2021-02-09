@@ -495,7 +495,7 @@ jQuery(function($) {
 
 /* Import method selection */
 jQuery(document).ready(function($) {
-  $('#importhtml5').hide();
+  $('#importswfdcr').hide();
   $('#importibparcade').hide();
   $('#importphpbb').hide();
   $('#importunity').hide();

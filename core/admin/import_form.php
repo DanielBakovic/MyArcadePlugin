@@ -78,6 +78,7 @@
  */
  ?>
 <div id="importibparcade">
+  <?php // UPLOAD TAR Game  ?>
   <h2><?php _e("Add IBPArcade Game", 'myarcadeplugin'); ?></h2>
   <div class="container">
     <?php myarcade_premium_message(); ?>
@@ -90,7 +91,8 @@
  */
  ?>
 <div id="importphpbb">
-  <h2><?php _e("Add ZIP Game (PHPBB, Mochi) ", 'myarcadeplugin'); ?></h2>
+  <?php // UPLOAD PHPBB Game  ?>
+     <h2><?php _e("Add PHPBB Game (zip file) ", 'myarcadeplugin'); ?></h2>
   <div class="container">
     <?php myarcade_premium_message(); ?>
   </div>
@@ -139,6 +141,7 @@
  */
  ?>
 <div id="importunity">
+  <?php // UPLOAD Unity Game  ?>
   <h2><?php _e("Add Unity3D Game", 'myarcadeplugin'); ?></h2>
   <div class="container">
     <?php myarcade_premium_message(); ?>

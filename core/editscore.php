@@ -3,8 +3,6 @@
  * Score Editing Module
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright 2009-2015 Daniel Bakovic
- * @license http://myarcadeplugin.com
  */
 
 // Locate WordPress root folder

@@ -3,8 +3,7 @@
  * Translation functions
  *
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
- * @copyright 2009-2015 Daniel Bakovic
- * @license http://myarcadeplugin.com
+ * @package MyArcadePlugin/Translate
  */
 
 /**
