@@ -175,7 +175,7 @@ if ( ! class_exists( 'MyArcadePlugin' ) ) :
 			$this->define( 'MYARCADE_UPDATE_API', 'http://api.myarcadeplugin.com/' );
 
 			$this->define( 'MYARCADE_PLUGIN_FOLDER_NAME', basename( dirname( __FILE__ ) ) );
-			$this->define( 'MYARCADE_PLUGIN_SLUG', 'myarcadeplugin' );
+			$this->define( 'MYARCADE_PLUGIN_SLUG', 'myarcadeplugin-lite' );
 		}
 
 		/**
