@@ -234,7 +234,7 @@ class MyArcade_Stats {
 
     $count = intval( $count );
 
-    return $wpdb->get_results( "SELECT user_id, plays FROM {$wpdb->prefix}myarcadeuser ORDER BY plays DESC LIMIT {$count}" );
+    return $wpdb->get_results( $wpdb->prepare( "SELECT user_id, plays FROM {$wpdb->prefix}myarcadeuser ORDER BY plays DESC LIMIT %d", $count ) );
   }
 
   /**

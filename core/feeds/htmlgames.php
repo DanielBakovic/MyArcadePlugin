@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function myarcade_settings_htmlgames() {
 
-  $htmlgames = myarcade_get_settings( 'htmlgames' );
+  $htmlgames = MyArcade()->get_settings( 'htmlgames' );
   ?>
   <h2 class="trigger"><?php myarcade_premium_span(); _e("HTML Games", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -37,7 +37,7 @@ function myarcade_settings_htmlgames() {
         <tr><td colspan="2"><h3><?php _e("Feed URL", 'myarcadeplugin'); ?></h3></td></tr>
         <tr>
           <td>
-            <input type="text" size="40"  name="htmlgames_url" value="<?php echo $htmlgames['feed']; ?>" />
+            <input type="text" size="40"  name="htmlgames_url" value="<?php echo esc_url( $htmlgames['feed'] ); ?>" />
           </td>
           <td><i><?php _e("Edit this field only if Feed URL has been changed!", 'myarcadeplugin'); ?></i></td>
         </tr>
@@ -85,7 +85,7 @@ function myarcade_settings_htmlgames() {
 
         <tr>
           <td>
-            <input type="text" size="40"  name="htmlgames_cron_publish_limit" value="<?php echo $htmlgames['cron_publish_limit']; ?>" />
+            <input type="text" size="40"  name="htmlgames_cron_publish_limit" value="<?php echo esc_attr( $htmlgames['cron_publish_limit'] ); ?>" />
           </td>
           <td><i><?php _e("How many games should be published on every cron trigger?", 'myarcadeplugin'); ?></i></td>
         </tr>
@@ -171,11 +171,6 @@ function myarcade_get_categories_htmlgames() {
 
 /**
  * Display distributor fetch games options
- *
- * @version 5.4.0
- * @since   5.4.0
- * @access  public
- * @return  void
  */
 function myarcade_fetch_settings_htmlgames() {
 
@@ -226,4 +221,3 @@ function myarcade_embedtype_htmlgames() {
 function myarcade_can_download_htmlgames() {
   return false;
 }
-?>

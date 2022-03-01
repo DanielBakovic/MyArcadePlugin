@@ -75,7 +75,7 @@ class MyArcade_Stats_Aggregator {
         'duration'=> 0,
       );
 
-      $wpdb->insert( $wpdb->prefix.'myarcade_plays', $data );
+			$wpdb->insert( "{$wpdb->prefix}myarcade_plays", $data );
 
       // Get the iserted ID
       $id = $wpdb->insert_id;

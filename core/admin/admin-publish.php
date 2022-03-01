@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return  void
  */
 function myarcade_publish_games() {
-  global $wpdb, $myarcade_distributors;
+	global $wpdb;
 
   myarcade_header();
 
@@ -111,6 +111,8 @@ function myarcade_publish_games() {
 
     $start_publishing = 'init';
   }
+
+	$distributors = MyArcade()->distributors();
   ?>
   <div id="icon-options-general" class="icon32"><br /></div>
   <h2><?php _e("Publish Games", 'myarcadeplugin'); ?></h2>
@@ -122,20 +124,20 @@ function myarcade_publish_games() {
       <div class="myarcade_border white" style="width:300px;float:left;height:30px;">
         <?php _e("Game Type", 'myarcadeplugin'); ?>:
         <select name="distr" id="distr">
-          <option value="all" <?php myarcade_selected($game_type, 'all'); ?>>All</option>
+					<option value="all" <?php myarcade_selected($game_type, 'all'); ?>><?php esc_html_e( 'All', 'myarcadeplugin' ); ?></option>
           <optgroup label="Game Distributors">
-            <?php foreach ($myarcade_distributors as $slug => $name) : ?>
-            <option value="<?php echo $slug; ?>" <?php myarcade_selected($game_type, $slug); ?>><?php echo $name; ?></option>
+						<?php foreach ($distributors as $slug => $name) : ?>
+						<option value="<?php echo esc_attr( $slug ); ?>" <?php myarcade_selected($game_type, $slug); ?>><?php echo esc_html( $name ); ?></option>
             <?php endforeach; ?>
           </optgroup>
           <optgroup label="Imported Games">
-            <option value="html5" <?php myarcade_selected($game_type, 'html5'); ?>><?php _e("HTML5 Games", 'myarcadeplugin');?></option>
-            <option value="embed" <?php myarcade_selected($game_type, 'embed'); ?>><?php _e("Embed Codes", 'myarcadeplugin'); ?></option>
-            <option value="iframe" <?php myarcade_selected($game_type, 'iframe'); ?>><?php _e("Iframe (URL)", 'myarcadeplugin'); ?></option>
-            <option value="ibparcade" <?php myarcade_selected($game_type, 'ibparcade'); ?>><?php _e("IBPArcade Games", 'myarcadeplugin'); ?></option>
-            <option value="phpbb" <?php myarcade_selected($game_type, 'phpbb'); ?>><?php _e("PHPBB Games", 'myarcadeplugin'); ?></option>
-            <option value="dcr" <?php myarcade_selected($game_type, 'dcr'); ?>><?php _e("Shockwave Games (DCR)", 'myarcadeplugin'); ?></option>
-            <option value="custom" <?php myarcade_selected($game_type, 'custom'); ?>><?php _e("Flash Games (SWF)", 'myarcadeplugin'); ?></option>
+						<option value="html5" <?php myarcade_selected($game_type, 'html5'); ?>><?php esc_html_e("HTML5 Games", 'myarcadeplugin');?></option>
+						<option value="embed" <?php myarcade_selected($game_type, 'embed'); ?>><?php esc_html_e("Embed Codes", 'myarcadeplugin'); ?></option>
+						<option value="iframe" <?php myarcade_selected($game_type, 'iframe'); ?>><?php esc_html_e("Iframe (URL)", 'myarcadeplugin'); ?></option>
+						<option value="ibparcade" <?php myarcade_selected($game_type, 'ibparcade'); ?>><?php esc_html_e("IBPArcade Games", 'myarcadeplugin'); ?></option>
+						<option value="phpbb" <?php myarcade_selected($game_type, 'phpbb'); ?>><?php esc_html_e("PHPBB Games", 'myarcadeplugin'); ?></option>
+						<option value="dcr" <?php myarcade_selected($game_type, 'dcr'); ?>><?php esc_html_e("Shockwave Games (DCR)", 'myarcadeplugin'); ?></option>
+						<option value="custom" <?php myarcade_selected($game_type, 'custom'); ?>><?php esc_html_e("Flash Games (SWF)", 'myarcadeplugin'); ?></option>
           </optgroup>
         </select>
       </div>
@@ -153,7 +155,7 @@ function myarcade_publish_games() {
           <option value="draft" <?php myarcade_selected($status, 'draft'); ?>><?php _e("Draft", 'myarcadeplugin') ?></option>
           <option value="future" <?php myarcade_selected($status, 'future'); ?>><?php _e("Scheduled", 'myarcadeplugin') ?></option>
         </select>
-        time <input type="number" name="scheduletime" value="<?php echo $schedule; ?>" size="3" /> min.
+				<?php esc_html_e( 'time', 'myarcadeplugin' ); ?> <input type="number" name="scheduletime" value="<?php echo esc_attr( $schedule ); ?>" size="3" /> <?php esc_html_e( 'min.', 'myarcadeplugin' ); ?>
       </div>
 
       <div class="myarcade_border white" style="width:300px;height:30px;float:left;margin-left:20px;">
@@ -174,8 +176,8 @@ function myarcade_publish_games() {
             for ($x=0; $x<count($feedcategories); $x++) {
               if ( $feedcategories[$x]['Status'] == 'checked' ) {
                 ?>
-                <option value="<?php echo $x; ?>" <?php myarcade_selected($cat,  $x); ?>>
-                  <?php echo  $feedcategories[$x]['Name']; ?>
+								<option value="<?php echo esc_attr( $x ); ?>" <?php myarcade_selected($cat,  $x); ?>>
+									<?php echo esc_html( $feedcategories[$x]['Name'] ); ?>
                 </option>
                 <?php
               }
@@ -186,12 +188,13 @@ function myarcade_publish_games() {
 
       <div class="myarcade_border white" style="width:300px;height:30px;float:left;margin-left:20px;">
         <?php _e("Create", 'myarcadeplugin'); ?>
-        <input type="number" name="games" value="<?php echo $posts; ?>" />
+				<input type="number" name="games" value="<?php echo esc_attr( $posts ); ?>" />
         <?php _e("game posts", 'myarcadeplugin'); ?>
       </div>
 
       <div class="myarcade_border white" style="width:300px;height:50px;float:left;">
-        <input type="checkbox" value="1" id="downloadscreens" name="downloadscreens" <?php myarcade_checked($download_screens, true); ?>/> Download Screenshots<br />
+				<input type="checkbox" value="1" id="downloadscreens" name="downloadscreens" <?php myarcade_checked($download_screens, true); ?>/> <?php _e( 'Download Screenshots', 'myarcadeplugin' ); ?><br />
+				<input type="checkbox" value="1" id="downloadgames" name="downloadgames" <?php myarcade_checked($download_games, true); ?>/> <?php _e( 'Download Games', 'myarcadeplugin' ); ?>
       </div>
 
       <div class="clear"> </div>
@@ -227,7 +230,7 @@ function myarcade_publish_games() {
   </script>
 
   <?php
-  $upload_dir = myarcade_upload_dir();
+	$upload_dir = MyArcade()->upload_dir();
   ?>
 
   <div id="down_thumbs">
@@ -278,7 +281,7 @@ function myarcade_publish_games() {
     // <![CDATA[
     jQuery(document).ready(function($){
       var i;
-      var myarcade_games = [<?php echo $ids; ?>];
+			var myarcade_games = [<?php echo esc_attr( $ids ); ?>];
       var myarcade_total = myarcade_games.length;
       var myarcade_count = 1;
       var myarcade_percent = 0;
@@ -331,9 +334,9 @@ function myarcade_publish_games() {
         $('#myarcade-stop').hide();
 
         if ( myarcade_errors > 0 ) {
-          myarcade_resulttext = '<?php echo $text_failures; ?>';
+					myarcade_resulttext = '<?php echo $text_failures; // phpcs:ignore WordPress.XSS.EscapeOutput.OutputNotEscaped ?>';
         } else {
-          myarcade_resulttext = '<?php echo $text_nofailures; ?>';
+					myarcade_resulttext = '<?php echo $text_nofailures; // phpcs:ignore WordPress.XSS.EscapeOutput.OutputNotEscaped ?>';
         }
 
         $("#message").html("<strong>" + myarcade_resulttext + "</strong>");
@@ -347,11 +350,11 @@ function myarcade_publish_games() {
           url: ajaxurl,
           data: { action: "myarcade_ajax_publish",
             id: id,
-            status: '<?php echo $status; ?>',
-            schedule: '<?php echo $schedule; ?>',
+						status: '<?php echo esc_html( $status ); ?>',
+						schedule: '<?php echo esc_attr( $schedule ); ?>',
             count: myarcade_count,
-            download_screens: '<?php echo $download_screens; ?>',
-            download_games: 'false'
+						download_screens: '<?php echo esc_attr( $download_screens ); ?>',
+						download_games: '<?php echo esc_attr( $download_games ); ?>'
           },
           success: function( response ) {
             if ( response !== Object( response ) || ( typeof response.success === "undefined" && typeof response.error === "undefined" ) ) {

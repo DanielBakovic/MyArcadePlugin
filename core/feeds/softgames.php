@@ -34,7 +34,7 @@ function myarcade_save_settings_softgames() {
  * @return  void
  */
 function myarcade_settings_softgames() {
-  $softgames = myarcade_get_settings( 'softgames' );
+	$softgames = MyArcade()->get_settings( 'softgames' );
 
   /**
    * since 5.38.0
@@ -61,7 +61,7 @@ function myarcade_settings_softgames() {
         <tr><td colspan="2"><h3><?php _e("Feed URL", 'myarcadeplugin'); ?></h3></td></tr>
         <tr>
           <td>
-            <input type="text" size="40"  name="softgames_url" value="<?php echo $softgames['feed']; ?>" />
+						<input type="text" size="40"  name="softgames_url" value="<?php echo esc_url( $softgames['feed'] ); ?>" />
           </td>
           <td><i><?php _e("Edit this field only if Feed URL has been changed!", 'myarcadeplugin'); ?></i></td>
         </tr>
@@ -69,7 +69,7 @@ function myarcade_settings_softgames() {
         <tr><td colspan="2"><h3><?php _e("Publisher ID", 'myarcadeplugin'); ?></h3></td></tr>
         <tr>
           <td>
-            <input type="text" size="40"  name="softgames_publisher_id" value="<?php echo $softgames['publisher_id']; ?>" />
+						<input type="text" size="40"  name="softgames_publisher_id" value="<?php echo esc_attr( $softgames['publisher_id'] ); ?>" />
           </td>
           <td><i><?php _e("Enter your Publisher ID if available.", 'myarcadeplugin'); ?></i></td>
         </tr>
@@ -114,7 +114,7 @@ function myarcade_settings_softgames() {
           <td>
             <select size="1" name="softgames_category" id="softgames_category">
               <?php foreach ( $softgames_categories as $key => $value ) : ?>
-               <option value="<?php echo $key; ?>" <?php myarcade_selected( $softgames['category'], $key ); ?>><?php echo $value; ?></option>
+							 <option value="<?php echo esc_attr( $key ); ?>" <?php myarcade_selected( $softgames['category'], $key ); ?>><?php echo esc_html( $value ); ?></option>
               <?php endforeach; ?>
             </select>
           </td>
@@ -148,7 +148,7 @@ function myarcade_settings_softgames() {
 
         <tr>
           <td>
-            <input type="text" size="40"  name="softgames_cron_publish_limit" value="<?php echo $softgames['cron_publish_limit']; ?>" />
+						<input type="text" size="40"  name="softgames_cron_publish_limit" value="<?php echo esc_attr( $softgames['cron_publish_limit'] ); ?>" />
           </td>
           <td><i><?php _e("How many games should be published on every cron trigger?", 'myarcadeplugin'); ?></i></td>
         </tr>
@@ -224,7 +224,7 @@ function myarcade_feed_softgames( $args = array() ) {
   $new_games = 0;
   $add_game = false;
 
-  $softgames            = myarcade_get_settings( 'softgames' );
+	$softgames            = MyArcade()->get_settings( 'softgames' );
   $softgames_categories = myarcade_get_categories_softgames();
   $feedcategories       = get_option( 'myarcade_categories' );
 
@@ -277,6 +277,11 @@ function myarcade_feed_softgames( $args = array() ) {
 
       // Loop trough game categories
       foreach( $categories as $gamecat ) {
+					if ( empty( $gamecat ) ) {
+						$add_game = true;
+						break;
+					}
+
         // Loop trough MyArcade categories
         foreach ( $feedcategories as $feedcat ) {
           if ( 'checked' == $feedcat['Status'] ) {

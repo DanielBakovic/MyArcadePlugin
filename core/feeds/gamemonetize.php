@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function myarcade_settings_gamemonetize() {
 
-  $gamemonetize = myarcade_get_settings( 'gamemonetize' );
+  $gamemonetize = MyArcade()->get_settings( 'gamemonetize' );
 
   ?>
   <h2 class="trigger"><?php _e("GameMonetize", 'myarcadeplugin'); ?></h2>
@@ -34,7 +34,7 @@ function myarcade_settings_gamemonetize() {
         <tr><td colspan="2"><h3><?php _e("Feed URL", 'myarcadeplugin'); ?></h3></td></tr>
         <tr>
           <td>
-            <input type="text" size="40"  name="gamemonetize_url" value="<?php echo $gamemonetize['feed']; ?>" />
+            <input type="text" size="40"  name="gamemonetize_url" value="<?php echo esc_url( $gamemonetize['feed'] ); ?>" />
           </td>
           <td><i><?php _e("Edit this field only if Feed URL has been changed!", 'myarcadeplugin'); ?></i></td>
         </tr>
@@ -81,7 +81,7 @@ function myarcade_settings_gamemonetize() {
 
         <tr>
           <td>
-            <input type="text" size="40"  name="gamemonetize_cron_fetch_limit" value="<?php echo $gamemonetize['cron_fetch_limit']; ?>" />
+            <input type="text" size="40"  name="gamemonetize_cron_fetch_limit" value="<?php echo esc_attr( $gamemonetize['cron_fetch_limit'] ); ?>" />
           </td>
           <td><i><?php _e( "How many games should be fetched on every cron trigger?", 'myarcadeplugin' ); ?></i></td>
         </tr>
@@ -99,7 +99,7 @@ function myarcade_settings_gamemonetize() {
 
         <tr>
           <td>
-            <input type="text" size="40"  name="gamemonetize_cron_publish_limit" value="<?php echo $gamemonetize['cron_publish_limit']; ?>" />
+            <input type="text" size="40"  name="gamemonetize_cron_publish_limit" value="<?php echo esc_attr( $gamemonetize['cron_publish_limit'] ); ?>" />
           </td>
           <td><i><?php _e( "How many games should be published on every cron trigger?", 'myarcadeplugin' ); ?></i></td>
         </tr>
@@ -198,10 +198,10 @@ function myarcade_feed_gamemonetize( $args = array() ) {
   $new_games = 0;
   $add_game  = false;
 
-  $gamemonetize            = myarcade_get_settings( 'gamemonetize' );
+  $gamemonetize            = MyArcade()->get_settings( 'gamemonetize' );
   $gamemonetize_categories = myarcade_get_categories_gamemonetize();
-  $feedcategories          = myarcade_get_settings( 'categories' );
-  $general                 = myarcade_get_settings( 'general' );
+  $feedcategories          = MyArcade()->get_settings( 'categories' );
+  $general                 = MyArcade()->get_settings( 'general' );
 
   // Init settings var's
   if ( ! empty( $settings ) ) {

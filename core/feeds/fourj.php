@@ -35,7 +35,7 @@ function myarcade_save_settings_fourj() {
  * @return  void
  */
 function myarcade_settings_fourj() {
-  $fourj = myarcade_get_settings( 'fourj' );
+  $fourj = MyArcade()->get_settings( 'fourj' );
   ?>
   <h2 class="trigger"><?php myarcade_premium_span(); _e( "4J", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -52,7 +52,7 @@ function myarcade_settings_fourj() {
         <tr><td colspan="2"><h3><?php _e("Feed URL", 'myarcadeplugin'); ?></h3></td></tr>
         <tr>
           <td>
-            <input type="text" size="40"  name="fourj_url" value="<?php echo $fourj['feed']; ?>" />
+            <input type="text" size="40"  name="fourj_url" value="<?php echo esc_url( $fourj['feed'] ); ?>" />
           </td>
           <td><i><?php _e("Edit this field only if Feed URL has been changed!", 'myarcadeplugin'); ?></i></td>
         </tr>
@@ -85,7 +85,7 @@ function myarcade_settings_fourj() {
 
         <tr>
           <td>
-            <input type="text" size="40"  name="fourj_cron_fetch_limit" value="<?php echo $fourj['cron_fetch_limit']; ?>" />
+            <input type="text" size="40"  name="fourj_cron_fetch_limit" value="<?php echo esc_attr( $fourj['cron_fetch_limit'] ); ?>" />
           </td>
           <td><i><?php _e("How many games should be fetched on every cron trigger?", 'myarcadeplugin'); ?></i></td>
         </tr>
@@ -103,7 +103,7 @@ function myarcade_settings_fourj() {
 
         <tr>
           <td>
-            <input type="text" size="40" name="fourj_cron_publish_limit" value="<?php echo $fourj['cron_publish_limit']; ?>" />
+            <input type="text" size="40" name="fourj_cron_publish_limit" value="<?php echo esc_attr( $fourj['cron_publish_limit'] ); ?>" />
           </td>
           <td><i><?php _e("How many games should be published on every cron trigger?", 'myarcadeplugin'); ?></i></td>
         </tr>
@@ -141,7 +141,7 @@ function myarcade_default_settings_fourj() {
 function myarcade_get_fetch_options_fourj() {
 
   // Get distributor settings
-  $settings = myarcade_get_settings( 'fourj' );
+  $settings = MyArcade()->get_settings( 'fourj' );
   $defaults = myarcade_default_settings_fourj();
   $settings = wp_parse_args( $settings, $defaults );
 
@@ -150,8 +150,8 @@ function myarcade_get_fetch_options_fourj() {
 
   if ( 'start' == filter_input( INPUT_POST, 'fetch' ) ) {
     $settings['limit']   = filter_input( INPUT_POST, 'limitfourj', FILTER_VALIDATE_INT, array( "options" => array( "default" => 100 ) ) );
-    $settings['method']  = filter_input( INPUT_POST, 'fetchmethodfourj', FILTER_SANITIZE_STRING, array( "options" => array( "default" => 'latest') ) );
-    $settings['offset']  = filter_input( INPUT_POST, 'offsetfourj', FILTER_SANITIZE_STRING, array( "options" => array( "default" => '1') ) );
+    $settings['method']  = filter_input( INPUT_POST, 'fetchmethodfourj', FILTER_UNSAFE_RAW, array( "options" => array( "default" => 'latest') ) );
+    $settings['offset']  = filter_input( INPUT_POST, 'offsetfourj', FILTER_UNSAFE_RAW, array( "options" => array( "default" => '1') ) );
   }
 
   return $settings;
@@ -163,22 +163,9 @@ function myarcade_get_fetch_options_fourj() {
  * @return  void
  */
 function myarcade_fetch_settings_fourj() {
-
-  $fourj = myarcade_get_fetch_options_fourj();
   ?>
-
   <div class="myarcade_border white hide mabp_680" id="fourj">
-    <div style="float:left;width:150px;">
-      <input type="radio" name="fetchmethodfourj" value="latest" <?php myarcade_checked($fourj['method'], 'latest');?>>
-    <label><?php _e("Latest Games", 'myarcadeplugin'); ?></label>
-    <br />
-    <input type="radio" name="fetchmethodfourj" value="offset" <?php myarcade_checked($fourj['method'], 'offset');?>>
-    <label><?php _e("Use Offset", 'myarcadeplugin'); ?></label>
-    </div>
-    <div class="myarcade_border" style="float:left;padding-top: 5px;background-color: #F9F9F9">
-    Fetch <input type="number" min="50" name="limitfourj" value="<?php echo $fourj['limit']; ?>" /> games <span id="offsfourj" class="hide">from page <input id="radiooffsfourj" type="number" name="offsetfourj" value="<?php echo $fourj['offset']; ?>" /> </span>
-    </div>
-    <div class="clear"></div>
+    <?php myarcade_premium_message(); ?>
   </div>
   <?php
 }
@@ -221,7 +208,7 @@ function myarcade_get_categories_fourj() {
 function myarcade_feed_fourj( $args = array() ) {
 
   ?>
-  <div class="myarcade_border white hide mabp_680" id="plinga">
+  <div class="myarcade_border white mabp_680">
     <?php myarcade_premium_message(); ?>
   </div>
   <?php

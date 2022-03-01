@@ -20,8 +20,8 @@ class MyArcade_Admin_Widget_Plays_Hourly {
       var hourly_plays_chart;
 
       jQuery(document).ready(function($) {
-        var data = [<?php echo $data; ?>];
-        var ticks = [<?php echo $hours; ?>];
+        var data = [<?php echo $data; // phpcs:ignore WordPress.XSS.EscapeOutput.OutputNotEscaped ?>];
+        var ticks = [<?php echo $hours; // phpcs:ignore WordPress.XSS.EscapeOutput.OutputNotEscaped ?>];
 
         hourly_plays_chart = $.jqplot( 'hourly-stats', [data], {
           animate: true,

@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function myarcade_settings_gamepix() {
 
-  $gamepix = myarcade_get_settings( 'gamepix' );
+	$gamepix = MyArcade()->get_settings( 'gamepix' );
 
   /**
 	 * Since 5.34.1
@@ -42,7 +42,7 @@ function myarcade_settings_gamepix() {
 				<tr><td colspan="2"><h3><?php _e( 'Feed URL', 'myarcadeplugin'); ?></h3></td></tr>
         <tr>
           <td>
-            <input type="text" size="40"  name="gamepix_url" value="<?php echo $gamepix['feed']; ?>" />
+						<input type="text" size="40"  name="gamepix_url" value="<?php echo esc_url( $gamepix['feed'] ); ?>" />
           </td>
 					<td><i><?php _e( 'Edit this field only if Feed URL has been changed!', 'myarcadeplugin' ); ?></i></td>
 				</tr>
@@ -50,7 +50,7 @@ function myarcade_settings_gamepix() {
 				<tr><td colspan="2"><h3><?php _e( 'Site ID', 'myarcadeplugin' ); ?></h3></td></tr>
 				<tr>
 					<td>
-						<input type="text" size="40"  name="gamepix_site_id" value="<?php echo $gamepix['site_id']; ?>" />
+						<input type="text" size="40"  name="gamepix_site_id" value="<?php echo esc_attr( $gamepix['site_id'] ); ?>" />
 					</td>
 					<td><i><?php _e( 'Enter your Site ID if available.', 'myarcadeplugin'); ?></i></td>
         </tr>
@@ -98,7 +98,7 @@ function myarcade_settings_gamepix() {
 
         <tr>
           <td>
-            <input type="text" size="40"  name="gamepix_cron_publish_limit" value="<?php echo $gamepix['cron_publish_limit']; ?>" />
+						<input type="text" size="40"  name="gamepix_cron_publish_limit" value="<?php echo esc_attr( $gamepix['cron_publish_limit'] ); ?>" />
           </td>
 					<td><i><?php _e( 'How many games should be published on every cron trigger?', 'myarcadeplugin' ); ?></i></td>
         </tr>
@@ -192,7 +192,7 @@ function myarcade_feed_gamepix( $args = array() ) {
   $new_games = 0;
   $add_game = false;
 
-  $gamepix            = myarcade_get_settings( 'gamepix' );
+	$gamepix            = MyArcade()->get_settings( 'gamepix' );
 	$gamepix_categories = myarcade_get_categories_gamepix();
   $feedcategories     = get_option('myarcade_categories');
 

@@ -76,7 +76,7 @@ class MyArcade_Stats_Ajax {
       }
 
       // Do a plausibility check to make sure that the play time isn't greater than the current time - registered play time
-      $play_record = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . 'myarcade_plays' . " WHERE ID = '{$transient_data['token']}' LIMIT 1" );
+      $play_record = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}myarcade_plays WHERE ID = %d LIMIT 1", $transient_data['token'] ) );
 
       if ( ! $play_record ) {
         return;
@@ -91,7 +91,7 @@ class MyArcade_Stats_Ajax {
       }
 
       // Update the database record
-      $wpdb->update( $wpdb->prefix . 'myarcade_plays', array( 'duration' => $duration ), array( 'ID' => $play_record->ID ) );
+      $wpdb->update( "{$wpdb->prefix}myarcade_plays", array( 'duration' => $duration ), array( 'ID' => $play_record->ID ) );
     }
 
     die();

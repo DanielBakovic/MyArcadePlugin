@@ -37,7 +37,7 @@ jQuery(document).ready( function($) {
         $("#offs"+distributor_id).fadeIn("fast");
       }
       else {
-        $("#offs"+distributor_id).fadeOut("fast");
+        $("#offs"+distributor_id).fadeOut("fast").prop('required',false);
       }
     }
   });

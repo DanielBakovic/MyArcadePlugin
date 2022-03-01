@@ -2,33 +2,29 @@
 /**
  * Displays the manage games page on backend
  *
- * @author Daniel Bakovic <contact@myarcadeplugin.com>
+ * @package MyArcadePlugin/Admin/Game/Manage
  */
 
-// No direct access
+// No direct access.
 if( !defined( 'ABSPATH' ) ) {
   die();
 }
 
 /**
- * Manage Games
- *
- * @version 5.13.0
- * @access  public
- * @return  void
+ * Manage Games.
  */
 function myarcade_manage_games() {
-  global $wpdb, $myarcade_distributors;
+	global $wpdb;
 
   myarcade_header();
   ?>
   <div id="icon-options-general" class="icon32"><br /></div>
-  <h2><?php _e("Manage Games", 'myarcadeplugin'); ?></h2>
+	<h2><?php esc_html_e( 'Manage Games', 'myarcadeplugin' ); ?></h2>
   <br />
   <script type="text/javascript">
     function checkSeachForm() {
       if ( document.searchForm.q.value === "") {
-        alert("<?php _e("Search term was not entered!", 'myarcadeplugin'); ?>");
+				alert("<?php esc_html_e( 'Search term was not entered!', 'myarcadeplugin' ); ?>");
         document.searchForm.q.focus();
         return false;
       }
@@ -38,24 +34,21 @@ function myarcade_manage_games() {
 
   $feedcategories = get_option('myarcade_categories');
 
-  $game_type    = isset( $_POST['distr'] ) ? sanitize_text_field( $_POST['distr'] ) : 'all';
-  $leaderboard  = isset( $_POST['leaderboard'] ) ? sanitize_text_field( $_POST['leaderboard'] ) : false;
-  $status       = isset( $_POST['status'] ) ? sanitize_text_field( $_POST['status'] ) : 'all';
-  $search       = empty( $_POST['q'] ) ? false : sanitize_text_field( $_POST['q'] );
-  $order        = isset( $_POST['order'] ) ? sanitize_text_field( $_POST['order'] ) : 'ASC';
-  $orderby      = isset( $_POST['orderby'] ) ? sanitize_text_field( $_POST['orderby'] ) : 'id';
-  $cat          = isset( $_POST['category'] ) ? sanitize_text_field( $_POST['category'] ) : 'all';
-  $games        = isset( $_POST['games'] ) ? sanitize_text_field( $_POST['games'] ) : '50';
-  $offset       = isset( $_POST['offset'] ) ? sanitize_text_field( $_POST['offset'] ) : '0';
-
-
+	$game_type          = filter_input( INPUT_POST, 'distr', FILTER_UNSAFE_RAW, array( 'options' => array( 'default' => 'all' ) ) );
+	$leaderboard        = filter_input( INPUT_POST, 'leaderboard', FILTER_UNSAFE_RAW );
+	$status             = filter_input( INPUT_POST, 'status', FILTER_UNSAFE_RAW, array( 'options' => array( 'default' => 'all' ) ) );
+	$search             = filter_input( INPUT_POST, 'q' );
+	$order              = filter_input( INPUT_POST, 'order', FILTER_UNSAFE_RAW, array( 'options' => array( 'default' => 'ASC' ) ) );
+	$orderby            = filter_input( INPUT_POST, 'orderby', FILTER_UNSAFE_RAW, array( 'options' => array( 'default' => 'id' ) ) );
+	$cat                = filter_input( INPUT_POST, 'category', FILTER_UNSAFE_RAW, array( 'options' => array( 'default' => 'all' ) ) );
+	$games              = filter_input( INPUT_POST, 'games', FILTER_SANITIZE_NUMBER_INT, array( 'options' => array( 'default' => '50' ) ) );
+	$offset             = filter_input( INPUT_POST, 'offset', FILTER_UNSAFE_RAW, array( 'options' => array( 'default' => '0' ) ) );
   $enable_delete = filter_input( INPUT_POST, 'enable_delete' );
   $bulk_delete_button = filter_input( INPUT_POST, 'bulk_delete_button' );
-
-  $action = sanitize_text_field( filter_input( INPUT_POST, 'action' ) );
+	$action             = filter_input( INPUT_POST, 'action' );
   $results = false;
 
-  if ( 'search' == $action ) {
+	if ( 'search' === $action ) {
     $query_array = array();
 
     if ($search) {
@@ -104,10 +97,10 @@ function myarcade_manage_games() {
       $query_string = " WHERE ".$query_string;
     }
 
-    if ( "yes" == $enable_delete && $bulk_delete_button ) {
+		if ( 'yes' === $enable_delete && $bulk_delete_button ) {
       // Delete published posts first
-      if ( "published" == $status || "all" == $status ) {
-        $post_ids = $wpdb->get_results( "SELECT postid FROM " . $wpdb->prefix . 'myarcadegames' . $query_string );
+			if ( 'published' === $status || 'all' === $status ) {
+				$post_ids = $wpdb->get_results( "SELECT postid FROM {$wpdb->prefix}myarcadegames {$query_string}" );
         if ( $post_ids ) {
           foreach ( $post_ids as $key => $value ) {
             if ( isset( $value->postid ) ) {
@@ -117,38 +110,39 @@ function myarcade_manage_games() {
         }
       }
 
-      // Now delete fetched games
-      $wpdb->query( "DELETE FROM " . $wpdb->prefix . 'myarcadegames' . $query_string );
+			// Now delete fetched games.
+			$wpdb->query( "DELETE FROM {$wpdb->prefix}myarcadegames {$query_string}" );
     }
     else {
       // Generate the query
-      $query = "SELECT * FROM " . $wpdb->prefix . 'myarcadegames' . $query_string." ORDER BY ".$orderby." ".$order." limit ".$offset.",".$games;
+			$query       = "SELECT * FROM {$wpdb->prefix}myarcadegames {$query_string} ORDER BY {$orderby} {$order} limit {$offset}, {$games}";
+			$results     = $wpdb->get_results( $query );
+			$query_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}myarcadegames {$query_string}" );
 
-      $query_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $wpdb->prefix . 'myarcadegames' . $query_string);
-
-      $results = $wpdb->get_results($query);
 
       if (!$results) {
-        echo '<div class="mabp_error" style="width:685px">'.__("Nothing found!", 'myarcadeplugin').'</strong></div>';
+				echo '<div class="mabp_error" style="width:685px">' . esc_html__( 'Nothing found!', 'myarcadeplugin' ) . '</strong></div>';
       }
     }
   }
+
+	$distributors = MyArcade()->distributors();
   ?>
   <form method="post" action="" class="myarcade_form" name="searchForm">
     <input type="hidden" name="action" value="search" />
     <div class="myarcade_border grey" style="width:680px">
       <?php _e("Search for", 'myarcadeplugin'); ?>
-      <input type="text" size="40" name="q" value="<?php echo $search; ?>" />
+			<input type="text" size="40" name="q" value="<?php echo esc_attr( $search ); ?>" />
 
       <p class="myarcade_hr">&nbsp;</p>
 
       <div class="myarcade_border white" style="width:300px;float:left;height:30px;">
         <?php _e("Type", 'myarcadeplugin'); ?>:
         <select name="distr" id="distr">
-          <option value="all" <?php myarcade_selected($game_type, 'all'); ?>>All</option>
+					<option value="all" <?php myarcade_selected($game_type, 'all'); ?>><?php _e( 'All', 'myarcadeplugin' ); ?></option>
           <optgroup label="Game Distributors">
-            <?php foreach ($myarcade_distributors as $slug => $name) : ?>
-            <option value="<?php echo $slug; ?>" <?php myarcade_selected($game_type, $slug); ?>><?php echo $name; ?></option>
+						<?php foreach ( $distributors as $slug => $name) : ?>
+						<option value="<?php echo esc_attr( $slug ); ?>" <?php myarcade_selected($game_type, $slug); ?>><?php echo esc_html( $name ); ?></option>
             <?php endforeach; ?>
           </optgroup>
           <optgroup label="Imported Games">
@@ -173,26 +167,26 @@ function myarcade_manage_games() {
       <div class="myarcade_border white" style="width:300px;height:30px;float:left;">
         <?php _e("Game Status", 'myarcadeplugin'); ?>:
         <select name="status" id="status">
-          <option value="all" <?php myarcade_selected($status, 'all'); ?>>All</option>
-          <option value="new" <?php myarcade_selected($status, 'new'); ?>>New</option>
-          <option value="published" <?php myarcade_selected($status, 'published'); ?>>Published</option>
-          <option value="deleted" <?php myarcade_selected($status, 'deleted'); ?>>Deleted</option>
+					<option value="all" <?php myarcade_selected($status, 'all'); ?>><?php _e( 'All', 'myarcadeplugin' ); ?></option>
+					<option value="new" <?php myarcade_selected($status, 'new'); ?>><?php _e( 'New', 'myarcadeplugin' ); ?></option>
+					<option value="published" <?php myarcade_selected($status, 'published'); ?>><?php _e( 'Published', 'myarcadeplugin' ); ?></option>
+					<option value="deleted" <?php myarcade_selected($status, 'deleted'); ?>><?php _e( 'Deleted', 'myarcadeplugin' ); ?></option>
         </select>
       </div>
 
       <div class="myarcade_border white" style="width:300px;height:30px;float:left;margin-left:20px;">
         <?php _e("Order", 'myarcadeplugin'); ?>:
         <select name="order" id="order">
-          <option value="ASC" <?php myarcade_selected($order, 'ASC'); ?>>ASC</option>
-          <option value="DESC" <?php myarcade_selected($order, 'DESC'); ?>>DESC</option>
+					<option value="ASC" <?php myarcade_selected($order, 'ASC'); ?>><?php _e( 'ASC', 'myarcadeplugin' ); ?></option>
+					<option value="DESC" <?php myarcade_selected($order, 'DESC'); ?>><?php _e( 'DESC', 'myarcadeplugin' ); ?></option>
         </select>
         <?php _e("by", 'myarcadeplugin');?>:
         <select name="orderby" id="orderby">
-          <option value="id" <?php myarcade_selected($orderby, 'id'); ?>>ID</option>
-          <option value="name" <?php myarcade_selected($orderby, 'name'); ?>>Name</option>
-          <option value="slug" <?php myarcade_selected($orderby, 'slug'); ?>>Slug</option>
-          <option value="game_type" <?php myarcade_selected($orderby, 'game_type'); ?>>Game Type</option>
-          <option value="status" <?php myarcade_selected($orderby, 'status'); ?>>Status</option>
+					<option value="id" <?php myarcade_selected($orderby, 'id'); ?>><?php _e( 'ID', 'myarcadeplugin' ); ?></option>
+					<option value="name" <?php myarcade_selected($orderby, 'name'); ?>><?php _e( 'Name', 'myarcadeplugin' ); ?></option>
+					<option value="slug" <?php myarcade_selected($orderby, 'slug'); ?>><?php _e( 'Slug', 'myarcadeplugin' ); ?></option>
+					<option value="game_type" <?php myarcade_selected($orderby, 'game_type'); ?>><?php _e( 'Game Type', 'myarcadeplugin' ); ?></option>
+					<option value="status" <?php myarcade_selected($orderby, 'status'); ?>><?php _e( 'Status', 'myarcadeplugin' ); ?></option>
         </select>
       </div>
 
@@ -204,7 +198,7 @@ function myarcade_manage_games() {
           <option value="all" <?php myarcade_selected($cat, 'all'); ?>>All</option>
           <?php
             foreach ( $feedcategories as $category) {
-              ?><option value="<?php echo $category['Slug']; ?>" <?php myarcade_selected($cat, $category['Slug']); ?>><?php echo $category['Name']; ?></option><?php
+							?><option value="<?php echo esc_attr( $category['Slug'] ); ?>" <?php myarcade_selected($cat, $category['Slug']); ?>><?php echo esc_html( $category['Name'] ); ?></option><?php
             }
           ?>
         </select>
@@ -212,9 +206,9 @@ function myarcade_manage_games() {
 
       <div class="myarcade_border white" style="width:300px;height:30px;float:left;margin-left:20px;">
         <?php _e("Display", 'myarcadeplugin'); ?>
-        <input type="text" size="3" name="games" value="<?php echo $games; ?>" />
+				<input type="text" size="3" name="games" value="<?php echo esc_attr( $games ); ?>" />
         <?php _e("games from offset", 'myarcadeplugin'); ?>
-        <input type="text" size="3" name="offset" value="<?php echo $offset; ?>" />
+				<input type="text" size="3" name="offset" value="<?php echo esc_attr( $offset ); ?>" />
       </div>
 
       <div style="padding: 10px;width:300px;height:30px;float:left;">
@@ -240,9 +234,8 @@ function myarcade_manage_games() {
     foreach ($results as $game) {
       myarcade_show_game($game);
     }
-  }
-  else {
-    $count = $wpdb->get_var("SELECT COUNT(*) FROM " . $wpdb->prefix . 'myarcadegames');
+	} else {
+		$count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}myarcadegames" );
 
     if ( $count ) {
 
@@ -295,7 +288,7 @@ function myarcade_manage_games() {
       /* End Paginagion */
 
       // Last feeded games
-      $results = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . 'myarcadegames' . " ORDER BY ID DESC $range");
+			$results = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}myarcadegames ORDER BY ID DESC {$range}" );
 
       if ($results) {
         echo '<h3>'.__("Browser Your Game Catalog", 'myarcadeplugin').'</h3>';
@@ -303,15 +296,15 @@ function myarcade_manage_games() {
         <!-- Print pagination -->
         <div class="tablenav" style="float: left;">
           <div class="tablenav-pages">
-            <span class="displaying-num">Displaying <?php echo $from_to; ?> of <?php echo $count; ?></span>
+						<span class="displaying-num"><?php printf( esc_html__( 'Displaying %d of %d', 'myarcadeplugin'), $from_to, $count ); ?></span>
           <?php if ($pagenum > 1) : ?>
-              <a class='page-numbers' href='<?php echo $_SERVER['PHP_SELF'];?>?page=myarcade-manage-games&pagenum=1'>First</a>
-              <a class='page-numbers' href='<?php echo $_SERVER['PHP_SELF'];?>?page=myarcade-manage-games&pagenum=<?php echo $previous; ?>'>Previous</a>
+							<a class='page-numbers' href='<?php echo esc_attr( $_SERVER['PHP_SELF'] );?>?page=myarcade-manage-games&pagenum=1'><?php esc_html_e( 'First', 'myarcadeplugin' ); ?></a>
+							<a class='page-numbers' href='<?php echo $_SERVER['PHP_SELF'];?>?page=myarcade-manage-games&pagenum=<?php echo esc_attr( $previous ); ?>'><?php esc_html_e( 'Previous', 'myarcadeplugin' ); ?></a>
             <?php endif; ?>
-            <span class='page-numbers current'><?php echo $pagenum; ?></span>
+						<span class='page-numbers current'><?php echo esc_html( $pagenum ); ?></span>
             <?php if ($pagenum != $last) : ?>
-              <a class='page-numbers' href='<?php echo $_SERVER['PHP_SELF'];?>?page=myarcade-manage-games&pagenum=<?php echo $next; ?>'>Next</a>
-              <a class='page-numbers' href='<?php echo $_SERVER['PHP_SELF'];?>?page=myarcade-manage-games&pagenum=<?php echo $last; ?>'>Last</a>
+							<a class='page-numbers' href='<?php echo $_SERVER['PHP_SELF'];?>?page=myarcade-manage-games&pagenum=<?php echo esc_attr( $next ); ?>'><?php esc_html_e( 'Next', 'myarcadeplugin' ); ?></a>
+							<a class='page-numbers' href='<?php echo $_SERVER['PHP_SELF'];?>?page=myarcade-manage-games&pagenum=<?php echo esc_attr( $last ); ?>'><?php esc_html_e( 'Last', 'myarcadeplugin' ); ?></a>
             <?php endif; ?>
           </div>
         </div>
@@ -325,15 +318,15 @@ function myarcade_manage_games() {
         <!-- Print pagination -->
         <div class="tablenav" style="float: left;">
           <div class="tablenav-pages">
-            <span class="displaying-num">Displaying <?php echo $from_to; ?> of <?php echo $count; ?></span>
+						<span class="displaying-num"><?php printf( esc_html__( 'Displaying %d of %d', 'myarcadeplugin' ), $from_to, $count ); ?></span>
           <?php if ($pagenum > 1) : ?>
-              <a class='page-numbers' href='<?php echo $_SERVER['PHP_SELF'];?>?page=myarcade-manage-games&pagenum=1'>First</a>
-              <a class='page-numbers' href='<?php echo $_SERVER['PHP_SELF'];?>?page=myarcade-manage-games&pagenum=<?php echo $previous; ?>'>Previous</a>
+							<a class='page-numbers' href='<?php echo $_SERVER['PHP_SELF'];?>?page=myarcade-manage-games&pagenum=1'><?php esc_html_e( 'First', 'myarcadeplugin' ); ?></a>
+							<a class='page-numbers' href='<?php echo $_SERVER['PHP_SELF'];?>?page=myarcade-manage-games&pagenum=<?php echo esc_attr( $previous ); ?>'><?php esc_html_e( 'Previous', 'myarcadeplugin' ); ?></a>
             <?php endif; ?>
-            <span class='page-numbers current'><?php echo $pagenum; ?></span>
+						<span class='page-numbers current'><?php echo esc_html( $pagenum ); ?></span>
             <?php if ($pagenum != $last) : ?>
-              <a class='page-numbers' href='<?php echo $_SERVER['PHP_SELF'];?>?page=myarcade-manage-games&pagenum=<?php echo $next; ?>'>Next</a>
-              <a class='page-numbers' href='<?php echo $_SERVER['PHP_SELF'];?>?page=myarcade-manage-games&pagenum=<?php echo $last; ?>'>Last</a>
+							<a class='page-numbers' href='<?php echo $_SERVER['PHP_SELF'];?>?page=myarcade-manage-games&pagenum=<?php echo esc_attr( $next ); ?>'><?php _e( 'Next', 'myarcadeplugin' ); ?></a>
+							<a class='page-numbers' href='<?php echo $_SERVER['PHP_SELF'];?>?page=myarcade-manage-games&pagenum=<?php echo esc_attr( $last ); ?>'><?php _e( 'Last', 'myarcadeplugin' ); ?></a>
             <?php endif; ?>
           </div>
         </div>
@@ -346,7 +339,7 @@ function myarcade_manage_games() {
       _e("No games found", 'myarcadeplugin');
     }
 
-    $results = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . 'myarcadegames' . " WHERE status = 'deleted' ORDER BY created DESC limit 10");
+		$results = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}myarcadegames WHERE status = 'deleted' ORDER BY created DESC limit 10" );
 
     if ($results) {
       echo '<h3>'.__("10 Last Deleted Games", 'myarcadeplugin').'</h3>';
@@ -405,4 +398,3 @@ function myarcade_manage_games() {
   <?php
   myarcade_footer();
 }
-?>

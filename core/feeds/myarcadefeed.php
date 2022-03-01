@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return  void
  */
 function myarcade_settings_myarcadefeed() {
-  $myarcadefeed = myarcade_get_settings( 'myarcadefeed' );
+  $myarcadefeed = MyArcade()->get_settings( 'myarcadefeed' );
   ?>
   <h2 class="trigger"><?php _e("MyArcadeFeed", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -36,35 +36,35 @@ function myarcade_settings_myarcadefeed() {
         <tr><td colspan="2"><h3><?php _e("MyArcadeFeed URL 1", 'myarcadeplugin'); ?></h3></td></tr>
         <tr>
           <td>
-            <input type="text" size="40"  name="myarcadefeed1" value="<?php echo $myarcadefeed['feed1']; ?>" />
+            <input type="text" size="40"  name="myarcadefeed1" value="<?php echo esc_url( $myarcadefeed['feed1'] ); ?>" />
           </td>
           <td><i><?php _e("Paste your MyArcadeFeed URL No. 1 here.", 'myarcadeplugin'); ?></i></td>
         </tr>
         <tr><td colspan="2"><h3><?php _e("MyArcadeFeed URL 2", 'myarcadeplugin'); ?></h3></td></tr>
         <tr>
           <td>
-            <input type="text" size="40"  name="myarcadefeed2" value="<?php echo $myarcadefeed['feed2']; ?>" />
+            <input type="text" size="40"  name="myarcadefeed2" value="<?php echo esc_url( $myarcadefeed['feed2'] ); ?>" />
           </td>
           <td><i><?php _e("Paste your MyArcadeFeed URL No. 2 here.", 'myarcadeplugin'); ?></i></td>
         </tr>
         <tr><td colspan="2"><h3><?php _e("MyArcadeFeed URL 3", 'myarcadeplugin'); ?></h3></td></tr>
         <tr>
           <td>
-            <input type="text" size="40"  name="myarcadefeed3" value="<?php echo $myarcadefeed['feed3']; ?>" />
+            <input type="text" size="40"  name="myarcadefeed3" value="<?php echo esc_url( $myarcadefeed['feed3'] ); ?>" />
           </td>
           <td><i><?php _e("Paste your MyArcadeFeed URL No. 3 here.", 'myarcadeplugin'); ?></i></td>
         </tr>
         <tr><td colspan="2"><h3><?php _e("MyArcadeFeed URL 4", 'myarcadeplugin'); ?></h3></td></tr>
         <tr>
           <td>
-            <input type="text" size="40"  name="myarcadefeed4" value="<?php echo $myarcadefeed['feed4']; ?>" />
+            <input type="text" size="40"  name="myarcadefeed4" value="<?php echo esc_url( $myarcadefeed['feed4'] ); ?>" />
           </td>
           <td><i><?php _e("Paste your MyArcadeFeed URL No. 4 here.", 'myarcadeplugin'); ?></i></td>
         </tr>
         <tr><td colspan="2"><h3><?php _e("MyArcadeFeed URL 5", 'myarcadeplugin'); ?></h3></td></tr>
         <tr>
           <td>
-            <input type="text" size="40"  name="myarcadefeed5" value="<?php echo $myarcadefeed['feed5']; ?>" />
+            <input type="text" size="40"  name="myarcadefeed5" value="<?php echo esc_url( $myarcadefeed['feed5'] ); ?>" />
           </td>
           <td><i><?php _e("Paste your MyArcadeFeed URL No. 5 here.", 'myarcadeplugin'); ?></i></td>
         </tr>
@@ -178,7 +178,7 @@ function myarcade_fetch_settings_myarcadefeed() {
 function myarcade_get_fetch_options_myarcadefeed() {
 
   // Get distributor settings
-  $settings = myarcade_get_settings( 'myarcadefeed' );
+  $settings = MyArcade()->get_settings( 'myarcadefeed' );
 
   if ( 'start' == filter_input( INPUT_POST, 'fetch' ) ) {
     // Set submitted fetching options
@@ -313,4 +313,3 @@ function myarcade_feed_myarcadefeed($args) {
   // Show, how many games have been fetched
   myarcade_fetched_message( $new_games, $echo );
 }
-?>

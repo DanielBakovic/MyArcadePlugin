@@ -1,3 +1,14 @@
+v6.0.0 - 2022-03-01 - Based on MyArcadePlugin Pro 6.1.2
+  * New - Updated GameDistribution Integration - Use API v2.0
+  * Tweak - PHPCS issues
+  * Tweak - Make static text translatable
+  * Fix - Fetching options not set correctly
+  * Fix - Usage of deprecated FILTER_SANITIZE_STRING constant (PHP 8.1.0)
+  * Fix - Softgames integration. Now all games are added to cateogry "Other" because of missing category information in the feed.
+  * Fix - Site health loopback issue (cURL error 28)
+  * Fix - Game count on the dashboard if custom post type is in use
+  * Removed non working feed integrations
+
 v5.8.0 - 2020-02-09 - Based on MyArcadePlugin Pro 5.39.2
   * New - Updated Famobi Integration
   * New - Updated Kongregate integration

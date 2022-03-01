@@ -33,7 +33,7 @@
             <td>
                <p style="font-style:italic;margin:5px 0;"><?php _e("<strong>OR</strong> select an already uploaded file to (games/uploads/swf).", 'myarcadeplugin'); ?></p>
               <div id="swf" style="min-height:30px">
-                <img class="loadimg" src="<?php echo $loading_image; ?>" style="display:none" />
+								<img class="loadimg" src="<?php echo esc_url( $loading_image ); ?>" style="display:none" />
                 <input type="button" id="folderswf" class="button-secondary fileselection" value="<?php _e("Select from folder", 'myarcadeplugin'); ?>" />
                 <input type="button" class="button-secondary cancelselection" value="<?php _e("Cancel", 'myarcadeplugin'); ?>" style="display:none" />
               </div>
@@ -50,7 +50,7 @@
             <p>
               <input type="submit" class="button button-primary" class="button button-primary" id="swfupload" name="swfupload" value="<?php _e('Add File', 'myarcadeplugin'); ?>" />
             </p>
-            <img id="loadimgswf" src="<?php echo $loading_image; ?>" style="display:none;" />
+						<img id="loadimgswf" src="<?php echo esc_url( $loading_image ); ?>" style="display:none;" />
             <div id="filename"></div>
           </td>
           </tr>
@@ -124,7 +124,7 @@
             <p>
               <input type="submit" id="emifupload" name="emifupload" value="<?php _e('Add Code', 'myarcadeplugin'); ?>" />
             </p>
-            <img id="loadimgemif" src="<?php echo $loading_image; ?>" style="display:none;" />
+					<img id="loadimgemif" src="<?php echo esc_url( $loading_image ); ?>" style="display:none;" />
             <div id="filenameemif"></div>
           </td>
           </tr>
@@ -177,7 +177,7 @@
             <p>
               <input type="submit" class="button button-primary" id="thumbupload" name="thumbupload" value="<?php _e('Add File', 'myarcadeplugin'); ?>" />
             </p>
-            <img id="loadimgthumb" src="<?php echo $loading_image; ?>" style="display:none;" />
+					<img id="loadimgthumb" src="<?php echo esc_url( $loading_image ); ?>" style="display:none;" />
             <div id="filenamethumb"></div>
           </td>
           </tr>
@@ -258,7 +258,7 @@
               <p>
                 <input type="submit" class="button button-primary" id="screenupload" name="screenupload" value="<?php _e('Add File(s)', 'myarcadeplugin'); ?>" />
               </p>
-               <img id="loadimgscreen" src="<?php echo $loading_image; ?>" style="display:none;" />
+							 <img id="loadimgscreen" src="<?php echo esc_url( $loading_image ); ?>" style="display:none;" />
               <div id="filenamescreen"></div>
             </td>
           </tr>
@@ -407,7 +407,7 @@
               <?php else: ?>
               <?php $checked_draft = ' checked'; ?>
               <?php endif; ?>
-              <input type="radio" name="publishstatus" value="draft" <?php echo $checked_draft; ?>>&nbsp;<?php _e("Save as draft", 'myarcadeplugin'); ?>
+							<input type="radio" name="publishstatus" value="draft" <?php echo esc_attr( $checked_draft ); ?>>&nbsp;<?php _e("Save as draft", 'myarcadeplugin'); ?>
               <br />
               <input type="radio" name="publishstatus" value="add">&nbsp;<?php _e("Add to the games database (don't add as a blog post)", 'myarcadeplugin'); ?>
             </td>
@@ -469,4 +469,4 @@
          <input class="button-primary" id="submit" type="submit" name="submit" value="<?php _e("Import Game", 'myarcadeplugin'); ?>" />
       </div>
     </div>
-  </form>
+	</form>

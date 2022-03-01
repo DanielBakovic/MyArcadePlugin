@@ -70,7 +70,7 @@ class MyArcade_Feedback {
       }
 
       if ( ( is_bool($output) && ($output === true) ) || ($output == 'echo' ) ) {
-        echo $output_string;
+        echo esc_html( $output_string );
       }
       elseif ( $output == 'string') {
         return $output_string;
@@ -109,7 +109,7 @@ class MyArcade_Feedback {
       }
 
       if ( ( is_bool($output) && ($output === true) ) || ($output == 'echo') ) {
-        echo $output_string;
+        echo esc_hmtl( $output_string );
       }
       elseif ( $output == 'string') {
         return $output_string;

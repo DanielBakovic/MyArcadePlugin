@@ -2,15 +2,10 @@
 /**
  * Automated fetching and publishing
  *
- * @author Daniel Bakovic <contact@myarcadeplugin.com>
+ * @package MyArcadePlugin/Cron
  */
 
-// No direct Access
+// No direct Access.
 if ( ! defined( 'ABSPATH' ) ) {
-  exit;
+	die();
 }
-
-}
-
-// PRO
-?>

@@ -4,30 +4,27 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-  exit; // Exit if accessed directly
+	exit; // Exit if accessed directly.
 }
 
 class MyArcade_Autoloader {
 
   /**
-   * Project prefix
+	 * Project prefix.
+	 *
    * @var string
    */
   private $slug = 'myarcade_';
 
   /**
-   * Path to the includes directory
+	 * Path to the includes directory.
+	 *
    * @var string
    */
   private $include_path = '';
 
   /**
    * The Constructor
-   *
-   * @version 5.30.0
-   * @since   5.30.0
-   * @access  public
-   * @return  void
    */
   public function __construct() {
 
@@ -41,10 +38,8 @@ class MyArcade_Autoloader {
   }
 
   /**
-   * Take a class name and turn it into a file name
+	 * Take a class name and turn it into a file name.
    *
-   * @version 5.30.0
-   * @since   5.30.0
    * @access  private
    * @param   string $class
    * @return  string
@@ -54,10 +49,8 @@ class MyArcade_Autoloader {
   }
 
   /**
-   * Include a class file
+	 * Include a class file.
    *
-   * @version 5.30.0
-   * @since   5.30.0
    * @access  private
    * @param   string $path
    * @return  bool successful or not
@@ -65,10 +58,9 @@ class MyArcade_Autoloader {
   private function load_file( $path ) {
 
     if ( $path && is_readable( $path ) ) {
-      include_once( $path );
+			include_once $path;
       return true;
-    }
-    else {
+		} else {
       return false;
     }
   }
@@ -76,11 +68,7 @@ class MyArcade_Autoloader {
   /**
    * Auto-load classes on demand to reduce memory consumption.
    *
-   * @version 5.30.0
-   * @since   5.30.0
-   * @access  public
-   * @param   string $class Class name
-   * @return  void
+	 * @param   string $class Class name.
    */
   public function autoload( $class ) {
 

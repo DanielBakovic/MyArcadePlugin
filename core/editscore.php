@@ -2,22 +2,21 @@
 /**
  * Score Editing Module
  *
- * @author Daniel Bakovic <contact@myarcadeplugin.com>
+ * @package MyArcadePlugin/Scores
  */
 
-// Locate WordPress root folder
+// Locate WordPress root folder.
 $root = dirname( dirname( dirname( dirname( dirname(__FILE__)))));
 
 if ( file_exists($root . '/wp-load.php') ) {
   define('MYARCADE_DOING_ACTION', true);
-  require_once($root . '/wp-load.php');
-}
-else {
-  // WordPress not found
+	require_once $root . '/wp-load.php';
+} else {
+	// WordPress not found.
   die();
 }
 
-// Check user privilege
+// Check user privilege.
 if ( function_exists('current_user_can') && !current_user_can('manage_options') ) {
   die();
 }
@@ -27,13 +26,13 @@ if ( function_exists('current_user_can') && !current_user_can('manage_options') 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-<title><?php _e("Edit Game", 'myarcadeplugin'); ?></title>
+<title><?php esc_html_e( 'Edit Game', 'myarcadeplugin' ); ?></title>
 
 <link rel='stylesheet' href='<?php bloginfo('url'); ?>/wp-admin/css/wp-admin.css' type='text/css' />
 <link rel='stylesheet' href='<?php bloginfo('url'); ?>/wp-admin/css/colors-fresh.css' type='text/css' />
 <link rel='stylesheet' href='<?php echo MYARCADE_URL; ?>/assets/css/myarcadeplugin.css' type='text/css' />
-
-<script type="text/javascript" src="<?php echo get_option('siteurl')."/".WPINC."/js/jquery/jquery.js"; ?>"></script>
+'
+<script type="text/javascript" src="<?php echo get_option( 'siteurl' ) . '/' . WPINC . '/js/jquery/jquery.js'; ?>"></script>
 
 </head>
 <body>
@@ -42,59 +41,60 @@ if ( function_exists('current_user_can') && !current_user_can('manage_options') 
       <?php
       global $wpdb;
 
-      if ( isset($_POST['submit']) ) {
-        $scoreid = $_POST['scoreid'];
-        $score = $_POST['score'];
+			$submit = filter_input( INPUT_POST, 'submit' );
 
-        // get score
+			if ( $submit ) {
+				$scoreid = filter_input( INPUT_POST, 'scoreid' );
+				$score   = filter_input( INPUT_POST, 'score' );
+
+				// get score.
         $old_score = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}myarcadescores WHERE id = %d", $scoreid ) );
-        // Get highscore
-        $highscore = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}myarcadehighscores WHERE game_tag = '%s' AND user_id = %d AND score = '%s'", $old_score->game_tag, $old_score->user_id, $old_score->score ) );
+				// Get highscore.
+				$highscore = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}myarcadehighscores WHERE game_tag = %s AND user_id = %d AND score = %s", $old_score->game_tag, $old_score->user_id, $old_score->score ) );
 
         if ( $highscore ) {
-          // Update highscore
-          $wpdb->query("UPDATE ".$wpdb->prefix.'myarcadehighscores'." SET score = '{$score}' WHERE id = '{$highscore->id}'");
+					// Update highscore.
+					$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}myarcadehighscores SET score = %s WHERE id = %d", $score, $highscore->id ) );
         }
 
-        $result = $wpdb->query("UPDATE ".$wpdb->prefix.'myarcadescores'." SET score = '{$score}' WHERE id = '{$scoreid}'");
+				$result = $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}myarcadescores SET score = %s WHERE id = %d", $score, $scoreid ) );
 
         if ($result) {
-          echo '<div id="message" class="updated fade">'.__("Score has been updated!", 'myarcadeplugin').'</div>';
+					echo '<div id="message" class="updated fade">' . esc_attr__( 'Score has been updated!', 'myarcadeplugin' ) . '</div>';
           ?>
           <script type="text/javascript">
             jQuery(document).ready(function() {
-              jQuery("td#scoreval_<?php echo $scoreid; ?>", top.document).html("<?php echo $score; ?>");
+							jQuery("td#scoreval_<?php echo esc_attr( $scoreid ); ?>", top.document).html("<?php echo esc_attr( $score ); ?>");
             });
           </script>
           <?php
-        }
-        else {
-          echo '<div id="message" class="myerror fade">'.__("Can't update score!", 'myarcadeplugin').'</div>';
+				} else {
+					echo '<div id="message" class="myerror fade">' . esc_attr__( "Can't update score!", 'myarcadeplugin' ) . '</div>';
         }
       } else {
-        if ( !isset($_GET['scoreid']) ) {
-          wp_die("Unknown score ID");
-        }
+				$scoreid = intval( filter_input( INPUT_GET, 'scoreid', FILTER_VALIDATE_INT ) );
 
-        $scoreid = intval( $_GET['scoreid'] );
+				if ( ! $scoreid ) {
+					wp_die( esc_attr__( 'Unknown score ID', 'myarcadeplugin' ) );
+        }
       }
 
-      $score = $wpdb->get_var("SELECT score FROM ".$wpdb->prefix.'myarcadescores'." WHERE id = {$scoreid}");
+			$score = $wpdb->get_var( $wpdb->prepare( "SELECT score FROM {$wpdb->prefix}myarcadescores WHERE id = %d", $scoreid ) );
 
       if (!$score) {
-        wp_die("No score found");
+				wp_die( esc_attr__( 'No score found', 'myarcadetheme' ) );
       }
       ?>
       <form method="post" name="formeditscore" id="formeditscore">
-        <input type="hidden" name="scoreid" id="scoreid" value="<?php echo $scoreid; ?>" />
+				<input type="hidden" name="scoreid" id="scoreid" value="<?php echo esc_attr( $scoreid ); ?>" />
         <br />
         <div class="container">
           <div class="block">
             <table class="optiontable">
               <tr>
                 <td>Score</td>
-                <td><input type="text" name="score" id="score" value="<?php echo $score; ?>" /></td>
-                <td><input class="button-secondary" id="submit" type="submit" name="submit" value="<?php _e("Save Changes", 'myarcadeplugin'); ?>" /></td>
+								<td><input type="text" name="score" id="score" value="<?php echo esc_attr( $score ); ?>" /></td>
+								<td><input class="button-secondary" id="submit" type="submit" name="submit" value="<?php esc_attr_e( 'Save Changes', 'myarcadeplugin' ); ?>" /></td>
               </tr>
             </table>
           </div>

@@ -20,7 +20,7 @@ if( !defined( 'ABSPATH' ) ) {
  * @return  void
  */
 function myarcade_comment() {
-  echo "\n"."<!-- Powered by MyArcadePlugin Lite - http://myarcadeplugin.com -->"."\n";
+  echo "\n"."<!-- Powered by MyArcadePlugin Lite - https://myarcadeplugin.com -->"."\n";
 }
 add_action('wp_footer', 'myarcade_comment');
 

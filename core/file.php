@@ -130,24 +130,22 @@ function myarcade_delete_game( $post_ID ) {
         $direct = new WP_Filesystem_Direct( array() );
         $direct->rmdir( $game_path, true );
       }
-    }
-    else {
-      // Delete a single file
+		} else {
+			// Delete a single file.
       myarcade_del_file( $game_path );
     }
-  }
-  else {
+	} else {
     myarcade_log_core( "Can't determinate game file: {$game_file}" );
   }
 
-  // Get game_tag
-  $game_tag = $wpdb->get_var("SELECT game_tag FROM `".$wpdb->prefix . 'myarcadegames'."` WHERE `postid` = '$post_ID'");
-  // Delete scores
-  $wpdb->query("DELETE FROM `".$wpdb->prefix.'myarcadescores'."` WHERE  `game_tag` = '$game_tag'");
-  // Delete game stats
-  $wpdb->query( "DELETE FROM {$wpdb->prefix}myarcade_plays WHERE `post_id` = '$post_ID'" );
-  // Delete game
-  $wpdb->query("DELETE FROM `".$wpdb->prefix.'myarcadegames'."` WHERE  `postid` = '$post_ID'");
+	// Get game_tag.
+	$game_tag = $wpdb->get_var( $wpdb->prepare( "SELECT game_tag FROM {$wpdb->prefix}myarcadegames WHERE postid = %d", $post_ID ) );
+	// Delete scores.
+	$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}myarcadescores WHERE  game_tag = %s", $game_tag ) );
+	// Delete game stats.
+	$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}myarcade_plays WHERE post_id = %d", $post_ID ) );
+	// Delete game.
+	$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}myarcadegames WHERE  postid = %d", $post_ID ) );
 }
 add_action('before_delete_post', 'myarcade_delete_game');
 
@@ -195,7 +193,7 @@ function myarcade_get_file( $url ) {
 function myarcade_get_folder_path($name = '', $type = '') {
   global $myarcade_feedback;
 
-  $upload_dir = myarcade_upload_dir();
+	$upload_dir = MyArcade()->upload_dir();
 
   if ( empty($name) || empty($type) ) {
     $myarcade_feedback->add_message("Missing parameters on the create folder function!");
@@ -312,7 +310,7 @@ function myarcade_get_filelist() {
     die();
   }
 
-  $upload_dir = myarcade_upload_dir();
+	$upload_dir = MyArcade()->upload_dir();
 
   $type = sanitize_text_field( filter_input( INPUT_POST, 'type' ) );
   $dir =  $upload_dir['gamesdir'] . 'uploads/' . $type;
@@ -381,7 +379,7 @@ function myarcade_add_attachment( $file_url, $file_path ) {
 
   if ( $attachment_id ) {
     // Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
-    require_once( ABSPATH . 'wp-admin/includes/image.php' );
+		require_once ABSPATH . 'wp-admin/includes/image.php';
 
     // Generate the metadata for the attachment, and update the database record.
     $attachment_data = wp_generate_attachment_metadata( $attachment_id, $file_path );

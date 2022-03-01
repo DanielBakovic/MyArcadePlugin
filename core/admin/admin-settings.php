@@ -5,7 +5,7 @@
  * @author Daniel Bakovic <contact@myarcadeplugin.com>
  */
 
-// No direct access
+// No direct access.
 if( !defined( 'ABSPATH' ) ) {
   die();
 }
@@ -18,7 +18,8 @@ if( !defined( 'ABSPATH' ) ) {
  * @return  void
  */
 function myarcade_settings() {
-  global $myarcade_distributors;
+
+	$distributors = MyArcade()->distributors();
 
   myarcade_header();
 
@@ -96,12 +97,12 @@ function myarcade_settings() {
     update_option('myarcade_general', $general);
 
     // Update distributor settings dynamically
-    foreach ($myarcade_distributors as $key => $name) {
+		foreach ($distributors as $key => $name) {
       // Generate save settings function name
       $settings_update_function = 'myarcade_save_settings_' . $key;
 
       // Get distributor integration file
-      myarcade_distributor_integration( $key );
+			MyArcade()->load_distributor( $key );
 
       // Check if function exists
       if ( function_exists( $settings_update_function ) ) {
@@ -164,14 +165,14 @@ function myarcade_settings() {
   }
 
   // Load settings dynamically
-  foreach ($myarcade_distributors as $key => $name) {
-    $$key = myarcade_get_settings( $key );
+	foreach ($distributors as $key => $name) {
+		$$key = MyArcade()->get_settings( $key );
   }
 
   // Create directories
-  myarcade_create_directories();
+	MyArcade_Install::create_directories();
 
-  $upload_dir = myarcade_upload_dir();
+	$upload_dir = MyArcade()->upload_dir();
 
   if ( $general['down_games'] ) {
     if ( !is_writable( $upload_dir['gamesdir'] ) ) {
@@ -215,7 +216,7 @@ function myarcade_settings() {
   }
 
   // Create an array with all available cron intervals
-  $myarcade_cron_intervals = myarcade_get_cron_intervals();
+	$myarcade_cron_intervals = MyArcade_Install::get_schedules();
 
   $default_crones = array(
     'hourly'    => array('display' => __('Hourly')),
@@ -274,7 +275,7 @@ function myarcade_settings() {
               <tr><td colspan="2"><h3><?php _e("Publish Games", 'myarcadeplugin'); ?></h3></td></tr>
               <tr>
                 <td>
-                  <input type="text" size="10"  name="game_count" value="<?php echo $general['posts']; ?>" />
+									<input type="text" size="10"  name="game_count" value="<?php echo esc_attr( $general['posts'] ); ?>" />
                 </td>
                 <td><i><?php _e('How many games should be published when clicking on "Publish Games"?', 'myarcadeplugin'); ?></i></td>
               </tr>
@@ -287,7 +288,7 @@ function myarcade_settings() {
                   <input type="radio" name="publishstatus" value="future" <?php myarcade_checked($general['status'], 'future'); ?> /><label class="opt">&nbsp;<?php _e("Scheduled", 'myarcadeplugin'); ?></label>
                   <input type="radio" name="publishstatus" value="draft" <?php myarcade_checked($general['status'], 'draft'); ?> /><label class="opt">&nbsp;<?php _e("Draft", 'myarcadeplugin'); ?></label>
                   <br /><br />
-                  <?php _e("Schedule Time", 'myarcadeplugin'); ?>: <input type="text" size="10" name="schedtime" value="<?php echo $general['schedule']; ?>">
+									<?php _e("Schedule Time", 'myarcadeplugin'); ?>: <input type="text" size="10" name="schedtime" value="<?php echo esc_attr( $general['schedule'] ); ?>">
                 </td>
                 <td><i><?php _e("Choose the post status for new game publication. If you whish to schedule new game publication, indicate an interval between publications in minutes.", 'myarcadeplugin'); ?></i></td>
               </tr>
@@ -314,7 +315,7 @@ function myarcade_settings() {
 
               <tr>
                 <td>
-                  <input type="text" size="40"  name="folder_structure" value="<?php echo $general['folder_structure']; ?>" />
+									<input type="text" size="40"  name="folder_structure" value="<?php echo esc_attr( $general['folder_structure'] ); ?>" />
                 </td>
                 <td><i><?php _e('Define the folder structure for file downloads. Available variables are %game_type% and %alphabetical%. You can combine those variables like this: %game_type%/%alphabetical%/.', 'myarcadeplugin'); ?><br />
                     <?php _e('That means, for each game type a new folder will be created and files will be organized in sub folders. Example: "/games/fog/A/awesome_game.swf.', 'myarcadeplugin'); ?><br />
@@ -342,7 +343,7 @@ function myarcade_settings() {
                     <?php
                     foreach($crons as $cron => $val) {
                       ?>
-                      <option value="<?php echo $cron; ?>" <?php myarcade_selected($general['interval_fetching'], $cron); ?> ><?php echo $val['display']; ?></option>
+											<option value="<?php echo esc_attr( $cron ); ?>" <?php myarcade_selected($general['interval_fetching'], $cron); ?> ><?php echo esc_html( $val['display'] ); ?></option>
                       <?php
                     }
                     ?>
@@ -368,7 +369,7 @@ function myarcade_settings() {
                     <?php
                     foreach($crons as $cron => $val) {
                       ?>
-                      <option value="<?php echo $cron; ?>" <?php myarcade_selected($general['interval_publishing'], $cron); ?> ><?php echo $val['display']; ?></option>
+											<option value="<?php echo esc_attr( $cron ); ?>" <?php myarcade_selected($general['interval_publishing'], $cron); ?> ><?php echo esc_html( $val['display'] ); ?></option>
                       <?php
                     }
                     ?>
@@ -381,7 +382,7 @@ function myarcade_settings() {
 
               <tr>
                 <td>
-                  <input type="text" size="10"  name="general_cron_publish_limit" value="<?php echo $general['cron_publish_limit']; ?>" />
+									<input type="text" size="10"  name="general_cron_publish_limit" value="<?php echo esc_attr( $general['cron_publish_limit'] ); ?>" />
                 </td>
                 <td><i><?php _e("How many games should be published on every cron trigger? This setting affects only manually imported games.", 'myarcadeplugin'); ?></i></td>
 
@@ -444,7 +445,7 @@ function myarcade_settings() {
 
               <tr>
                 <td>
-                  <input type="text" size="10" name="maxwidth" value="<?php echo $general['max_width']; ?>" />
+									<input type="text" size="10" name="maxwidth" value="<?php echo esc_attr( $general['max_width'] ); ?>" />
                 </td>
                 <td><i><?php _e("Maximum allowed game width in px. If set, the get_game function will create output code with adjusted game dimensions.", 'myarcadeplugin'); ?></i></td>
               </tr>
@@ -538,7 +539,7 @@ function myarcade_settings() {
               </tr>
               <tr>
                 <td>
-                  <input type="text" size="10" name="limitplays" value="<?php echo $general['limit_plays']; ?>" />
+									<input type="text" size="10" name="limitplays" value="<?php echo esc_attr( $general['limit_plays'] ); ?>" />
                 </td>
                 <td><i><?php _e("Set how many games a guest can play before he/she needs to register. Set to 0 to deactivate the game play check.", 'myarcadeplugin'); ?></i></td>
               </tr>
@@ -564,7 +565,7 @@ function myarcade_settings() {
               </tr>
               <tr>
                 <td>
-                  <input type="text" size="10" name="play_delay" value="<?php echo $general['play_delay']; ?>" />
+									<input type="text" size="10" name="play_delay" value="<?php echo esc_attr( $general['play_delay'] ); ?>" />
                 </td>
                 <td><i><?php _e("Game play delay is responsible for play and contest counter of a user. MyArcadePlugin will only count game plays when the delay time between two game plays is expired. Default value: 30 [time in seconds].", 'myarcadeplugin'); ?></i></td>
               </tr>
@@ -586,8 +587,8 @@ function myarcade_settings() {
                     <?php
                     foreach($types as $type) {
                       ?>
-                      <option value="<?php echo $type; ?>" <?php myarcade_selected($general['post_type'], $type); ?>>
-                        <?php echo $type; ?>
+											<option value="<?php echo esc_attr( $type ); ?>" <?php myarcade_selected($general['post_type'], $type); ?>>
+												<?php echo esc_html( $type ); ?>
                       </option>
                     <?php } ?>
                   </select>
@@ -612,13 +613,13 @@ function myarcade_settings() {
                     ?>
                     <table>
                       <tr>
-                      <td>Game Categories:</td>
+											<td><?php esc_html_e( 'Game Categories:', 'myarcadeplugin' ); ?></td>
                       <td>
                     <?php if ( is_array($custom_taxonomies) && !empty($custom_taxonomies)) : ?>
                       <select size="1" name="customtaxcat" id="customtaxcat">
-                        <option value="">-- select a taxonomy --</option>
+												<option value=""><?php esc_html_e( '-- select a taxonomy --', 'myarcadeplugin' ); ?></option>
                         <?php foreach( $custom_taxonomies as $taxonomy) : ?>
-                        <option value="<?php echo $taxonomy; ?>" <?php myarcade_selected($taxonomy , $general['custom_category']); ?>><?php echo $taxonomy; ?></option>
+												<option value="<?php echo esc_attr( $taxonomy ); ?>" <?php myarcade_selected($taxonomy , $general['custom_category']); ?>><?php echo esc_html( $taxonomy ); ?></option>
                         <?php endforeach; ?>
                       </select>
                     <?php endif; ?>
@@ -626,13 +627,13 @@ function myarcade_settings() {
                       <td><?php _e("Select a custom taxonomy that should be used for game categories.", 'myarcadeplugin'); ?></td>
                       </tr>
                       <tr>
-                      <td>Game Tags:</td>
+											<td><?php esc_html_e( 'Game Tags:', 'myarcadeplugin' ); ?></td>
                       <td>
                     <?php if ( is_array($custom_taxonomies) && !empty($custom_taxonomies)) : ?>
                       <select size="1" name="customtaxtag" id="customtaxtag">
-                        <option value="">-- select a taxonomy --</option>
+												<option value=""><?php esc_html_e( '-- select a taxonomy --', 'myarcadeplugin' ); ?></option>
                         <?php foreach( $custom_taxonomies as $taxonomy) : ?>
-                        <option value="<?php echo $taxonomy; ?>" <?php myarcade_selected($taxonomy , $general['custom_tags']); ?>><?php echo $taxonomy; ?></option>
+												<option value="<?php echo esc_attr( $taxonomy ); ?>" <?php myarcade_selected($taxonomy , $general['custom_tags']); ?>><?php echo esc_html( $taxonomy ); ?></option>
                         <?php endforeach; ?>
                       </select>
                     <?php endif; ?>
@@ -714,8 +715,8 @@ function myarcade_settings() {
               <tr><td colspan="2"><h3><?php _e("Game Types To Translate", 'myarcadeplugin'); ?></h3></td></tr>
               <tr>
                 <td>
-                  <?php foreach ( $myarcade_distributors as $distr_slug => $distr_name) : ?>
-                  <input type="checkbox" name="translate_games[]" value="<?php echo $distr_slug;?>" <?php myarcade_checked_array($general['translate_games'], $distr_slug); ?> />&nbsp;<?php echo $distr_name; ?><br />
+									<?php foreach ( $distributors as $distr_slug => $distr_name) : ?>
+									<input type="checkbox" name="translate_games[]" value="<?php echo esc_attr( $distr_slug );?>" <?php myarcade_checked_array($general['translate_games'], $distr_slug); ?> />&nbsp;<?php echo esc_html( $distr_name ); ?><br />
                   <?php endforeach; ?>
                 </td>
                 <td><i><?php _e("Select game types you want to translate.", 'myarcadeplugin'); ?></i></td>
@@ -732,7 +733,7 @@ function myarcade_settings() {
               <tr><td colspan="2"><h4><?php _e("Azure Key (Key 1)", 'myarcadeplugin'); ?></h4></td></tr>
               <tr>
                 <td>
-                  <input type="text" size="40" name="azure_key" value="<?php echo $general['azure_key']; ?>" />
+									<input type="text" size="40" name="azure_key" value="<?php echo esc_attr( $general['azure_key'] ); ?>" />
                 </td>
                 <td><i><?php _e("Enter your Microsoft Azure subscription key.", 'myarcadeplugin' );?></i></td>
               </tr>
@@ -745,7 +746,7 @@ function myarcade_settings() {
                   if (isset($languages_microsoft) ) {
                     ?><select size="1" name="translate_to" id="translate_to"><?php
                     foreach ($languages_microsoft as $code => $lang) {
-                      ?><option value="<?php echo $code; ?>" <?php myarcade_selected($general['translate_to'], $code); ?>><?php echo $lang; ?></option><?php
+											?><option value="<?php echo esc_attr( $code ); ?>" <?php myarcade_selected($general['translate_to'], $code); ?>><?php echo esc_html( $lang ); ?></option><?php
                     }
                     ?></select><?php
                   }
@@ -769,7 +770,7 @@ function myarcade_settings() {
 
               <tr>
                 <td>
-                  <input type="text" size="40" name="google_id" value="<?php echo $general['google_id']; ?>" />
+									<input type="text" size="40" name="google_id" value="<?php echo esc_attr( $general['google_id'] ); ?>" />
                 </td>
                 <td><i><?php _e('To be able to use Google Translation API v2 you will need to enter your API Key. Google Translator API is a payed service: <a href="https://cloud.google.com/translate/" target="_blank">Google Translate API</a>', 'myarcadeplugin'); ?></i></td>
               </tr>
@@ -782,7 +783,7 @@ function myarcade_settings() {
                   if (isset($languages_google) ) {
                     ?><select size="1" name="google_translate_to" id="google_translate_to"><?php
                     foreach ($languages_google as $code => $lang) {
-                      ?><option value="<?php echo $code; ?>" <?php myarcade_selected($general['google_translate_to'], $code); ?>><?php echo $lang; ?></option><?php
+											?><option value="<?php echo esc_attr( $code ); ?>" <?php myarcade_selected($general['google_translate_to'], $code); ?>><?php echo esc_html( $lang ); ?></option><?php
                     }
                     ?></select><?php
                   }
@@ -805,7 +806,7 @@ function myarcade_settings() {
 
               <tr>
                 <td>
-                  <input type="text" size="40" name="yandex_key" value="<?php echo $general['yandex_key']; ?>" />
+									<input type="text" size="40" name="yandex_key" value="<?php echo esc_attr( $general['yandex_key'] ); ?>" />
                 </td>
                 <td><i><?php _e('To be able to use Yandex Translator you will need to enter your API Key. Click here to get an API key: <a href="https://tech.yandex.com/translate/" target="_blank">Yandex Translator</a>', 'myarcadeplugin'); ?></i></td>
               </tr>
@@ -818,7 +819,7 @@ function myarcade_settings() {
                   if (isset($languages_yandex) ) {
                     ?><select size="1" name="yandex_translate_to" id="yandex_translate_to"><?php
                     foreach ($languages_yandex as $code => $lang) {
-                      ?><option value="<?php echo $code; ?>" <?php myarcade_selected($general['yandex_translate_to'], $code); ?>><?php echo $lang; ?></option><?php
+											?><option value="<?php echo esc_attr( $code ); ?>" <?php myarcade_selected($general['yandex_translate_to'], $code); ?>><?php echo esc_html( $lang ); ?></option><?php
                     }
                     ?></select><?php
                   }
@@ -909,34 +910,46 @@ function myarcade_settings() {
               </tr>
               <?php foreach ($categories as $feedcat) : ?>
               <tr>
-                <td><?php echo $feedcat['Name']; ?></td>
+								<td><?php echo esc_html( $feedcat['Name'] ); ?></td>
                 <td>
                   <?php
                   $output  = '<select id="general_cat_'.$feedcat['Slug'].'">';
                   $output .=  '<option value="0">---Select---</option>';
                   foreach ($categs_tmp as $cat_tmp_id => $cat_tmp_val) {
-                    $output .= '<option value="'.$cat_tmp_id.'" />'.$cat_tmp_val.'</option>';
+										$output .= '<option value="' . esc_attr($cat_tmp_id) . '" />' . esc_html( $cat_tmp_val ) . '</option>';
                   }
                   $output .= '</select>';
-                  echo $output;
+									echo $output; // phpcs:ignore WordPress.XSS.EscapeOutput.OutputNotEscaped
                   ?>
                 </td>
                 <td>
                   <div style="width:100px">
-                  <div class="button-secondary" style="float:left;width:60px;text-align:center;" onclick="myabp_add_map('<?php echo $feedcat['Slug']; ?>', 'general');">
+									<div class="button-secondary" style="float:left;width:60px;text-align:center;" onclick="myabp_add_map('<?php echo esc_attr( $feedcat['Slug'] ); ?>', 'general');">
                     Add
                   </div>
-                  <div style="float:right;" id="general_load_<?php echo $feedcat['Slug']; ?>"> </div>
+									<div style="float:right;" id="general_load_<?php echo esc_attr( $feedcat['Slug'] ); ?>"> </div>
                   </div>
                 </td>
                 <td>
                   <?php if ( !empty($feedcat['Mapping']) ) { ?>
-                    <div class="tagchecklist" id="general_map_<?php echo $feedcat['Slug']; ?>">
+										<div class="tagchecklist" id="general_map_<?php echo esc_attr( $feedcat['Slug'] ); ?>">
                       <?php
                       $map_cat_ids = explode(',', $feedcat['Mapping']);
-                      foreach ($map_cat_ids as $map_cat_id) { ?>
-                        <span id="general_delmap_<?php echo $map_cat_id; ?>_<?php echo $feedcat['Slug']; ?>" class="remove_map">
-                          <img style="float:left;top:4px;position:relative;" src="<?php echo MYARCADE_URL; ?>/assets/images/remove.png" alt="UnMap" onclick="myabp_del_map('<?php echo $map_cat_id; ?>', '<?php echo $feedcat['Slug']; ?>', 'general');" />&nbsp;<?php echo get_cat_name($map_cat_id); ?>
+											$category_name = '';
+
+											foreach ( $map_cat_ids as $map_cat_id ) {
+												if ( $custom_cat_taxonomy ) {
+													$custom_cat_tax = get_term_by( 'id', $map_cat_id, $general['custom_category'] );
+
+													if ( $custom_cat_tax ) {
+														$category_name = $custom_cat_tax->name;
+													}
+												} else {
+													$category_name = get_cat_name( $map_cat_id );
+												}
+												?>
+												<span id="general_delmap_<?php echo esc_attr( $map_cat_id ); ?>_<?php echo esc_attr( $feedcat['Slug'] ); ?>" class="remove_map">
+													<img style="float:left;top:4px;position:relative;" src="<?php echo MYARCADE_URL; ?>/assets/images/remove.png" alt="UnMap" onclick="myabp_del_map('<?php echo esc_attr( $map_cat_id ); ?>', '<?php echo esc_attr( $feedcat['Slug'] ); ?>', 'general');" />&nbsp;<?php echo esc_html( $category_name ); ?>
                         </span>
                         <?php
                       }
@@ -946,7 +959,7 @@ function myarcade_settings() {
                   }
                   else {
                     ?>
-                    <div class="tagchecklist" id="general_map_<?php echo $feedcat['Slug']; ?>"></div>
+										<div class="tagchecklist" id="general_map_<?php echo esc_attr( $feedcat['Slug'] ); ?>"></div>
                     <?php
                   }
                   ?>
@@ -1063,7 +1076,7 @@ function myarcade_settings() {
                   <p class="mabp_info" style="padding:10px"><?php _e("Attention! All MyArcadePlugin settings will be reset to default!", 'myarcadeplugin'); ?></p>
                   <form method="post" name="defaultsettings">
                     <input type="hidden" name="loaddefaults" id="loaddefaults" value="yes" />
-                    <input type="checkbox" name="checkdefaults" id="checkdefaults" value="yes" /> Yes, I want to load default settings <input id="submitdefaults" type="submit" name="submitdefaults" class="button-secondary" value="<?php _e("Load Default Settings", 'myarcadeplugin'); ?>" disabled />
+										<input type="checkbox" name="checkdefaults" id="checkdefaults" value="yes" /> <?php esc_html_e( 'Yes, I want to load default settings', 'myarcadeplugin' ); ?> <input id="submitdefaults" type="submit" name="submitdefaults" class="button-secondary" value="<?php _e("Load Default Settings", 'myarcadeplugin'); ?>" disabled />
                   </form>
                   <script type="text/javascript">
                     /* <![CDATA[ */
@@ -1098,11 +1111,11 @@ function myarcade_settings() {
 
         <?php
         // Load settings page dynamically for each distributor
-        foreach ($myarcade_distributors as $key => $name) {
+				foreach ($distributors as $key => $name) {
           $settings_function = 'myarcade_settings_' . $key;
 
           // Get distributor integration file
-          myarcade_distributor_integration( $key );
+					MyArcade()->load_distributor( $key );
 
           // Check if settings function exists
           if ( function_exists( $settings_function ) ) {
@@ -1188,11 +1201,8 @@ function myarcade_create_categories( $categories ) {
  * @return  void
  */
 function myarcade_load_default_settings() {
-  global $myarcade_distributors;
 
-  if ( empty( $myarcade_distributors ) ) {
-    myarcade_set_distributors();
-  }
+	$distributors = MyArcade()->distributors();
 
   $default_settings = MYARCADE_CORE_DIR.'/settings.php';
 
@@ -1205,12 +1215,12 @@ function myarcade_load_default_settings() {
 
   update_option('myarcade_general', $myarcade_general_default);
 
-  foreach ($myarcade_distributors as $key => $name) {
+	foreach ( $distributors as $key => $name ) {
     // Generate save settings function name
     $settings_default_function = 'myarcade_default_settings_' . $key;
 
     // Get distributor integration file
-    myarcade_distributor_integration( $key );
+		MyArcade()->load_distributor( $key );
 
     // Check if function exists
     if ( function_exists( $settings_default_function ) ) {
@@ -1250,4 +1260,3 @@ function myarcade_check_settings_nonce() {
     wp_die( __('Security check failed. Please refresh the page and retry to submit settings again.', 'myarcadeplugin') );
   }
 }
-?>

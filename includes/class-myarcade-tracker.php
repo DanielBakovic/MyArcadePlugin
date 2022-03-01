@@ -315,13 +315,14 @@ class MyArcade_Tracker {
    * @version 5.30.0
    * @since   5.30.0
    * @static
+	 *
    * @access  public
    * @return  void
    */
   public static function clean_stats_data() {
     global $wpdb;
 
-    $wpdb->query( "DELETE FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) < '".MyArcade_Stats::get_date( '-31' )."'" );
+		$wpdb->query( "DELETE FROM {$wpdb->prefix}myarcade_plays WHERE DATE_FORMAT( `date`, '%Y-%m-%d' ) < " . MyArcade_Stats::get_date( '-31' ) );
   }
 
 } // END Class

@@ -18,7 +18,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return  void
  */
 function myarcade_fetch() {
-  global $myarcade_distributors;
 
   myarcade_header();
 
@@ -28,10 +27,10 @@ function myarcade_fetch() {
 
   <?php
   // Set default distributor
-  $distributor = filter_input( INPUT_POST, 'distr', FILTER_SANITIZE_STRING, array( "options" => array( "default" => 'gamepix') ) );
+  $distributor = filter_input( INPUT_POST, 'distr', FILTER_UNSAFE_RAW, array( "options" => array( "default" => 'gamepix') ) );
 
   // Remove distributors from which we can't fetch games
-  $myarcade_distributors = apply_filters( 'myarcade_distributors_can_fetch', $myarcade_distributors );
+  $distributors = apply_filters( 'myarcade_distributors_can_fetch', MyArcade()->distributors() );
   ?>
   <style type="text/css">.hide{display:none}</style>
   <br />
@@ -41,8 +40,8 @@ function myarcade_fetch() {
       <div class="myarcade_border grey" style="width:685px">
         <label for="distr"><?php _e("Select a game distributor", 'myarcadeplugin'); ?>: </label>
         <select name="distr" id="distr">
-          <?php foreach ( $myarcade_distributors as $slug => $name ) : ?>
-          <option value="<?php echo $slug; ?>" <?php myarcade_selected( $distributor, $slug ); ?>><?php echo $name; ?></option>
+          <?php foreach ( $distributors as $slug => $name ) : ?>
+          <option value="<?php echo esc_attr( $slug ); ?>" <?php myarcade_selected( $distributor, $slug ); ?>><?php echo esc_html( $name ); ?></option>
           <?php endforeach; ?>
         </select>
       </div>
@@ -50,16 +49,16 @@ function myarcade_fetch() {
       <?php $keyword_filter = filter_input( INPUT_POST, 'keyword_filter' ); ?>
       <div class="myarcade_border white mabp_680">
         <label for="keyword_filter"><?php _e("Keyword", 'myarcadeplugin'); ?>: </label>
-        <input type="text" name="keyword_filter" id="keyword_filter" value="<?php echo $keyword_filter; ?>" /> <i><?php _e("Add only games that contain the given keyword in title or description.", 'myarcadeplugin'); ?></i>
+        <input type="text" name="keyword_filter" id="keyword_filter" value="<?php echo esc_attr( $keyword_filter ); ?>" /> <i><?php _e("Add only games that contain the given keyword in title or description.", 'myarcadeplugin'); ?></i>
       </div>
 
       <?php
       // Load fetch options for each distributor dynamically
-      foreach ($myarcade_distributors as $key => $name) {
+      foreach ($distributors as $key => $name) {
         $settings_function = 'myarcade_fetch_settings_' . $key;
 
         // Get distributor integration file
-        myarcade_distributor_integration( $key );
+        MyArcade()->load_distributor( $key );
 
         // Check if settings function exists
         if ( function_exists( $settings_function ) ) {
@@ -96,7 +95,7 @@ function myarcade_fetch() {
       $fetch_function = 'myarcade_feed_' . $distributor;
 
       // Get distributor integration file
-      myarcade_distributor_integration( $key );
+      MyArcade()->load_distributor( $distributor );
 
       // Add filter query to distributor's settings. Generate a preg_match pattern
       $keyword_array = array_map( 'trim', explode(',', strtolower( $keyword_filter ) ) );
@@ -144,7 +143,7 @@ function myarcade_fetch() {
  */
 function myarcade_no_fetching_options( $key ) {
   ?>
-  <div class="myarcade_border white hide mabp_680" id="<?php echo $key; ?>">
+  <div class="myarcade_border white hide mabp_680" id="<?php echo esc_attr( $key ); ?>">
     <p class="mabp_info">
       <?php _e("There are no specific settings available. Just Fetch the games :)", 'myarcadeplugin');?>
     </p>
@@ -163,12 +162,12 @@ function myarcade_no_fetching_options( $key ) {
  */
 function myarcade_distributors_can_fetch( $distributors = array() ) {
 
-  unset( $distributors['fgd'] );
-  unset( $distributors['twopg'] );
-  unset( $distributors['coolgames'] );
-  unset( $distributors['spilgames'] );
+  unset( $distributors['playtomax'] );
+  unset( $distributors['plinga'] );
+  unset( $distributors['scirra'] );
+  unset( $distributors['agf'] );
+  unset( $distributors['fog'] );
 
   return $distributors;
 }
 add_filter( 'myarcade_distributors_can_fetch', 'myarcade_distributors_can_fetch' );
-?>

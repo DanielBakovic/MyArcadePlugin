@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function myarcade_settings_famobi() {
 
-  $famobi = myarcade_get_settings( 'famobi' );
+	$famobi = MyArcade()->get_settings( 'famobi' );
   ?>
 	<h2 class="trigger"><?php _e( 'Famobi', 'myarcadeplugin' ); ?></h2>
   <div class="toggle_container">
@@ -25,7 +25,7 @@ function myarcade_settings_famobi() {
         <tr>
           <td colspan="2">
             <i>
-							<?php printf( __( '%s distributes HTML5 games.', 'myarcadeplugin' ), '<a href="http://famobi.com" target="_blank">Famobi</a>' ); ?>
+							<?php printf( __( '%s distributes HTML5 games.', 'myarcadeplugin' ), '<a href="http://famobi.com" target="_blank">Famobi</a>. You will need to contact Famobi support in order to get your website whitelisted. Otherwise the games will be redirected to Famobi page.' ); ?>
             </i>
             <br /><br />
           </td>
@@ -33,7 +33,7 @@ function myarcade_settings_famobi() {
 				<tr><td colspan="2"><h3><?php _e( 'Feed URL', 'myarcadeplugin' ); ?></h3></td></tr>
         <tr>
           <td>
-            <input type="text" size="40"  name="famobi_url" value="<?php echo $famobi['feed']; ?>" />
+						<input type="text" size="40"  name="famobi_url" value="<?php echo esc_url( $famobi['feed'] ); ?>" />
           </td>
 					<td><i><?php _e( 'Edit this field only if Feed URL has been changed!', 'myarcadeplugin' ); ?></i></td>
 				</tr>
@@ -41,7 +41,7 @@ function myarcade_settings_famobi() {
 				<tr><td colspan="2"><h3><?php _e( 'Affiliate ID', 'myarcadeplugin' ); ?></h3></td></tr>
 				<tr>
 					<td>
-						<input type="text" size="40"  name="famobi_affiliate_id" value="<?php echo $famobi['affiliate_id']; ?>" />
+						<input type="text" size="40"  name="famobi_affiliate_id" value="<?php echo esc_attr( $famobi['affiliate_id'] ); ?>" />
 					</td>
 					<td><i><?php _e( 'Enter your Affiliate ID if available.', 'myarcadeplugin' ); ?></i></td>
         </tr>
@@ -114,7 +114,7 @@ function myarcade_settings_famobi() {
 
         <tr>
           <td>
-            <input type="text" size="40"  name="famobi_cron_fetch_limit" value="<?php echo $famobi['cron_fetch_limit']; ?>" />
+						<input type="text" size="40"  name="famobi_cron_fetch_limit" value="<?php echo esc_attr( $famobi['cron_fetch_limit'] ); ?>" />
           </td>
 					<td><i><?php _e( 'How many games should be fetched on every cron trigger?', 'myarcadeplugin' ); ?></i></td>
         </tr>
@@ -132,7 +132,7 @@ function myarcade_settings_famobi() {
 
         <tr>
           <td>
-            <input type="text" size="40"  name="famobi_cron_publish_limit" value="<?php echo $famobi['cron_publish_limit']; ?>" />
+						<input type="text" size="40"  name="famobi_cron_publish_limit" value="<?php echo esc_attr( $famobi['cron_publish_limit'] ); ?>" />
           </td>
 					<td><i><?php _e( 'How many games should be published on every cron trigger?', 'myarcadeplugin' ); ?></i></td>
         </tr>
@@ -206,7 +206,7 @@ function myarcade_fetch_settings_famobi() {
 		<label><?php _e( 'Use Offset', 'myarcadeplugin'); ?></label>
     </div>
     <div class="myarcade_border" style="float:left;padding-top: 5px;background-color: #F9F9F9">
-    Fetch <input type="number" name="famobi_limit" value="<?php echo $famobi['limit']; ?>" /> games <span id="offsfamobi" class="hide">from offset <input id="radiooffsfamobi" type="number" name="offsetfamobi" value="<?php echo $famobi['offset']; ?>" /> </span>
+			<?php printf( esc_html__( 'Fetch %s games %sfrom offset %s', 'myarcadeplugin' ), '<input type="number" name="famobi_limit" value="' . esc_attr( $famobi['limit'] ) . '" />', '<span id="offsfamobi" class="hide">', '<input id="radiooffsfamobi" type="number" name="offsetfamobi" value="' . esc_attr( $famobi['offset'] ) . '" /></span>' ); ?>
     </div>
     <div class="clear"></div>
   </div>
@@ -224,7 +224,7 @@ function myarcade_fetch_settings_famobi() {
 function myarcade_get_fetch_options_famobi() {
 
 	// Get distributor settings.
-  $settings = myarcade_get_settings( 'famobi' );
+	$settings = MyArcade()->get_settings( 'famobi' );
 
 	if ( 'start' === filter_input( INPUT_POST, 'fetch' ) ) {
     $settings['method'] = filter_input( INPUT_POST, 'fetchmethodfamobi' );

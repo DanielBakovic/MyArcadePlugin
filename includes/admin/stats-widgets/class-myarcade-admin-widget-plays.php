@@ -22,7 +22,7 @@ class MyArcade_Admin_Widget_Plays {
       var plays_chart;
 
       jQuery(document).ready(function($) {
-        var plays_data_line = [<?php echo $data; ?>];
+        var plays_data_line = [<?php echo $data; // phpcs:ignore WordPress.XSS.EscapeOutput.OutputNotEscaped ?>];
 
         plays_chart = $.jqplot( 'play-stats', [plays_data_line], {
           animate: true,

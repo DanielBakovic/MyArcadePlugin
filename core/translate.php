@@ -12,20 +12,17 @@
  * Check our license Terms!
  */
 
-// No direct access
-if( !defined( 'ABSPATH' ) ) {
+// No direct access.
+if( ! defined( 'ABSPATH' ) ) {
   die();
 }
 
 /**
  * Translate a given text using Mircosoft, Google Translator API, Yandex
  *
- * @version 5.16.0
- * @access  public
- * @param   string $content String to translate
+ * @param   string $content String to translate.
  * @return  string|bool Translated string or FALSE on error
  */
 function myarcade_translate($content) {
   return false;
 }
-?>

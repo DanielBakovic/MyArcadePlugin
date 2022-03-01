@@ -22,22 +22,10 @@ function myarcade_check_json($echo) {
   $result = true;
 
   if ( !function_exists('json_decode') ) {
-     $phpversion = phpversion();
 
     if ($echo) {
-      if($phpversion < MYARCADE_PHP_VERSION) {
-        echo '<font style="color:red;">
-             '.sprintf(__("You need at least PHP %s to run this plugin.", 'myarcadeplugin'), MYARCADE_PHP_VERSION).'
-             <br />
-             '.sprintf(__("You have %s installed.", 'myarcadeplugin'), $phpversion).'
-             <br />
-             '.__("Contact your administrator to update your PHP version.", 'myarcadeplugin').'
-             </font><br /><br />';
-      }
-      else {
         echo '<font style="color:red;">'.__("JSON Support is disabeld in your PHP configuration. Please contact your administrator to activate JSON Support.", 'myarcadeplugin').'</font><br /><br />';
       }
-    }
 
     $result = false;
   }
@@ -67,7 +55,7 @@ function myarcade_fetch_games( $args = array() ) {
     if ( $echo ) {
       ?>
       <p class="mabp_info mabp_680">
-        <?php echo __("No Feed URL provided!", 'myarcadeplugin'); ?>
+				<?php echo esc_html__( 'No Feed URL provided!', 'myarcadeplugin' ); ?>
       </p>
       <?php
     }
@@ -86,7 +74,7 @@ function myarcade_fetch_games( $args = array() ) {
     case 'json':
     {
       // Check if json_decode exisits
-      if ( !myarcade_check_json($echo) ) {
+			if ( !myarcade_check_json($echo) ) {
         // Json not found..
         return false;
       }
@@ -94,12 +82,14 @@ function myarcade_fetch_games( $args = array() ) {
       if ($echo) {
         ?>
         <p class="mabp_info mabp_680">
-          <?php echo __("Your Feed URL", 'myarcadeplugin').": <a href='".$url."'>".$url."</a>"; ?>
+					<?php
+
+					echo esc_html( 'Your Feed URL', 'myarcadeplugin' ).": <a href='" . esc_url( $url ) . "'>" . esc_url( $url ) . "</a>"; ?>
         </p>
 
         <p class="mabp_info mabp_680">
           <?php
-          echo __("Downloading feed", 'myarcadeplugin').': ';
+					echo esc_html( 'Downloading feed', 'myarcadeplugin' ) . ': ';
       }
 
       //====================================
@@ -130,7 +120,7 @@ function myarcade_fetch_games( $args = array() ) {
       // DECODE DOWNLOADED FEED
       if ($echo) {
         ?><p class="mabp_info mabp_680"><?php
-        echo __("Decode feed", 'myarcadeplugin').": ";
+				echo esc_html( 'Decode feed', 'myarcadeplugin' ) . ": ";
       }
 
       // Decode the downloaded json feed
@@ -160,12 +150,12 @@ function myarcade_fetch_games( $args = array() ) {
       if ($echo) {
         ?>
         <p class="mabp_info mabp_680">
-          <?php echo __("Your Feed URL", 'myarcadeplugin').": <a href='".$url."'>".$url."</a>"; ?>
+					<?php echo esc_html( 'Your Feed URL', 'myarcadeplugin' ) . ": <a href='" . esc_url( $url ) . "'>" . esc_url( $url ) . "</a>"; ?>
         </p>
 
         <p class="mabp_info mabp_680">
           <?php
-          echo __("Downloading feed", 'myarcadeplugin').': ';
+					echo esc_html( 'Downloading feed', 'myarcadeplugin' ) . ': ';
       }
 
       //====================================
@@ -194,14 +184,13 @@ function myarcade_fetch_games( $args = array() ) {
         return false;
       }
 
-      //====================================
-      // DECODE DOWNLOADED FEED
+			// DECODE DOWNLOADED FEED.
       if ($echo) {
         ?><p class="mabp_info mabp_680"><?php
-        echo __("Decode feed", 'myarcadeplugin').": ";
+				echo esc_html( 'Decode feed', 'myarcadeplugin' ) . ": ";
       }
 
-      // Decode the downloaded xml feed
+			// Decode the downloaded xml feed.
       $games = simplexml_load_string($feed['response']);
 
       // Check if the decode was successfull

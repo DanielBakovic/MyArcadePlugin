@@ -44,31 +44,11 @@ add_action( 'admin_init', 'myarcade_add_meta_box_conditionally' );
  *
  */
 function myarcade_game_details_meta_box() {
-
-  $general = get_option( 'myarcade_general' );
-
-  if ( $general['post_type'] != 'post' && post_type_exists($general['post_type']) ) {
-    $type = $general['post_type'];
-  }
-  else {
-    $type = 'post';
-  }
-
-  add_meta_box('myarcade-game-data', __('MyArcadePlugin Game Details', 'myarcadeplugin'), 'myarcade_game_data_box', $type, 'normal', 'high');
+	add_meta_box('myarcade-game-data', __('MyArcadePlugin Game Details', 'myarcadeplugin'), 'myarcade_game_data_box', MyArcade()->get_post_type(), 'normal', 'high');
 }
 
 function myarcade_game_leaderboard_meta_box() {
-
-  $general = get_option( 'myarcade_general' );
-
-  if ( $general['post_type'] != 'post' && post_type_exists($general['post_type']) ) {
-    $type = $general['post_type'];
-  }
-  else {
-    $type = 'post';
-  }
-
-  add_meta_box('myarcade-game-scores', __('MyArcadePlugin Game Scores', 'myarcadeplugin'), 'myarcade_game_scores_box', $type, 'normal', 'high');
+	add_meta_box('myarcade-game-scores', __('MyArcadePlugin Game Scores', 'myarcadeplugin'), 'myarcade_game_scores_box', MyArcade()->get_post_type(), 'normal', 'high');
 }
 
 /**
@@ -76,7 +56,7 @@ function myarcade_game_leaderboard_meta_box() {
  *
  */
 function myarcade_game_data_box() {
-  global $post, $postID, $myarcade_distributors, $myarcade_game_type_custom;
+	global $post, $postID;
 
   $postID = $post->ID;
 
@@ -92,7 +72,9 @@ function myarcade_game_data_box() {
     return;
   }
 
-  $distributors = array_merge($myarcade_distributors, $myarcade_game_type_custom);
+	$distributors     = MyArcade()->distributors();
+	$custom_game_type = MyArcade()->custom_game_types();
+	$game_types       = array_merge( $distributors, $custom_game_type );
 
   wp_nonce_field( 'myarcade_save_data', 'myarcade_meta_nonce' );
   ?>
@@ -131,7 +113,7 @@ function myarcade_game_data_box() {
         myarcade_wp_select( array(
             'id' => 'mabp_game_type',
             'label' => __('Game Type', 'myarcadeplugin'),
-            'options' => $distributors
+						'options' => $game_types
         ));
 
         myarcade_wp_select( array(
@@ -311,7 +293,7 @@ function myarcade_game_scores_box() {
     $order = "DESC";
   }
 
-  $scores = $wpdb->get_results( "SELECT * FROM " . $wpdb->prefix.'myarcadescores' . " WHERE game_tag = '{$game_tag}' ORDER BY score+0 " . $order );
+	$scores = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}myarcadescores WHERE game_tag = %s ORDER BY score+0 {$order}", $game_tag ) );
 
   if ( $scores ) {
     ?>
@@ -322,7 +304,7 @@ function myarcade_game_scores_box() {
           jQuery('#delete_game_scores').css('display', 'inline');
           jQuery.post('<?php echo admin_url('admin-ajax.php'); ?>', {
             action:'myarcade_handler',
-            game_tag: <?php echo $game_tag; ?>,
+						game_tag: <?php echo esc_attr( $game_tag ); ?>,
             func:'delete_game_scores'
           },
           function() {
@@ -350,19 +332,20 @@ function myarcade_game_scores_box() {
       </tr>
       </thead>
       <tbody>
-        <?php foreach ( $scores as $score ) : ?>
           <?php
+				foreach ( $scores as $score ):
           $user = get_user_by('id', $score->user_id);
 
           $edit_url = MYARCADE_URL.'/core/editscore.php?scoreid='.$score->id;
-          $edit ='<a href="'.$edit_url.'&keepThis=true&TB_iframe=1&height=300&width=500" class="button-secondary thickbox edit" title="'.__("Edit Score", 'myarcadeplugin').'">'.__("Edit", 'myarcadeplugin').'</a>';
-          $delete = "<button class=\"button-secondary\" onclick = \"jQuery('#delete_game_scores').css('display', 'inline');jQuery.post('".admin_url('admin-ajax.php')."',{action:'myarcade_handler',gameid: false, scoreid: '$score->id',func:'delete_score'},function(){jQuery('#scorerow_$score->id').fadeOut('slow');jQuery('#delete_game_scores').removeAttr('style');});return false;\" >".__("Delete", 'myarcadeplugin')."</button>";
           ?>
-          <tr id="scorerow_<?php echo $score->id; ?>">
-            <td><?php echo $user->display_name; ?></td>
-            <td><?php echo $score->date; ?></td>
-            <td id="scoreval_<?php echo $score->id; ?>"><?php echo $score->score; ?></td>
-            <td><?php echo $edit; ?> <?php echo $delete; ?><span id="score_<?php echo $score->id; ?>"></span></td>
+					<tr id="scorerow_<?php echo esc_attr( $score->id ); ?>">
+						<td><?php echo esc_html( $user->display_name ); ?></td>
+						<td><?php echo esc_html( $score->date ); ?></td>
+						<td id="scoreval_<?php echo esc_attr( $score->id ); ?>"><?php echo esc_html( $score->score ); ?></td>
+						<td>
+							<a href="<?php echo esc_url( $edit_url ); ?>&keepThis=true&TB_iframe=1&height=300&width=500" class="button-secondary thickbox edit" title="<?php esc_html_e( 'Edit Score', 'myarcadeplugin' ); ?>"><?php esc_html_e( 'Edit', 'myarcadeplugin' ); ?></a>
+							<button class="button-secondary" onclick="jQuery('#delete_game_scores').css('display', 'inline');jQuery.post('<?php echo admin_url('admin-ajax.php'); ?>',{action:'myarcade_handler',gameid: false, scoreid: '<?php echo esc_attr( $score->id ); ?>',func:'delete_score'},function(){jQuery('#scorerow_<?php echo esc_attr( $score->id ); ?>').fadeOut('slow');jQuery('#delete_game_scores').removeAttr('style');});return false;"><?php echo esc_html__( 'Delete', 'myarcadeplugin' ); ?></button>
+							<span id="score_<?php echo esc_attr( $score->id ); ?>"></span></td>
           </tr>
         <?php endforeach; ?>
       </tbody>

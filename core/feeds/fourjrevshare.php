@@ -31,7 +31,7 @@ function myarcade_save_settings_fourjrevshare() {
  * @return  void
  */
 function myarcade_settings_fourjrevshare() {
-  $fourj = myarcade_get_settings( 'fourjrevshare' );
+  $fourj = MyArcade()->get_settings( 'fourjrevshare' );
   ?>
   <h2 class="trigger"><?php myarcade_premium_span(); _e( "4J (Revenue Share)", 'myarcadeplugin'); ?></h2>
   <div class="toggle_container">
@@ -48,7 +48,7 @@ function myarcade_settings_fourjrevshare() {
         <tr><td colspan="2"><h3><?php _e("Feed URL", 'myarcadeplugin'); ?></h3></td></tr>
         <tr>
           <td>
-            <input type="text" size="40"  name="fourjrevshare_url" value="<?php echo $fourj['feed']; ?>" />
+            <input type="text" size="40"  name="fourjrevshare_url" value="<?php echo esc_url( $fourj['feed'] ); ?>" />
           </td>
           <td><i><?php _e("Edit this field only if Feed URL has been changed!", 'myarcadeplugin'); ?></i></td>
         </tr>
@@ -56,7 +56,7 @@ function myarcade_settings_fourjrevshare() {
         <tr><td colspan="2"><h3><?php _e("Publisher ID", 'myarcadeplugin'); ?></h3></td></tr>
         <tr>
           <td>
-            <input type="text" size="40"  name="fourjrevshare_pubid" value="<?php echo $fourj['pubid']; ?>" />
+            <input type="text" size="40"  name="fourjrevshare_pubid" value="<?php echo esc_attr( $fourj['pubid'] ); ?>" />
           </td>
           <td><i><?php _e("Enter your publisher ID here. This is required in order to make money with 4J.", 'myarcadeplugin'); ?></i></td>
         </tr>
@@ -74,7 +74,7 @@ function myarcade_settings_fourjrevshare() {
 
         <tr>
           <td>
-            <input type="text" size="40" name="fourjrevshare_cron_publish_limit" value="<?php echo $fourj['cron_publish_limit']; ?>" />
+            <input type="text" size="40" name="fourjrevshare_cron_publish_limit" value="<?php echo esc_attr( $fourj['cron_publish_limit'] ); ?>" />
           </td>
           <td><i><?php _e("How many games should be published on every cron trigger?", 'myarcadeplugin'); ?></i></td>
         </tr>
@@ -130,6 +130,19 @@ function myarcade_get_categories_fourjrevshare() {
 }
 
 /**
+ * Display distributor fetch games options
+ *
+ * @return  void
+ */
+function myarcade_fetch_settings_fourjrevshare() {
+  ?>
+  <div class="myarcade_border white hide mabp_680" id="fourjrevshare">
+    <?php myarcade_premium_message(); ?>
+  </div>
+  <?php
+}
+
+/**
  * Fetch games
  *
  * @param   array  $args Fetching parameters
@@ -138,7 +151,7 @@ function myarcade_get_categories_fourjrevshare() {
 function myarcade_feed_fourjrevshare( $args = array() ) {
 
   ?>
-  <div class="myarcade_border white hide mabp_680" id="plinga">
+  <div class="myarcade_border white mabp_680">
     <?php myarcade_premium_message(); ?>
   </div>
   <?php

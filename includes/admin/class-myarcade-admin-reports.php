@@ -211,7 +211,7 @@ class MyArcade_Admin_Reports {
     ?>
     <script type="text/javascript">
       jQuery(document).ready( function($) {
-        myarcade_stats_get_widget_content( '<?php echo $args['args']['widget']; ?>', '<?php echo $container_id; ?>' );
+        myarcade_stats_get_widget_content( '<?php echo esc_attr( $args['args']['widget'] ); ?>', '<?php echo esc_attr( $container_id ); ?>' );
       });
     </script>
     <?php
