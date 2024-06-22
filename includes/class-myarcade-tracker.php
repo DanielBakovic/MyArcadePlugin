@@ -25,6 +25,17 @@ class MyArcade_Tracker {
   public static function init() {
     add_action( 'myarcade_tracker_send_event', array( __CLASS__, 'send_tracking_data' ) );
     add_action( 'myarcade_tracker_send_event', array( __CLASS__, 'clean_stats_data' ) );
+
+		// Register tracker send event.
+		if ( 'yes' === get_option( 'myarcade_allow_tracking', 'no' ) ) {
+			if ( ! wp_next_scheduled( 'myarcade_tracker_send_event' ) ) {
+				wp_schedule_event( time(), 'daily', 'myarcade_tracker_send_event' );
+			}
+		} else {
+			if ( wp_next_scheduled( 'myarcade_tracker_send_event' ) ) {
+				wp_clear_scheduled_hook( 'myarcade_tracker_send_event' );
+			}
+		}
   }
 
   /**
@@ -38,7 +49,7 @@ class MyArcade_Tracker {
    */
   public static function send_tracking_data() {
 
-    // Don't trigger this on AJAX Requests
+		// Don't trigger this on AJAX Requests.
     if ( defined( 'DOING_AJAX') && DOING_AJAX ) {
       return;
     }

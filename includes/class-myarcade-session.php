@@ -84,8 +84,8 @@ class MyArcade_Session {
 	 * @static
 	 */
 	public static function end() {
-		if ( session_id() ) {
-			session_destroy();
+		if ( PHP_SESSION_ACTIVE == session_status() ) {
+			@session_destroy();
 		}
 	}
 }

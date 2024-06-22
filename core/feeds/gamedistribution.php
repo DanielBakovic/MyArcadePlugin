@@ -293,6 +293,9 @@ function myarcade_feed_gamedistribution( $args = array() ) {
 		array(
 			'format'     => 'json',
 			'collection' => $settings['collection'],
+			'subType'    => 'All',
+			'mobile'     => 1,
+			'rewarded'   => 'all'
 		),
 		trim( $settings['feed'] )
 	);

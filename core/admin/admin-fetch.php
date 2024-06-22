@@ -167,6 +167,7 @@ function myarcade_distributors_can_fetch( $distributors = array() ) {
   unset( $distributors['scirra'] );
   unset( $distributors['agf'] );
   unset( $distributors['fog'] );
+  unset( $distributors['softgames'] );
 
   return $distributors;
 }

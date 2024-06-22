@@ -313,3 +313,4 @@ function myarcade_feed_myarcadefeed($args) {
   // Show, how many games have been fetched
   myarcade_fetched_message( $new_games, $echo );
 }
+?>

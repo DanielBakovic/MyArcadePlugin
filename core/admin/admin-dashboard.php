@@ -26,6 +26,9 @@ function myarcade_show_stats() {
     myarcade_tracking_message();
   }
 
+  // SHow the update Message
+  myarcade_premium_notice();
+
 	// Get Settings.
   $general = get_option('myarcade_general');
 
@@ -55,10 +58,6 @@ function myarcade_show_stats() {
               <?php endif; ?>
             </li>
 
-            <li>&nbsp;</li>
-
-						<li><?php esc_html_e( 'Download Games', 'myarcadeplugin' ); ?>: <strong><?php if ( $general['down_games'] ) { esc_html_e( 'Yes', 'myarcadeplugin' ); } else { esc_html_e( 'No', 'myarcadeplugin' ); } ?></strong></li>
-						<li><?php esc_html_e( 'Download Screenshots', 'myarcadeplugin' ); ?>: <strong><?php if ( $general['down_screens'] ) { esc_html_e( 'Yes', 'myarcadeplugin' ); } else { esc_html_e( 'No', 'myarcadeplugin' ); } ?></strong></li>
 
             <li>&nbsp;</li>
 

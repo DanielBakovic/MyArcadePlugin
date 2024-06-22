@@ -1,3 +1,16 @@
+v6.1.0 - 2024-06-22 - Based on MyArcadePlugin Pro 6.5.0
+  * New - Updated GamePix API to v2
+  * New - GameDistribution integration updated
+  * New - Ruffle Emulator integration - Play old flash games
+  * Fix - MyArcade Score Bridge not updating scores
+  * Fix - Deprecated jQuery functions
+  * Fix - Screenshot upload on manual game import
+  * Fix - Some of the PHPCS issues
+  * Fix - PHP deprecated warnings
+  * Fix - PHP session warning
+  * Tweak - Game screenshots are downloaded automatically if available
+  * Removed Softgames integration (Service has been down for a while)
+
 v6.0.0 - 2022-03-01 - Based on MyArcadePlugin Pro 6.1.2
   * New - Updated GameDistribution Integration - Use API v2.0
   * Tweak - PHPCS issues

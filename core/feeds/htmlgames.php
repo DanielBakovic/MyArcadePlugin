@@ -147,25 +147,25 @@ function myarcade_save_settings_htmlgames() {
  */
 function myarcade_get_categories_htmlgames() {
   return array(
-    "Action"      => false,
+    "Action"      => "Arkanoid,Bubble Shooter,Tetris,Zuma Games",
     "Adventure"   => false,
     "Arcade"      => "Classic games",
-    "Board Game"  => "Mahjong,Match 3 games,Solitaire",
-    "Casino"      => false,
-    "Defense"     => false,
+    "Board Game"  => "Board,3D Mahjong,Mahjong Connect,Mahjong Games,Mahjong Slide,Mahjong Solitaire,Mahjong Tower","Match 3 Games",
+    "Casino"      => "Card Games,Klondike,Solitaire Games",
+    "Defense"     => "Difference Games",
     "Customize"   => false,
     "Dress-Up"    => false,
-    "Driving"     => false,
-    "Education"   => false,
+    "Driving"     => "Racing",
+    "Education"   => "Hidden Alphabet,Hidden Numbers,Math Games,Word Games",
     "Fighting"    => false,
     "Jigsaw"      => false,
     "Multiplayer" => false,
-    "Other"       => "Hidden objects,Mind games",
-    "Puzzles"     => false,
+    "Other"       => "Bejeweled,Collapse Games,Connect 3,Freecell,Hidden Object Games,Pac Maze,Platform,Retro,Skill,Snake,Spider",
+    "Puzzles"     => "Crosswords,Daily Puzzles,Puzzle Games,Puzzles,Memory,Sudoku",
     "Rhythm"      => false,
-    "Shooting"    => false,
-    "Sports"      => false,
-    "Strategy"    => false,
+    "Shooting"    => "Shooting & War",
+    "Sports"      => "Billiards,Golf,Pinball,Sports,Tripeaks & Golf",
+    "Strategy"    => "Brain Games,Pyramid,Time management",
   );
 }
 
@@ -221,3 +221,4 @@ function myarcade_embedtype_htmlgames() {
 function myarcade_can_download_htmlgames() {
   return false;
 }
+?>

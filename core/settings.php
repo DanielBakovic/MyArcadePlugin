@@ -17,7 +17,6 @@ $myarcade_general_default = array (
   'status'        => 'publish',
   'schedule'      => '60',
   'down_games'    => false,
-  'down_screens'  => true,
   'folder_structure' => '%game_type%/%alphabetical%/',
   'automated_fetching' => false,
   'interval_fetching' => 'hourly',

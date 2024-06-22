@@ -239,7 +239,7 @@ function myarcade_get_post_upload_dirs() {
 	$type = filter_input( INPUT_POST, 'type' );
 	$post_id = filter_input( INPUT_POST, 'post_id' );
 
-	if ( false !== strpos( $type, 'myarcade_') && is_game( $post_id ) ) {
+	if ( $type && false !== strpos( $type, 'myarcade_' ) && is_game( $post_id ) ) {
 		// Get game details.
 		$game_type = get_post_meta( $post_id, 'mabp_game_type', true );
 
@@ -362,10 +362,7 @@ function myarcade_load_scriptstyle() {
 		wp_enqueue_script('jquery');
 
 		if ( ( 'myarcade-manage-games' === $page ) || ( 'myarcade-manage-scores' === $page ) || ( 'myarcade-fetch' === $page ) ) {
-			// Thickbox.
-			wp_enqueue_script('thickbox');
-			$thickcss = get_option( 'siteurl' ) . '/' . WPINC . '/js/thickbox/thickbox.css';
-			wp_enqueue_style('thickbox_css', $thickcss, false, false, 'screen');
+			add_thickbox();
 		}
 	}
 
@@ -396,7 +393,7 @@ function myarcade_header($echo = true) {
 	<script type="text/javascript">
 		jQuery(document).ready(function(){
 			jQuery(".toggle_container").hide();
-			jQuery("h2.trigger").click(function(){
+			jQuery("h2.trigger").on( 'click',function(){
 				jQuery(this).toggleClass("active").next().slideToggle("slow");
 			});
 		});

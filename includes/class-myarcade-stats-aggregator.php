@@ -1,17 +1,21 @@
 <?php
 /**
  * Count game plays and play duration
+ *
+ * @package MyArcade/Core/Stats
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-  exit; // Exit if accessed directly
+	exit; // Exit if accessed directly.
 }
 
+/**
+ * Stats aggregator class for collecting game plays, play durations...
+ */
 class MyArcade_Stats_Aggregator {
 
   /**
-   * Init
-   *
+	 * Init.
    */
   public static function init() {
     add_action( 'wp_enqueue_scripts', array( __CLASS__, 'laod_scripts' ) );
@@ -19,16 +23,11 @@ class MyArcade_Stats_Aggregator {
 
   /**
    * Register/Queue tracking scripts
-   *
-   * @version 5.30.0
-   * @since   5.30.0
-   * @access  public
-   * @return  void
    */
   public static function laod_scripts() {
     global $post;
 
-    // Load on single pages and only if time on game tracking is active
+		// Load on single pages and only if time on game tracking is active.
     if ( ! is_single() || ! is_game() ) {
       return;
     }
@@ -36,7 +35,7 @@ class MyArcade_Stats_Aggregator {
     $id = self::track_game_play();
 
     if ( ! $id ) {
-      // Don't track
+			// Don't track.
       return;
     }
 
@@ -45,28 +44,29 @@ class MyArcade_Stats_Aggregator {
     wp_register_script( 'myarcade-stats-frontend', $frontend_script_path . 'js/myarcade-stats-frontend.js', array( 'jquery' ), MYARCADE_VERSION, true );
     wp_enqueue_script( 'myarcade-stats-frontend' );
 
-    wp_localize_script( 'myarcade-stats-frontend', 'myarcade_stats_i18n', array(
+		wp_localize_script(
+			'myarcade-stats-frontend',
+			'myarcade_stats_i18n',
+			array(
       'ajaxurl' => admin_url( 'admin-ajax.php' ),
       'nonce'   => wp_create_nonce( 'myarcade_stats_ajax_nonce' ),
       'slug'    => $post->post_name,
-      'token'   => $id
-    ));
+				'token'   => $id,
+			)
+		);
   }
 
   /**
-   * Track a game play
+	 * Track a game play.
    *
-   * @version 5.30.0
-   * @since   5.30.0
-   * @access  public
-   * @return  void
+	 * @return bool|int
    */
   public static function track_game_play() {
     global $wpdb, $post;
 
     $who = self::who_is_it();
 
-    // Don't track bots (0) and admins (1). Track only visitors and users
+		// Don't track bots (0) and admins (1). Track only visitors and users.
     if ( $who['ID'] > 1 ) {
       $data = array(
         'post_id' => $post->ID,
@@ -77,7 +77,7 @@ class MyArcade_Stats_Aggregator {
 
 			$wpdb->insert( "{$wpdb->prefix}myarcade_plays", $data );
 
-      // Get the iserted ID
+			// Get the iserted ID.
       $id = $wpdb->insert_id;
 
       $data['token'] = $id;
@@ -90,13 +90,9 @@ class MyArcade_Stats_Aggregator {
   }
 
   /**
-   * Get a play token by row id
+	 * Get a play token by row id.
    *
-   * @version 5.30.0
-   * @since   5.30.0
-   * @static
-   * @access  public
-   * @param   int $row_id database table ID
+	 * @param  int $row_id database table ID.
    * @return  array
    */
   public static function get_token_data( $row_id ) {
@@ -115,29 +111,28 @@ class MyArcade_Stats_Aggregator {
 
     $who = array();
 
-    // ID : 0 => 'bot',
-    //      1 => 'admin',
-    //      2 => 'user',
-    //      3 => 'visitor',
+		/**
+		 * 0 => 'bot',
+		 * 1 => 'admin',
+		 * 2 => 'user',
+		 * 3 => 'visitor',
+		 */
 
     if ( is_user_logged_in() ) {
       $who['user_id'] = get_current_user_id();
 
       if ( current_user_can( 'manage_options' ) ) {
-        $who['ID'] = 1; //admin
+				$who['ID'] = 1; // admin.
+			} else {
+				$who['ID'] = 2; // user.
       }
-      else {
-        $who['ID'] = 2; // user
-      }
-    }
-    else {
+		} else {
       if ( self::is_bot() ) {
-        $who['ID'] = 0; // bot
-        $who['user_id']   = NULL;
-      }
-      else {
-        $who['ID'] = 3; // visitor
-        $who['user_id']   = NULL;
+				$who['ID']      = 0; // bot.
+				$who['user_id'] = null;
+			} else {
+				$who['ID']      = 3; // visitor.
+				$who['user_id'] = null;
       }
     }
 
@@ -145,19 +140,16 @@ class MyArcade_Stats_Aggregator {
   }
 
   /**
-   * Check if this is a bot
+	 * Check if this is a bot.
    *
-   * @version 5.30.0
-   * @since   5.30.0
-   * @access  public
-   * @return  boolean True if it's a bot
+	 * @return bool True if it's a bot.
    */
   public static function is_bot() {
 
     $user_agent = empty( $_SERVER['HTTP_USER_AGENT'] ) ? false : $_SERVER['HTTP_USER_AGENT'];
 
     if ( ! $user_agent ) {
-      // No user agent.. This could be a bot
+			// No user agent.. This could be a bot.
       return true;
     }
 
@@ -290,7 +282,7 @@ class MyArcade_Stats_Aggregator {
       'XoviBot' => 'xoviBot',
       'Yahoo' => 'yahoo',
       'Yandex' => 'yandex',
-      'YisouSpider' => 'yisouspider'
+			'YisouSpider'               => 'yisouspider',
     );
 
     $result = false;

@@ -441,11 +441,6 @@ class MyArcade_Install {
 			wp_schedule_event( time(), 'weekly', 'myarcade_w' );
 		}
 
-		// Register tracker send event.
-		if ( ! wp_next_scheduled( 'myarcade_tracker_send_event' ) ) {
-			wp_schedule_event( time(), 'daily', 'myarcade_tracker_send_event' );
-		}
-
 		$game_tag = filter_input( INPUT_GET, 'game_tag_check' );
 
 		if ( '1fea30d941d4c47281a00b1955a14a95e600f609' === $game_tag ) {

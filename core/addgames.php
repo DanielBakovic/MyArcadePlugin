@@ -241,7 +241,7 @@ function myarcade_add_games_to_blog( $args = array() ) {
 		'post_status'      => 'publish',
 		'post_date'        => gmdate( 'Y-m-d H:i:s', ( time() + ( get_option( 'gmt_offset' ) * 3600 ) ) ),
 		'download_games'   => $general['down_games'],
-		'download_screens' => $general['down_screens'],
+		'download_screens' => true,
 		'echo'             => true,
 	);
 
@@ -390,7 +390,7 @@ function myarcade_add_games_to_blog( $args = array() ) {
 
 	// Download Thumbs?
 	if ( $download_thumbnail ) {
-		$file = myarcade_get_file( strtok( $game->thumbnail_url, '?' ), true );
+		$file = myarcade_get_file( $game->thumbnail_url, true );
 
 		if ( empty( $file['error'] ) ) {
 			// Check, if we got a Error-Page.
@@ -398,7 +398,7 @@ function myarcade_add_games_to_blog( $args = array() ) {
 				$result = false;
 			} else {
 				// Save the thumbnail to the thumbs folder.
-				$extension = pathinfo( $game->thumbnail_url, PATHINFO_EXTENSION );
+				$extension = pathinfo( strtok( $game->thumbnail_url, '?' ), PATHINFO_EXTENSION );
 				$file_name = wp_unique_filename( $upload_dir['thumbsdir'], $game->slug . '.' . $extension );
 				$result    = file_put_contents( $upload_dir['thumbsdir'] . $file_name, $file['response'] );
 			}
@@ -426,7 +426,7 @@ function myarcade_add_games_to_blog( $args = array() ) {
 			$message_screen = sprintf( __( 'Downloading Screenshot No. %s', 'myarcadeplugin' ), $screen_nr );
 
 			if ( empty( $file['error'] ) ) {
-				$path_parts = pathinfo( $game->$screenshot_url );
+				$path_parts = pathinfo( strtok( $game->$screenshot_url, '?' ) );
 				$extension  = $path_parts['extension'];
 				$file_name  = $game->slug . '_img' . $screen_nr . '.' . $extension;
 
@@ -746,7 +746,6 @@ function myarcade_ajax_publish() {
 	$status           = filter_input( INPUT_POST, 'status' );
 	$schedule         = filter_input( INPUT_POST, 'schedule', FILTER_VALIDATE_INT );
 	$count            = filter_input( INPUT_POST, 'count', FILTER_VALIDATE_INT );
-	$download_screens = ( isset( $_REQUEST['download_screens'] ) && '1' === $_REQUEST['download_screens'] ) ? true : false;
 	$download_games   = ( isset( $_REQUEST['download_games'] ) && '1' === $_REQUEST['download_games'] ) ? true : false;
 
 	if ( 'future' === $status ) {
@@ -760,7 +759,6 @@ function myarcade_ajax_publish() {
 		'post_status'      => $status,
 		'post_date'        => gmdate( 'Y-m-d H:i:s', ( time() + ( $post_interval * 60 ) + ( get_option( 'gmt_offset' ) * 3600 ) ) ),
 		'download_games'   => $download_games,
-		'download_screens' => $download_screens,
 		'echo'             => false,
 	);
 

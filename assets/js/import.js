@@ -333,7 +333,7 @@ jQuery(function($) {
   }
 
   // SWF handler
-  $('#uploadFormSWF').submit(function(e) {
+  $('#uploadFormSWF').on( 'submit',function(e) {
     e.preventDefault();
 
     var options = {
@@ -351,7 +351,7 @@ jQuery(function($) {
   });
 
   // Thumbnail handler
-  $('#uploadFormTHUMB').submit(function(e) {
+  $('#uploadFormTHUMB').on( 'submit',function(e) {
     e.preventDefault();
 
     var options = {
@@ -367,7 +367,7 @@ jQuery(function($) {
   });
 
   // Screenshot handler
-  $('#uploadFormSCREEN').submit(function(e) {
+  $('#uploadFormSCREEN').on( 'submit',function(e) {
     e.preventDefault();
 
     var options = {
@@ -383,7 +383,7 @@ jQuery(function($) {
   });
 
   // HTML5 handler
-  $('#uploadFormhtml5').submit(function(e) {
+  $('#uploadFormhtml5').on( 'submit',function(e) {
     e.preventDefault();
 
     var options = {
@@ -399,7 +399,7 @@ jQuery(function($) {
   });
 
   // TAR handler
-  $('#uploadFormTAR').submit(function(e) {
+  $('#uploadFormTAR').on( 'submit',function(e) {
     e.preventDefault();
 
     var options = {
@@ -415,7 +415,7 @@ jQuery(function($) {
   });
 
   // ZIP handler
-  $('#uploadFormZIP').submit(function(e) {
+  $('#uploadFormZIP').on( 'submit',function(e) {
     e.preventDefault();
 
     var options = {
@@ -431,7 +431,7 @@ jQuery(function($) {
   });
 
   // Unity handler
-  $('#uploadFormUnity').submit(function(e) {
+  $('#uploadFormUnity').on( 'submit',function(e) {
     e.preventDefault();
     var options = {
     type: 'POST',
@@ -446,7 +446,7 @@ jQuery(function($) {
   });
 
   // Embed handler
-  $('#uploadFormEMIF').submit(function(e) {
+  $('#uploadFormEMIF').on( 'submit',function(e) {
     e.preventDefault();
     var options = {
     type: 'POST',
@@ -461,31 +461,31 @@ jQuery(function($) {
   });
 
   // File Size check
-  $("#gamefile").change(function ()  {
+  $("#gamefile").on( 'change',function ()  {
     myarcade_check_file_size("#gamefile", "#lblgamefile");
   });
-  $("#tarfile").change(function ()  {
+  $("#tarfile").on( 'change',function ()  {
     myarcade_check_file_size("#tarfile", "#lbltarfile");
   });
-  $("#zipfile").change(function ()  {
+  $("#zipfile").on( 'change',function ()  {
     myarcade_check_file_size("#zipfile", "#lblzipfile");
   });
-  $("#html5file").change(function ()  {
+  $("#html5file").on( 'change',function ()  {
     myarcade_check_file_size("#html5file", "#lblhtml5zipfile");
   });
-  $("#unityfile").change(function ()  {
+  $("#unityfile").on( 'change',function ()  {
     myarcade_check_file_size("#unityfile", "#lblunityfile");
   });
 
   // Folder selection
-  $(".fileselection").click( function() {
+  $(".fileselection").on( 'click', function() {
     var selected = $(this).closest('div').attr('id');
     $("#folder" + selected).hide();
     $("#" + selected + " .loadimg").show();
     showfileSelection( selected );
   });
 
-  $(".cancelselection").click( function() {
+  $(".cancelselection").on( 'click', function() {
     var selected = $(this).closest('div').attr('id');
     $("#fileselect" + selected).remove();
     $("#" + selected + " .cancelselection").hide();
@@ -501,7 +501,7 @@ jQuery(document).ready(function($) {
   $('#importunity').hide();
   $('#importembedif').hide();
 
-  $('#importmethod').change( function() {
+  $('#importmethod').on( 'change', function() {
     $('#filename').html('');
     $('#filenametar').html('');
     $('#gamewidth').val('');
@@ -514,6 +514,7 @@ jQuery(document).ready(function($) {
     $('#importscreen3').val('');
     $('#importscreen4').val('');
     $('#slug').val('');
+    $('#selectedmethod').val(this.value);
 
     switch (this.value) {
       case 'importhtml5': {
@@ -584,5 +585,5 @@ jQuery(document).ready(function($) {
     }
   });
 
-  $('#importmethod').change();
+  $('#importmethod').on( 'change',);
 });

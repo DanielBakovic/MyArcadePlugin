@@ -18,14 +18,6 @@ function myarcade_settings_gamepix() {
 
 	$gamepix = MyArcade()->get_settings( 'gamepix' );
 
-  /**
-	 * Since 5.34.1
-   * Update distributor URL
-   */
-	if ( strpos( $gamepix['feed'], 'http://' ) !== false ) {
-    $default_settings = myarcade_default_settings_gamepix();
-    $gamepix['feed'] = $default_settings['feed'];
-  }
   ?>
 	<h2 class="trigger"><?php _e( 'GamePix', 'myarcadeplugin' ); ?></h2>
   <div class="toggle_container">
@@ -39,13 +31,6 @@ function myarcade_settings_gamepix() {
             <br /><br />
           </td>
         </tr>
-				<tr><td colspan="2"><h3><?php _e( 'Feed URL', 'myarcadeplugin'); ?></h3></td></tr>
-        <tr>
-          <td>
-						<input type="text" size="40"  name="gamepix_url" value="<?php echo esc_url( $gamepix['feed'] ); ?>" />
-          </td>
-					<td><i><?php _e( 'Edit this field only if Feed URL has been changed!', 'myarcadeplugin' ); ?></i></td>
-				</tr>
 
 				<tr><td colspan="2"><h3><?php _e( 'Site ID', 'myarcadeplugin' ); ?></h3></td></tr>
 				<tr>
@@ -53,36 +38,6 @@ function myarcade_settings_gamepix() {
 						<input type="text" size="40"  name="gamepix_site_id" value="<?php echo esc_attr( $gamepix['site_id'] ); ?>" />
 					</td>
 					<td><i><?php _e( 'Enter your Site ID if available.', 'myarcadeplugin'); ?></i></td>
-        </tr>
-
-				<tr><td colspan="2"><h3><?php _e( 'Category', 'myarcadeplugin' ); ?></h3></td></tr>
-
-        <tr>
-          <td>
-            <select size="1" name="gamepix_category" id="gamepix_category">
-							<option value="all" <?php myarcade_selected( $gamepix['category'], 'all' ); ?> ><?php _e( 'All Games', 'myarcadeplugin' ); ?></option>
-							<option value="2" <?php myarcade_selected( $gamepix['category'], '2' ); ?> ><?php _e( 'Arcade', 'myarcadeplugin' ); ?></option>
-							<option value="3" <?php myarcade_selected( $gamepix['category'], '3' ); ?> ><?php _e( 'Adventure', 'myarcadeplugin' ); ?></option>
-							<option value="5" <?php myarcade_selected( $gamepix['category'], '5' ); ?> ><?php _e( 'Casino', 'myarcadeplugin' ); ?></option>
-							<option value="6" <?php myarcade_selected( $gamepix['category'], '6' ); ?> ><?php _e( 'Classics', 'myarcadeplugin' ); ?></option>
-							<option value="7" <?php myarcade_selected( $gamepix['category'], '7' ); ?> ><?php _e( 'Puzzles', 'myarcadeplugin' ); ?></option>
-							<option value="8" <?php myarcade_selected( $gamepix['category'], '8' ); ?> ><?php _e( 'Sports', 'myarcadeplugin' ); ?></option>
-							<option value="9" <?php myarcade_selected( $gamepix['category'], '9' ); ?> ><?php _e( 'Strategy', 'myarcadeplugin' ); ?></option>
-            </select>
-          </td>
-					<td><i><?php _e( 'Select which games you would like to fetch.', 'myarcadeplugin' ); ?></i></td>
-        </tr>
-
-				<tr><td colspan="2"><h3><?php _e( 'Thumbnail Size', 'myarcadeplugin' ); ?></h3></td></tr>
-
-        <tr>
-          <td>
-            <select size="1" name="gamepix_thumbnail" id="gamepix_thumbnail">
-							<option value="thumbnailUrl100" <?php myarcade_selected( $gamepix['thumbnail'], 'thumbnailUrl100' ); ?> ><?php _e( '100x100', 'myarcadeplugin' ); ?></option>
-							<option value="thumbnailUrl" <?php myarcade_selected( $gamepix['thumbnail'], 'thumbnailUrl' ); ?> ><?php _e( '250x250', 'myarcadeplugin' ); ?></option>
-            </select>
-          </td>
-					<td><i><?php _e( 'Select a thumbnail size.', 'myarcadeplugin'); ?></i></td>
         </tr>
 
 				<tr><td colspan="2"><h3><?php _e( 'Automated Game Publishing', 'myarcadeplugin' ); ?></h3></td></tr>
@@ -117,10 +72,8 @@ function myarcade_settings_gamepix() {
  */
 function myarcade_default_settings_gamepix() {
   return array(
-    'feed'          => 'https://games.gamepix.com/games',
+		'feed'               => 'https://feeds.gamepix.com/v2/json',
     'site_id'       => '20015',
-    'category'      => 'all',
-    'thumbnail'     => 'thumbnailUrl100',
     'cron_publish'  => false,
     'cron_publish_limit' => '1',
   );
@@ -134,15 +87,59 @@ function myarcade_save_settings_gamepix() {
   myarcade_check_settings_nonce();
 
   $settings = array();
-  $settings['feed'] = (isset($_POST['gamepix_url'])) ? esc_sql($_POST['gamepix_url']) : '';
 	$settings['site_id']            = ( isset( $_POST['gamepix_site_id'] ) ) ? $_POST['gamepix_site_id'] : '20015';
-  $settings['category'] = (isset($_POST['gamepix_category'])) ? $_POST['gamepix_category'] : 'all';
-  $settings['thumbnail'] = filter_input( INPUT_POST, 'gamepix_thumbnail' );
   $settings['cron_publish'] = (isset($_POST['gamepix_cron_publish']) ) ? true : false;
   $settings['cron_publish_limit'] = (isset($_POST['gamepix_cron_publish_limit']) ) ? intval($_POST['gamepix_cron_publish_limit']) : 1;
 
 	// Update settings.
   update_option('myarcade_gamepix', $settings);
+}
+
+/**
+ * Generate an options array with submitted fetching parameters
+ *
+ * @return array Fetching options.
+ */
+function myarcade_get_fetch_options_gamepix() {
+
+	// Get distributor settings.
+	$settings = MyArcade()->get_settings( 'gamepix' );
+	$defaults = myarcade_default_settings_gamepix();
+	$settings = wp_parse_args( $settings, $defaults );
+
+	$settings['feed']   = $defaults['feed'];
+	$settings['limit']  = filter_input( INPUT_POST, 'limitgamepix', FILTER_VALIDATE_INT, array( 'options' => array( 'default' => 96 ) ) );
+	$settings['offset'] = filter_input( INPUT_POST, 'offsetgamepix', FILTER_UNSAFE_RAW, array( 'options' => array( 'default' => '1' ) ) );
+
+	return $settings;
+}
+
+/**
+ * Display distributor fetch games options.
+ */
+function myarcade_fetch_settings_gamepix() {
+
+	$gamepix = myarcade_get_fetch_options_gamepix();
+
+	ob_start();
+	?>
+	<select name="limitgamepix">
+		<option value="12" <?php esc_attr( selected( $gamepix['limit'], 12 ) ); ?>>12</option>
+		<option value="24" <?php esc_attr( selected( $gamepix['limit'], 24 ) ); ?>>24</option>
+		<option value="48" <?php esc_attr( selected( $gamepix['limit'], 48 ) ); ?>>48</option>
+		<option value="96" <?php esc_attr( selected( $gamepix['limit'], 96 ) ); ?>>96</option>
+	</select>
+	<?php
+	$option_limit = ob_get_clean();
+	?>
+
+	<div class="myarcade_border white hide mabp_680" id="gamepix">
+		<div class="myarcade_border" style="float:left;padding-top: 5px;background-color: #F9F9F9">
+			<?php printf( esc_html__( 'Fetch %s games %sfrom page %s', 'myarcadeplugin' ), $option_limit, '<span id="offsgamepix">', '<input id="radiooffsgamepix" type="number" name="offsetgamepix" value="' . esc_attr( $gamepix['offset'] ) . '" /> </span>' ); ?>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<?php
 }
 
 /**
@@ -152,25 +149,25 @@ function myarcade_save_settings_gamepix() {
  */
 function myarcade_get_categories_gamepix() {
   return array(
-		'Action'      => false,
-		'Adventure'   => true,
-		'Arcade'      => true,
-		'Board Game'  => 'Board',
-		'Casino'      => false,
-		'Defense'     => false,
-		'Customize'   => false,
-		'Dress-Up'    => false,
-		'Driving'     => false,
-		'Education'   => false,
-		'Fighting'    => false,
-		'Jigsaw'      => false,
-		'Multiplayer' => false,
-		'Other'       => 'Classics,Junior',
-		'Puzzles'     => true,
-		'Rhythm'      => false,
-		'Shooting'    => false,
-		'Sports'      => true,
-		'Strategy'    => true,
+		'Action'      => 'action,stickman,parkour,robots,tanks,snake,monster,dinosaur,fantasy-flight,runner,battle,zombie,war,gangster,horror',
+		'Adventure'   => 'adventure',
+		'Arcade'      => 'arcade',
+		'Board Game'  => 'board,2048',
+		'Casino'      => 'card,casino',
+		'Defense'     => false, /* not found */
+		'Customize'   => false, /* not found */
+		'Dress-Up'    => 'fashion,dress-up',
+		'Driving'     => 'motorcycle,racing,car,driving',
+		'Education'   => 'kids,math,educational',
+		'Fighting'    => 'fighting',
+		'Jigsaw'      => false, /* not found */
+		'Multiplayer' => 'two-player',
+		'Other'       => 'retro,animal,fun,idle,mobile,animal,scary,money,clicker,archery,granny,pixel,cooking,addictive,games-for-girls,io',
+		'Puzzles'     => 'trivia,puzzle,memory,match-3,drawing,hyper-casual,casual,jewel,jigsaw-puzzles,hidden-object,tap,classics',
+		'Rhythm'      => 'music',
+		'Shooting'    => 'shooter,first-person-shooter',
+		'Sports'      => 'ball,sports,skateboard,soccer,basketball,bowling,fishing',
+		'Strategy'    => 'strategy,building,skill,brain,skibidi-toilet,tetris,management,platformer,simulation',
   );
 }
 
@@ -192,7 +189,7 @@ function myarcade_feed_gamepix( $args = array() ) {
   $new_games = 0;
   $add_game = false;
 
-	$gamepix            = MyArcade()->get_settings( 'gamepix' );
+	$gamepix            = myarcade_get_fetch_options_gamepix();
 	$gamepix_categories = myarcade_get_categories_gamepix();
   $feedcategories     = get_option('myarcade_categories');
 
@@ -208,12 +205,9 @@ function myarcade_feed_gamepix( $args = array() ) {
     $settings['site_id'] = '20015';
   }
 
-	// Generate Feed URL.
-	if ( 'all' !== $settings['category'] ) {
-		$settings['feed'] = add_query_arg( array( 'category' => $settings['category'] ), trim( $settings['feed'] ) );
-	}
-
 	$settings['feed'] = add_query_arg( array( 'sid' => $settings['site_id'] ), trim( $settings['feed'] ) );
+	$settings['feed'] = add_query_arg( array( 'pagination' => $settings['limit'] ), $settings['feed'] );
+	$settings['feed'] = add_query_arg( array( 'page' => $settings['offset'] ), $settings['feed'] );
 
 	// Include required fetch functions.
 	require_once MYARCADE_CORE_DIR . '/fetch.php';
@@ -227,8 +221,8 @@ function myarcade_feed_gamepix( $args = array() ) {
 		)
 	);
 
-  if ( !empty($json_games->data) ) {
-    foreach ($json_games->data as $game_obj) {
+	if ( ! empty( $json_games->items ) ) {
+		foreach ( $json_games->items as $game_obj ) {
 
       $game = new stdClass();
       $game->uuid     = $game_obj->id . '_gamepix';
@@ -242,15 +236,17 @@ function myarcade_feed_gamepix( $args = array() ) {
       $categories = explode( ',', $game_obj->category );
       $categories_string = 'Other';
 
-			// Loop trough game categories.
+			// Loop trough current game categories.
       foreach( $categories as $gamecat ) {
 				// Loop trough MyArcade categories.
         foreach ( $feedcategories as $feedcat ) {
+					// Check if MyArcade category is active.
 					if ( 'checked' === $feedcat['Status'] ) {
 						$cat_name = false;
 
+						// Ceck if Gamepix privides this category?
             if ( ! empty( $gamepix_categories[ $feedcat['Name'] ] ) ) {
-							// Set category name to check.
+							// Check if Gamepix uses the same name or if we have a mapping.
 							if ( true === $gamepix_categories[ $feedcat['Name'] ] ) {
                 $cat_name = $feedcat['Name'];
 							} else {
@@ -280,14 +276,11 @@ function myarcade_feed_gamepix( $args = array() ) {
       $game->width         = esc_sql($game_obj->width);
       $game->height        = esc_sql($game_obj->height);
 
-      $thumb_size = $settings['thumbnail'];
+			$game->thumbnail_url = esc_sql( $game_obj->image );
+			$game->screen1_url   = esc_sql( $game_obj->banner_image );
 
-      if ( ! empty( $game_obj->$thumb_size ) ) {
-        $game->thumbnail_url = esc_sql( $game_obj->$thumb_size );
-      }
-      else {
-        $game->thumbnail_url = esc_sql( $game_obj->thumbnailUrl100 );
-      }
+			$game->leaderboard_enabled = 1;
+			$game->highscore_type      = 'DESC';
 
 			// Add game to the database.
       if ( myarcade_add_fetched_game( $game, $args ) ) {

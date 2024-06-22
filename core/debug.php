@@ -24,7 +24,7 @@ define( 'MYARCADE_DEBUG_TRANSLATOR', false );
  */
 function myarcade_debuglog ( $message = '' ) {
 
-	$logdir = MyArcade()->plugin_dir() . '/logs';
+	$logdir = MyArcade()->plugin_path() . '/logs';
 
   if ( !file_exists($logdir) ) {
 		// Create logging folder.

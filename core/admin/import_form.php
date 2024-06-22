@@ -280,6 +280,7 @@
     <input type="hidden" name="importscreen3" id="importscreen3" />
     <input type="hidden" name="importscreen4" id="importscreen4" />
     <input type="hidden" name="slug"          id="slug" />
+		<input type="hidden" name="selectedmethod" id="selectedmethod" />
 
     <div class="container">
       <div class="block">

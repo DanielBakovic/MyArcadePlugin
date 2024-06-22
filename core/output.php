@@ -117,6 +117,10 @@ function get_game( $game_id = false, $fullsize = false, $preview = false, $fulls
 
 			$game_url = add_query_arg( array( 'p' => $softgames['publisher_id'] ), $game_url );
 			break;
+
+		case 'gamedistribution':
+			$game_url = add_query_arg( array( 'gd_sdk_referrer_url' => urlencode( get_permalink( $game_id ) ) ), $game_url );
+			break;
 	}
 
 	// Do some actions when this is not a game preview.
@@ -174,7 +178,29 @@ function get_game( $game_id = false, $fullsize = false, $preview = false, $fulls
         case 'flash':
 				default:
           $embed_parameters = apply_filters( 'myarcade_embed_parameters', 'wmode="direct" menu="false" quality="high"', $game_id );
-          $code = '<embed src="'.$game_url.'" '.$embed_parameters.' width="'.$gamewidth.'" height="'.$gameheight.'" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />';
+					$code             = '<object><embed id="ruffle-game" src="' . $game_url . '" ' . $embed_parameters . ' width="' . $gamewidth . '" height="' . $gameheight . '" allowscriptaccess="always" type="application/x-shockwave-flash" /></object>';
+					$code = apply_filters( 'myarcade_flash_output', $code, $game_url, $gamewidth, $gameheight, $embed_parameters );
+
+					ob_start();
+					?>
+					<script>
+						document.addEventListener("DOMContentLoaded", function () {
+							document.getElementById('fullscreen_toggle').addEventListener('click', function() {
+								var elem = document.getElementById('ruffle-game');
+								if (elem.requestFullscreen) {
+										elem.requestFullscreen();
+								} else if (elem.mozRequestFullScreen) { /* Firefox */
+										elem.mozRequestFullScreen();
+								} else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+										elem.webkitRequestFullscreen();
+								} else if (elem.msRequestFullscreen) { /* IE/Edge */
+										elem.msRequestFullscreen();
+								}
+							});
+						});
+					</script>
+					<?php
+					$js_code = ob_get_clean();
 
 					$code = apply_filters( 'myarcade_flash_output', $code, $game_url, $gamewidth, $gameheight, $embed_parameters );
 					break;
@@ -249,5 +275,41 @@ function get_game_code( $post_id = false ) {
  * Generates Leaderboard bridge codes
  */
 function myarcade_get_leaderboard_code() {
+	global $post;
+
+	// Check if the user is logged in.
+	if ( ! is_user_logged_in() || empty( $post->ID ) ) {
   return;
+	}
+
+	$user_id = get_current_user_id();
+	?>
+	<script type="text/javascript">
+	function MyArcadeScoreBridgeConfig() {
+		var bridgeConfig = {
+			game_id: "<?php echo esc_attr( $post->ID ); ?>",
+			user_id: "<?php echo esc_attr( $user_id ); ?>",
+			session: "<?php echo sha1( esc_attr( $user_id ) . time() ); ?>",
+			site_url: "<?php echo esc_url( trailingslashit( site_url() ) ); ?>"
+		};
+
+		return bridgeConfig;
+	}
+	</script>
+	<?php
+}
+
+/**
+ * Embed ruffle (Flash Emulator) into the footer.
+ *
+ * @return void
+ */
+function myarcade_ruffle_embed() {
+	wp_enqueue_script(
+		'myarcade_ruffle',
+		'https://unpkg.com/@ruffle-rs/ruffle',
+		array(),
+		'1.0',
+		true
+	);
 }

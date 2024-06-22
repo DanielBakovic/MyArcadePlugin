@@ -36,7 +36,6 @@ function myarcade_publish_games() {
     $order            = filter_input( INPUT_POST, 'order' );
     $cat              = filter_input( INPUT_POST, 'category' );
     $posts            = filter_input( INPUT_POST, 'games', FILTER_VALIDATE_INT );
-    $download_screens = ( filter_input( INPUT_POST, 'downloadscreens' ) ) ? true : false;
     $download_games   = ( filter_input( INPUT_POST, 'downloadgames' ) ) ? true : false;
 
     // Generate the query
@@ -97,8 +96,7 @@ function myarcade_publish_games() {
       $ids = '';
       $start_publishing = 'no';
     }
-  }
-  else {
+	} else {
     $game_type        = 'all';
     $leaderboard      = '0';
     $status           = $general['status'];
@@ -106,7 +104,6 @@ function myarcade_publish_games() {
     $order            = 'ASC';
     $cat              = 'all';
     $posts            = $general['posts'];
-    $download_screens = $general['down_screens'];
     $download_games   = $general['down_games'];
 
     $start_publishing = 'init';
@@ -193,7 +190,6 @@ function myarcade_publish_games() {
       </div>
 
       <div class="myarcade_border white" style="width:300px;height:50px;float:left;">
-				<input type="checkbox" value="1" id="downloadscreens" name="downloadscreens" <?php myarcade_checked($download_screens, true); ?>/> <?php _e( 'Download Screenshots', 'myarcadeplugin' ); ?><br />
 				<input type="checkbox" value="1" id="downloadgames" name="downloadgames" <?php myarcade_checked($download_games, true); ?>/> <?php _e( 'Download Games', 'myarcadeplugin' ); ?>
       </div>
 
@@ -234,7 +230,7 @@ function myarcade_publish_games() {
   ?>
 
   <div id="down_thumbs">
-    <?php if ( $download_screens && ( ! is_writable( $upload_dir['thumbsdir'] ) ) ) {
+		<?php if ( ! is_writable( $upload_dir['thumbsdir'] ) ) {
       echo '<p class="mabp_error mabp_680">'.sprintf( __("The images directory '%s' must be writeable (chmod 777) in order to download game images.", 'myarcadeplugin'),  $upload_dir['thumbsdir'] ).'</p>';
     }
     ?>
@@ -353,7 +349,7 @@ function myarcade_publish_games() {
 						status: '<?php echo esc_html( $status ); ?>',
 						schedule: '<?php echo esc_attr( $schedule ); ?>',
             count: myarcade_count,
-						download_screens: '<?php echo esc_attr( $download_screens ); ?>',
+						download_screens: 'true',
 						download_games: '<?php echo esc_attr( $download_games ); ?>'
           },
           success: function( response ) {

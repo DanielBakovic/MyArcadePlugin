@@ -176,9 +176,9 @@ switch ( $upload_action ) {
 			$screenshot = 'screen' . $i;
       $result = false;
 
-      if ( !empty($_FILES[$screen]['name']) ) {
+			if ( ! empty( $_FILES[ $screenshot ]['name'] ) ) {
 				// Error check.
-        if ( !empty($_FILES[$screen]['error']) ) {
+				if ( ! empty( $_FILES[ $screenshot ]['error'] ) ) {
 					$game->error = $upload_error_strings[ $_FILES[ $screenshot ]['error'] ];
 				} else {
 					// There is a screen to upload.

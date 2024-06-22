@@ -3,7 +3,7 @@
  * Plugin Name:  MyArcadePlugin Lite
  * Plugin URI:   https://myarcadeplugin.com
  * Description:  WordPress Arcade Plugin
- * Version:      6.0.0
+ * Version:      6.1.0
  * Author:       Daniel Bakovic
  * Author URI:   https://myarcadeplugin.com
  * Requires at least: 5.6
@@ -23,7 +23,7 @@ if ( ! class_exists( 'MyArcadePlugin' ) ) :
 		 *
 		 * @var string
 		 */
-		public $version = '6.0.0';
+		public $version = '6.1.0';
 
 		/**
 		 * A single instance of MyArcadePlugin.
@@ -528,7 +528,7 @@ function myarcade_init() {}
  *
  */
 function myarcade_premium_img() {
-  echo '<img src="'.MYARCADE_URL.'/assets/images/locked.png" alt="Pro Version Only!" title="Pro Version Only!" />';
+	echo '<img src="'.MYARCADE_URL.'/assets/images/locked.png" alt="Pro Version Only!" title="Pro Version Only!" />';
 }
 
 /**
@@ -537,19 +537,38 @@ function myarcade_premium_img() {
  * @param   boolean $alert
  */
 function myarcade_premium_message( $alert = true ) {
-  if ( $alert ) {
-    echo '<div class="mabp_error">';
-  }
+	if ( $alert ) {
+		echo '<div class="mabp_error">';
+	}
 
-  echo '<p>Get <a href="https://myarcadeplugin.com/buy" target="_blank">MyArcadePlugin Pro</a> to enable this feature. Your <strong>20% off</strong> coupon code: "<strong>upgrademylite</strong>".</p>';
+	echo '<p>Get <a href="https://myarcadeplugin.com/buy" target="_blank">MyArcadePlugin Pro</a> to enable this feature. Your <strong>20% off</strong> coupon code: "<strong>upgrademylite</strong>".</p>';
 
-  if ( $alert ) {
-    echo "</div>";
-  }
+	if ( $alert ) {
+		echo "</div>";
+	}
 }
 
 function myarcade_premium_span( $color = 'yellow' ) {
-  echo '<span style="color:'.$color.'"">PRO FEATURE</span> - ';
+	echo '<span style="color:'.$color.'"">PRO FEATURE</span> - ';
+}
+
+/**
+ * Show a upgrade notice for MyArcadePlugin Lite users.
+ */
+function myarcade_premium_notice() {
+	echo '<div class="notice notice-success">';
+	echo '<h2>Unlock the Full Potential of MyArcadePlugin!</h2>';
+	echo '<p>Thank you for using MyArcadePlugin Lite. Upgrade to the full version today and enjoy an array of premium features designed to supercharge your gaming experience:</p>';
+	echo '<ol>';
+	echo '<li><strong>Exclusive Game Distributors:</strong> Access to thousands of awesome games.</li>';
+	echo '<li><strong>Advanced Leaderboards:</strong> Enhance player engagement with detailed leaderboards.</li>';
+	echo '<li><strong>Regular Updates:</strong> Stay ahead with the latest features and improvements.</li>';
+	echo '<li><strong>Detailed Analytics:</strong> Gain insights with advanced game analytics.</li>';
+	echo '<li><strong>Game Import Tool:</strong> Easily import games from various sources.</li>';
+	echo '</ol>';
+	echo '<p>As a token of our appreciation, use the coupon code <strong>upgrademylite</strong> at checkout to receive <strong>20% off</strong> your upgrade!</p>';
+	echo '<p><a href="https://myarcadeplugin.com/buy" class="button button-primary" target="_blank">Upgrade Now and Save 20%</a></p>';
+	echo '</div>';
 }
 
 /**

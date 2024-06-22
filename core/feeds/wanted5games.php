@@ -201,7 +201,7 @@ function myarcade_get_categories_wanted5games() {
 		'Rhythm'      => false,
 		'Shooting'    => true,
 		'Sports'      => true,
-		'Strategy'    => 'tower-defense,platform,time-management',
+		'Strategy'    => 'tower-defense,platform,time-management,strategy',
 	);
 }
 

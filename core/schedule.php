@@ -7,5 +7,5 @@
 
 // No direct Access.
 if ( ! defined( 'ABSPATH' ) ) {
-	die();
+	exit;
 }

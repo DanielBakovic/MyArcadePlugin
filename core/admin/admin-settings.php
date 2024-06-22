@@ -50,7 +50,6 @@ function myarcade_settings() {
     if ( isset($_POST['publishstatus'])) $general['status'] = $_POST['publishstatus']; else $general['status'] = 'publish';
     if ( isset($_POST['schedtime'])) $general['schedule'] = intval( $_POST['schedtime']); else $general['schedule'] = 0;
     if ( isset($_POST['downloadgames'])) $general['down_games'] = true; else $general['down_games'] = false;
-    if ( isset($_POST['downscreens'])) $general['down_screens'] = true; else $general['down_screens'] = false;
 
     $general['folder_structure'] = (isset($_POST['folder_structure'])) ? $_POST['folder_structure'] : false;
     $general['automated_fetching']  = (isset($_POST['automated_fetching'])) ? true : false;
@@ -180,11 +179,9 @@ function myarcade_settings() {
     }
   }
 
-  if ( $general['down_screens'] ) {
     if ( !is_writable( $upload_dir['thumbsdir'] ) ) {
       echo '<p class="mabp_error mabp_800">'.sprintf(__("The images directory '%s' must be writable (chmod 777) in order to download game images.", 'myarcadeplugin'), $upload_dir['thumbsdir'] ).'</p>';
     }
-  }
 
   // Check ID for Microsoft Translator
   if ( ($general['translation'] == 'microsoft') && empty( $general['azure_key'] ) ) {
@@ -198,6 +195,7 @@ function myarcade_settings() {
   if ( $general['post_type'] == 'post') {
     $categs_ids_tmp = get_terms( 'category', array('fields' => 'ids', 'get' => 'all') );
     $categs_tmp = array();
+		$custom_cat_taxonomy = false;
 
     foreach ($categs_ids_tmp as $categ_id_tmp) {
       $categs_tmp[$categ_id_tmp] = get_cat_name($categ_id_tmp);
@@ -205,6 +203,7 @@ function myarcade_settings() {
   }
   else {
     $categs_tmp = array();
+		$custom_cat_taxonomy = true;
 
     if (taxonomy_exists($general['custom_category']) ) {
       $taxonomies = get_terms($general['custom_category'], array('hide_empty' => false));
@@ -300,15 +299,6 @@ function myarcade_settings() {
                   <input type="checkbox" name="downloadgames" value="true"  <?php myarcade_checked($general['down_games'], true); ?> /><label class="opt">&nbsp;<?php _e("Yes", 'myarcadeplugin'); ?></label>
                 </td>
                 <td><i><?php _e("Activate this in order to download Flash (SWF) games to your server. Keep in mind that HMTL5 games can't be downloaded.", 'myarcadeplugin'); ?></i></td>
-              </tr>
-
-              <tr><td colspan="2"><h3><?php _e("Download Screenshots", 'myarcadeplugin'); ?></h3></td></tr>
-
-              <tr>
-                <td>
-                  <input type="checkbox" name="downscreens" value="true"  <?php myarcade_checked($general['down_screens'], true); ?> /><label class="opt">&nbsp;<?php _e("Yes", 'myarcadeplugin'); ?></label>
-                </td>
-                <td><i><?php _e("Should the game screenshots be imported and stored on your web server? For this to work properly, the thumb directory (wp-content/uploads/thumbs/) must be  writable.", 'myarcadeplugin'); ?></i></td>
               </tr>
 
               <tr><td colspan="2"><h3><?php _e("Folder Organization Structure", 'myarcadeplugin'); ?></h3></td></tr>
