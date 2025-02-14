@@ -214,7 +214,7 @@ function myarcade_feed_myarcadefeed($args) {
   $feed           = $myarcadefeed['feed'];
 
   // Include required fetch functions
-  require_once( MYARCADE_CORE_DIR . '/fetch.php' );
+  require_once MyArcade()->plugin_path() . '/core/fetch.php';
 
   $games = myarcade_fetch_games( array(
       'url'     => $myarcadefeed[$feed],

@@ -3,11 +3,11 @@
  * Plugin Name:  MyArcadePlugin Lite
  * Plugin URI:   https://myarcadeplugin.com
  * Description:  WordPress Arcade Plugin
- * Version:      6.1.0
+ * Version:      6.1.1
  * Author:       Daniel Bakovic
  * Author URI:   https://myarcadeplugin.com
- * Requires at least: 5.6
- * Requires PHP: 7.0
+ * Requires at least: 6.0
+ * Requires PHP: 8.0
  *
  * @package MyArcadePlugin
  */
@@ -23,7 +23,7 @@ if ( ! class_exists( 'MyArcadePlugin' ) ) :
 		 *
 		 * @var string
 		 */
-		public $version = '6.1.0';
+		public $version = '6.1.1';
 
 		/**
 		 * A single instance of MyArcadePlugin.
@@ -171,8 +171,6 @@ if ( ! class_exists( 'MyArcadePlugin' ) ) :
 			$this->define( 'MYARCADE_DIR', dirname( __FILE__ ) );
 			$this->define( 'MYARCADE_CORE_DIR', MYARCADE_DIR . '/core' );
 			$this->define( 'MYARCADE_URL', plugins_url() . '/' . $dirname );
-
-			$this->define( 'MYARCADE_UPDATE_API', 'http://api.myarcadeplugin.com/' );
 
 			$this->define( 'MYARCADE_PLUGIN_FOLDER_NAME', basename( dirname( __FILE__ ) ) );
 			$this->define( 'MYARCADE_PLUGIN_SLUG', 'myarcadeplugin-lite' );
@@ -403,6 +401,24 @@ if ( ! class_exists( 'MyArcadePlugin' ) ) :
 		 */
 		public function import_handler() {
 			require_once $this->plugin_path() . '/core/admin/import_handler.php';
+		}
+
+		/**
+		 * Generates the MyArcadePlugin api key which is used for the cron trigger security check.
+		 *
+		 * @return string API Key.
+		 */
+		public function get_api_key() {
+			return sanitize_key( md5( myarcade_schluessel() . get_bloginfo( 'url' ) ) );
+		}
+
+		/**
+		 * Get the MyArcadePlugin API URL.
+		 *
+		 * @return string API URL.
+		 */
+		public function get_api_url() {
+			return 'https://api.myarcadeplugin.com/';
 		}
 
 		/**

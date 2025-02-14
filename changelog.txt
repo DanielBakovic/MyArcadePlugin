@@ -1,3 +1,7 @@
+v6.1.1 - 2025-02-14 - Based on MyArcadePlugin Pro 6.5.1
+  * New - Updated GameDistribution integration
+  * New - Updated GameMonetize integration
+
 v6.1.0 - 2024-06-22 - Based on MyArcadePlugin Pro 6.5.0
   * New - Updated GamePix API to v2
   * New - GameDistribution integration updated

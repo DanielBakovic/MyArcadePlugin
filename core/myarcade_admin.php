@@ -438,7 +438,7 @@ function myarcade_check_for_update( $checked_data ) {
 	$request_string = prepare_request('update_check', $request_args);
 
 	// Start checking for an update.
-	$raw_response = wp_remote_post( MYARCADE_UPDATE_API . 'check.php', $request_string );
+	$raw_response = wp_remote_post( MyArcade()->get_api_url() . 'check.php', $request_string );
 
 	if ( ! is_wp_error( $raw_response ) && isset( $raw_response['response']['code'] ) && ( 200 === $raw_response['response']['code'] ) ) {
 		$response = unserialize($raw_response['body']);

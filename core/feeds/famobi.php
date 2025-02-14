@@ -328,7 +328,7 @@ function myarcade_feed_famobi( $args = array() ) {
   }
 
 	// Include required fetch functions.
-	require_once MYARCADE_CORE_DIR . '/fetch.php';
+	require_once MyArcade()->plugin_path() . '/core/fetch.php';
 
 	// Fetch games.
   $json_games = myarcade_fetch_games( array( 'url' => $settings['feed'], 'service' => 'json', 'echo' => $echo) );

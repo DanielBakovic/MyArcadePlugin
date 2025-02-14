@@ -113,8 +113,8 @@ function myarcade_settings_gamemonetize() {
  */
 function myarcade_default_settings_gamemonetize() {
   return array(
-		'feed'               => 'https://gamemonetize.com/feed.php',
-		'limit'              => '20',
+		'feed'               => 'https://rss.gamemonetize.com/rssfeed.php',
+		'limit'              => 'All',
     'category'      => 'All',
     'cron_fetch'    => false,
     'cron_fetch_limit' => '1',
@@ -158,40 +158,7 @@ function myarcade_get_fetch_options_gamemonetize() {
 	$defaults = myarcade_default_settings_gamemonetize();
 	$settings = wp_parse_args( $settings, $defaults );
 
-	$settings['method'] = 'latest';
-	$settings['offset'] = 1;
-
-	if ( 'start' === filter_input( INPUT_POST, 'fetch' ) ) {
-		$settings['limit']  = filter_input( INPUT_POST, 'limitgamemonetize', FILTER_VALIDATE_INT, array( 'options' => array( 'default' => 20 ) ) );
-		$settings['method'] = filter_input( INPUT_POST, 'fetchmethodgamemonetize', FILTER_UNSAFE_RAW, array( 'options' => array( 'default' => 'latest' ) ) );
-		$settings['offset'] = filter_input( INPUT_POST, 'offsetgamemonetize', FILTER_UNSAFE_RAW, array( 'options' => array( 'default' => '1' ) ) );
-	}
-
 	return $settings;
-}
-
-/**
- * Display distributor fetch games options.
- */
-function myarcade_fetch_settings_gamemonetize() {
-
-	$gamemonetize = myarcade_get_fetch_options_gamemonetize();
-	?>
-
-	<div class="myarcade_border white hide mabp_680" id="gamemonetize">
-		<div style="float:left;width:150px;">
-			<input type="radio" name="fetchmethodgamemonetize" value="latest" <?php myarcade_checked( $gamemonetize['method'], 'latest' );?>>
-		<label><?php _e( 'Latest Games', 'myarcadeplugin'); ?></label>
-		<br />
-		<input type="radio" name="fetchmethodgamemonetize" value="offset" <?php myarcade_checked( $gamemonetize['method'], 'offset' );?>>
-		<label><?php _e( 'Use Offset', 'myarcadeplugin' ); ?></label>
-		</div>
-		<div class="myarcade_border" style="float:left;padding-top: 5px;background-color: #F9F9F9">
-			<?php printf( esc_html__( 'Fetch %s games %sfrom page %s', 'myarcadeplugin' ), '<input type="number" name="limitgamemonetize" value="' . esc_attr( $gamemonetize['limit'] ) . '" />', '<span id="offsgamemonetize" class="hide">', '<input id="radiooffsgamemonetize" type="number" name="offsetgamemonetize" value="' . esc_attr( $gamemonetize['offset'] ) . '" /> </span>' ); ?>
-		</div>
-		<div class="clear"></div>
-	</div>
-	<?php
 }
 
 /**
@@ -265,8 +232,8 @@ function myarcade_feed_gamemonetize( $args = array() ) {
 
 	$settings['feed'] = add_query_arg(
 		array(
-			'format' => 0,
-			'num'    => $limit,
+			'format' => 'json',
+			'amount' => $limit,
 		),
 		trim( $settings['feed'] )
 	);
@@ -276,13 +243,15 @@ function myarcade_feed_gamemonetize( $args = array() ) {
 	}
 
 	if ( isset( $general['types'] ) && 'mobile' === $general['types'] ) {
-		$settings['feed'] = add_query_arg( array( 'platform' => '1' ), $settings['feed'] );
+		$type = 'mobile';
+	} else {
+		$type = 'html5';
   }
 
-	$settings['feed'] = add_query_arg( array( 'page' => $settings['offset'] ), $settings['feed'] );
+	$settings['feed'] = add_query_arg( array( 'type' => $type ), $settings['feed'] );
 
 	// Include required fetch functions.
-	require_once MYARCADE_CORE_DIR . '/fetch.php';
+	require_once MyArcade()->plugin_path() . '/core/fetch.php';
 
 	// Fetch games.
 	$json_games = myarcade_fetch_games(

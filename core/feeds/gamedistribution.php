@@ -19,9 +19,9 @@ function myarcade_save_settings_gamedistribution() {
   $settings['collection'] = filter_input( INPUT_POST, 'gamedistribution_collection' );
   $settings['type'] = filter_input( INPUT_POST, 'gamedistribution_type' );
   $settings['cron_fetch'] = filter_input( INPUT_POST, 'gamedistribution_cron_fetch', FILTER_VALIDATE_BOOLEAN );
-  $settings['cron_fetch_limit'] = filter_input( INPUT_POST, 'gamedistribution_cron_fetch_limit', FILTER_VALIDATE_INT, array( "options" => array( "default" => 1) ) );
+	$settings['cron_fetch_limit']   = filter_input( INPUT_POST, 'gamedistribution_cron_fetch_limit', FILTER_VALIDATE_INT, array( 'options' => array( 'default' => 1 ) ) );
   $settings['cron_publish'] = filter_input( INPUT_POST, 'gamedistribution_cron_publish', FILTER_VALIDATE_BOOLEAN );
-  $settings['cron_publish_limit'] = filter_input( INPUT_POST, 'gamedistribution_cron_publish_limit', FILTER_VALIDATE_INT, array( "options" => array( "default" => 1) ) );
+	$settings['cron_publish_limit'] = filter_input( INPUT_POST, 'gamedistribution_cron_publish_limit', FILTER_VALIDATE_INT, array( 'options' => array( 'default' => 1 ) ) );
 
 	// Update settings.
   update_option( 'myarcade_gamedistribution', $settings );
@@ -41,7 +41,7 @@ function myarcade_settings_gamedistribution() {
     $gamedistribution['feed'] = $default_settings['feed'];
   }
   ?>
-  <h2 class="trigger"><?php _e( "GameDistribution", 'myarcadeplugin'); ?></h2>
+	<h2 class="trigger"><?php _e( 'GameDistribution', 'myarcadeplugin' ); ?></h2>
   <div class="toggle_container">
     <div class="block">
       <table class="optiontable" width="100%" cellpadding="5" cellspacing="5">
@@ -53,12 +53,12 @@ function myarcade_settings_gamedistribution() {
             <br /><br />
           </td>
         </tr>
-        <tr><td colspan="2"><h3><?php _e("Feed URL", 'myarcadeplugin'); ?></h3></td></tr>
+				<tr><td colspan="2"><h3><?php _e( 'Feed URL', 'myarcadeplugin' ); ?></h3></td></tr>
         <tr>
           <td>
 						<input type="text" size="40"  name="gamedistribution_url" value="<?php echo esc_url( $gamedistribution['feed'] ); ?>" />
           </td>
-          <td><i><?php _e("Edit this field only if Feed URL has been changed!", 'myarcadeplugin'); ?></i></td>
+					<td><i><?php _e( 'Edit this field only if Feed URL has been changed!', 'myarcadeplugin' ); ?></i></td>
         </tr>
 
         <tr><td colspan="2"><h3><?php _e("Collection", 'myarcadeplugin'); ?></h3></td></tr>
@@ -190,7 +190,7 @@ function myarcade_get_fetch_options_gamedistribution() {
   $settings['method'] = 'latest';
   $settings['offset'] = 1;
 
-  if ( 'start' == filter_input( INPUT_POST, 'fetch' ) ) {
+	if ( 'start' === filter_input( INPUT_POST, 'fetch' ) ) {
     $settings['limit']   = filter_input( INPUT_POST, 'limitgamedistribution', FILTER_VALIDATE_INT, array( "options" => array( "default" => 40 ) ) );
     $settings['method']  = filter_input( INPUT_POST, 'fetchmethodgamedistribution', FILTER_UNSAFE_RAW, array( "options" => array( "default" => 'latest') ) );
     $settings['offset']  = filter_input( INPUT_POST, 'offsetgamedistribution', FILTER_UNSAFE_RAW, array( "options" => array( "default" => '1') ) );
@@ -232,25 +232,25 @@ function myarcade_fetch_settings_gamedistribution() {
  */
 function myarcade_get_categories_gamedistribution() {
   return array(
-    "Action"      => true,
-    "Adventure"   => true,
-    "Arcade"      => true,
-		"Board Game"  => "Clicker",
-    "Casino"      => false,
-		"Defense"     => false,
-		"Customize"   => false,
-		"Dress-Up"    => "Girls",
-		"Driving"     => "Racing",
-		"Education"   => "Boys,Baby",
-    "Fighting"    => false,
-    "Jigsaw"      => false,
-    "Multiplayer" => "2 Player,Multiplayer",
-		"Other"       => "3D,Cooking,Farming,Social,Hypercasual,Stickman",
-		"Puzzles"     => "Puzzle,Bejeweled",
-		"Rhythm"      => false,
-		"Shooting"    => "Shooting",
-		"Sports"      => "Soccer,Sports",
-		"Strategy"    => "Clicker",
+		'Action'      => true,
+		'Adventure'   => true,
+		'Arcade'      => true,
+		'Board Game'  => 'Clicker',
+		'Casino'      => false,
+		'Defense'     => false,
+		'Customize'   => false,
+		'Dress-Up'    => 'Girls',
+		'Driving'     => 'Racing',
+		'Education'   => 'Boys,Baby',
+		'Fighting'    => false,
+		'Jigsaw'      => false,
+		'Multiplayer' => '2 Player,Multiplayer',
+		'Other'       => '3D,Cooking,Farming,Social,Hypercasual,Stickman',
+		'Puzzles'     => 'Puzzle,Bejeweled',
+		'Rhythm'      => false,
+		'Shooting'    => 'Shooting',
+		'Sports'      => 'Soccer,Sports',
+		'Strategy'    => 'Clicker',
   );
 }
 
@@ -294,8 +294,8 @@ function myarcade_feed_gamedistribution( $args = array() ) {
 			'format'     => 'json',
 			'collection' => $settings['collection'],
 			'subType'    => 'All',
-			'mobile'     => 1,
-			'rewarded'   => 'all'
+			'mobile'     => 'All',
+			'rewarded'   => 'All',
 		),
 		trim( $settings['feed'] )
 	);
@@ -311,26 +311,26 @@ function myarcade_feed_gamedistribution( $args = array() ) {
 		$feed = add_query_arg( array( 'categories' => rawurlencode( $settings['category'] ) ), $feed );
   }
 
-  if ( isset( $general['types'] ) && 'mobile' == $general['types'] ) {
+	if ( isset( $general['types'] ) && 'mobile' === $general['types'] ) {
 		$feed = add_query_arg( array( 'type'  => 'html5' ), $feed );
 	} else {
 		$feed = add_query_arg( array( 'type'  => 'all' ), $feed );
   }
 
 	// Include required fetch functions.
-	require_once MYARCADE_CORE_DIR . '/fetch.php';
+	require_once MyArcade()->plugin_path() . '/core/fetch.php';
 
 	// Fetch games.
   $json_games = myarcade_fetch_games( array( 'url' => trim( $feed ), 'service' => 'json', 'echo' => $echo ) );
 
-  //====================================
+	// ====================================.
   if ( !empty($json_games ) ) {
     foreach ( $json_games as $game_obj ) {
 
       $game = new stdClass();
 			$game->uuid = crc32( $game_obj->Title ) . '_gamedistribution';
 
-      // Generate a game tag for this game
+			// Generate a game tag for this game.
 			$game->game_tag = md5( $game_obj->Title . 'gamedistribution' );
 
       $add_game   = false;
@@ -383,7 +383,7 @@ function myarcade_feed_gamedistribution( $args = array() ) {
 
 			// Get the thumbnail.
 			if ( is_array( $game_obj->Asset ) ) {
-				// Look for the thumbnail 512x512px
+				// Look for the thumbnail 512x512px.
 				$thumbnail_array = preg_grep( '/.*(-512x512).*/', $game_obj->Asset );
 
 				if ( $thumbnail_array ) {

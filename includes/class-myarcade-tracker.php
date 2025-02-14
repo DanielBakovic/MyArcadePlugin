@@ -56,7 +56,9 @@ class MyArcade_Tracker {
 
     $params = self::get_tracking_data();
 
-    wp_safe_remote_post( MYARCADE_UPDATE_API . 'stats/', array(
+		wp_safe_remote_post(
+			MyArcade()->get_api_url() . 'stats/',
+			array(
         'method'      => 'POST',
         'timeout'     => 45,
         'blocking'    => false,
